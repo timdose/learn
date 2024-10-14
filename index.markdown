@@ -5,5 +5,7 @@
 layout: home
 ---
 
+## Workshops
+
 [Shading workshop signup](shading-workshop/signup/)
 
