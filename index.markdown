@@ -7,7 +7,7 @@ layout: home
 
 ## Workshops
 
-[Shading workshop signup](shading-workshop/signup/)
+[Shading workshop signup](workshops/shading/signup/)
 
 ## Resources
 [Form direction training](https://learning.timdoseart.com/form-direction-training/)
