@@ -5,11 +5,5 @@
 layout: home
 ---
 
-Hey there!
-
-I'm a software engineer and I'm currently working on a new project.
-
-I'll update this page with more information as I get things ready.
-
-Cheers!
+[Shading workshop signup](shading-workshop/signup/)
 
