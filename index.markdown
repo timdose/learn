@@ -11,3 +11,6 @@ layout: home
 
 ## Resources
 [Form direction training](https://learning.timdoseart.com/form-direction-training/)
+
+
+<span style="color: #ddd;font-size: 12px;">v1</span>
