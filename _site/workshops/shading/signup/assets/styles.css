@@ -180,7 +180,7 @@ html,
 			width: calc(100vw - 50rem);
 			z-index: 0;
 			right: 0;
-			background-image: url('assets/images/bg.jpg?v=c8db0e30');
+			background-image: url('images/bg.jpg?v=c8db0e30');
 			background-position: center;
 			background-repeat: no-repeat;
 			background-size: cover;
