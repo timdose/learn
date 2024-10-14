@@ -9,3 +9,5 @@ layout: home
 
 [Shading workshop signup](shading-workshop/signup/)
 
+## Resources
+[Form direction training](https://learning.timdoseart.com/form-direction-training/)
