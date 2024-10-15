@@ -23,7 +23,7 @@ email: tim@timdoseart.com
 description: >- # this means to ignore newlines until "baseurl:"
   Classes and resources for students of Tim Dosé's art classes.
 baseurl: "" # the subpath of your site, e.g. /blog
-url: "" # the base hostname & protocol for your site, e.g. http://example.com
+url: "https://learn.timdoseart.com" # the base hostname & protocol for your site, e.g. http://example.com
 
 # Build settings
 theme: minima
