@@ -1,3 +1,10 @@
-{% include pricing.html price-variant="full" visible=false %}
-{% include pricing.html price-variant="discount1" discount="20" visible=false %}
-{% include pricing.html price-variant="discount2" discount="40" visible=true %}
+<div class="sliding-scale-buttons">
+    <button class="sliding-scale-button" data-variant="full" data-discount="0">Full price</button>
+    <button class="sliding-scale-button" data-variant="discount1" data-discount="20">20% off</button>
+    <button class="sliding-scale-button" data-variant="discount2" data-discount="40">40% off</button>
+</div>
+<div class="pricing-matrix">
+    {% include pricing.html price-variant="full" visible=false %}
+    {% include pricing.html price-variant="discount1" discount="20" visible=false %}
+    {% include pricing.html price-variant="discount2" discount="40" visible=true %}
+</div>

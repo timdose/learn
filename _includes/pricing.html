@@ -3,7 +3,7 @@
 {% else %}
     {% assign final_price = page.prices.live %}
 {% endif %}
-<div class="container-pricing {% if include.visible == false %}hidden{% endif %}">
+<div class="container-pricing container-pricing-{{include.price-variant}} {% if include.visible == false %}hidden{% endif %}">
     <div class="pricing-option">
         <div class="pricing-option container columns">
             <div class="wrapper">

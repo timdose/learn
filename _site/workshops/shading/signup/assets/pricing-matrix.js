@@ -1,0 +1,21 @@
+// Assuming you have buttons with class 'sliding-scale-button' and pricing matrix variants with a common class 'pricing-matrix'
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.sliding-scale-button').forEach(button => {
+        button.addEventListener('click', function() {
+            // Get the data attribute that corresponds to the pricing matrix variant
+            const variantClass = 'container-pricing-' + this.getAttribute('data-variant');
+            console.log(variantClass);
+
+            // Hide all pricing matrix variants
+            document.querySelectorAll('.container-pricing').forEach(matrix => {
+                matrix.classList.add('hidden');
+            });
+
+            // Show the corresponding pricing matrix variant by class
+            const activeMatrix = document.querySelector(`.${variantClass}`);
+            if (activeMatrix) {
+                activeMatrix.classList.remove('hidden');
+            }
+        });
+    });
+});
