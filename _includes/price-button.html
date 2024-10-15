@@ -1,0 +1,15 @@
+{% if include.discount %}
+    {% assign final_price = include.price | times: include.discount | divided_by: 100 | times: -1 | plus: include.price %}
+{% else %}
+    {% assign final_price = include.price %}
+{% endif %}
+
+{% if include.discount %}
+    <h1 id="text09" class="style7">
+        <div class="discounted-price">${{final_price}}</div>
+        <div class="original-price">${{include.price}}</div>
+    </h1>
+{% else %}
+    <h1 id="text09" class="style7">${{final_price}}</h1>
+{% endif %}
+{% include paypal-button.html price=final_price item_name=include.item_name %}

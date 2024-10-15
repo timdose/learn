@@ -3507,3 +3507,8 @@ hr:before {
 .hidden {
 	display: none;
 }
+
+.original-price {
+	text-decoration: line-through;
+	color: #999;
+}

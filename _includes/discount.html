@@ -1,0 +1,5 @@
+<div class="discounted-price">
+    <span class="discounted-price">${{ include.price | times: include.discount | divided_by: 100 | times: -1 | plus: include.price }}</span>
+    <div class="default-price">${{ include.price }}</div>
+</div>
+

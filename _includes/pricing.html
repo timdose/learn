@@ -1,3 +1,8 @@
+{% if include.discount %}
+    {% assign final_price = page.prices.live | times: include.discount | divided_by: 100 | times: -1 | plus: page.prices.live %}
+{% else %}
+    {% assign final_price = page.prices.live %}
+{% endif %}
 <div class="container-pricing {% if include.visible == false %}hidden{% endif %}">
     <div class="pricing-option">
         <div class="pricing-option container columns">
@@ -26,8 +31,7 @@
                         </div>
                     </div>
                     <div>
-                        <h1 id="text09" class="style7">${{page.prices.live}}</h1>
-                        {% include paypal-button.html price=page.prices.live item_name="Live Online Workshop" %}
+                        {% include price-button.html price=page.prices.live discount=include.discount item_name="Live Online Workshop" %}
                     </div>
                 </div>
             </div>
@@ -49,8 +53,7 @@
                         </div>
                     </div>
                     <div>
-                        <h1 id="text14" class="style7">${{page.prices.recordings}}</h1>
-                        {% include paypal-button.html price=page.prices.recordings item_name="Recordings Only" %}
+                        {% include price-button.html price=page.prices.recordings discount=include.discount item_name="Recordings Only" %}
                     </div>
                 </div>
             </div>
@@ -75,8 +78,7 @@
                         </div>
                     </div>
                     <div>
-                        <h1 id="text16" class="style7">${{page.prices.addon}}</h1>
-                        {% include paypal-button.html price=page.prices.addon item_name="Video critique add-on" %}
+                        {% include price-button.html price=page.prices.addon discount=include.discount item_name="Video critique add-on" %}
                     </div>
                 </div>
             </div>
