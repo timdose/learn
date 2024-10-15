@@ -1,4 +1,4 @@
-<div class="container-pricing">
+<div class="container-pricing {% if include.visible == false %}hidden{% endif %}">
     <div class="pricing-option">
         <div class="pricing-option container columns">
             <div class="wrapper">
@@ -26,8 +26,8 @@
                         </div>
                     </div>
                     <div>
-                        <h1 id="text09" class="style7">$250</h1>
-                        {% include paypal-button.html price="250" item_name="Live Online Workshop" %}
+                        <h1 id="text09" class="style7">${{page.prices.live}}</h1>
+                        {% include paypal-button.html price=page.prices.live item_name="Live Online Workshop" %}
                     </div>
                 </div>
             </div>
@@ -49,8 +49,8 @@
                         </div>
                     </div>
                     <div>
-                        <h1 id="text14" class="style7">$175</h1>
-                        {% include paypal-button.html price="175" item_name="Recordings Only" %}
+                        <h1 id="text14" class="style7">${{page.prices.recordings}}</h1>
+                        {% include paypal-button.html price=page.prices.recordings item_name="Recordings Only" %}
                     </div>
                 </div>
             </div>
@@ -75,8 +75,8 @@
                         </div>
                     </div>
                     <div>
-                        <h1 id="text16" class="style7">$100</h1>
-                        {% include paypal-button.html price="100" item_name="Video critique add-on" %}
+                        <h1 id="text16" class="style7">${{page.prices.addon}}</h1>
+                        {% include paypal-button.html price=page.prices.addon item_name="Video critique add-on" %}
                     </div>
                 </div>
             </div>

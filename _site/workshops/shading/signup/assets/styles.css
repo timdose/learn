@@ -3503,3 +3503,7 @@ hr:before {
 		gap: 0.375rem;
 	}
 }
+
+.hidden {
+	display: none;
+}
