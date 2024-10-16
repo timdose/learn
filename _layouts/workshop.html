@@ -184,54 +184,9 @@
 		<div class="nav next"></div>
 		<div class="close"></div>
 	</div>
-	<!-- Popup Modal -->
-	<div id="discountPopup" class="modal">
-		<div class="modal-content">
-			<div class="close">
-				<span>&times;</span>
-			</div>
-			<h1>Sliding scale pricing</h1>
-			<div class="discount-options">
-				<div class="discount-option">
-					<h2>If this is true for me:</h2>
-					<ul>
-						<li>I'm generally comfortable and meet all of my needs.</li>
-						<li>I can easily make my mortgage or rent payments.</li>
-						<li>I'm healthy and don't have major medical bills.</li>
-						<li>I have savings and extra money to spend on art.</li>
-						<li>I live in a wealthy country.</li>
-					</ul>
-					<strong>I can pay&nbsp;</strong>
-					<button class="discount-option-button outline" data-variant="full">Full price</button>
-				</div>
-				<div class="discount-option" data-variant="discount1">
-					<h2>If this is true for me:</h2>
-					<ul>
-						<li>I usually meet my needs but sometimes have to worry about them.</li>
-						<li>I can make my mortgage or rent payments but have to be careful with other expenses.</li>
-						<li>I have some medical bills and need to save money for emergencies.</li>
-						<li>I have some debt that limits my ability to save.</li>
-					</ul>
-					<strong>I can get a&nbsp;</strong>
-					<button class="discount-option-button outline" data-variant="discount1">20% discount</button>
-				</div>
-				<div class="discount-option" data-variant="discount2">
-					<h2>If this is true for me:</h2>
-					<ul class="list">
-						<li>I sometimes struggle to meet my basic needs.</li>
-						<li>I sometimes have trouble making my mortgage or rent payments.</li>
-						<li>I have major medical bills and need help with them.</li>
-						<li>I have a lot of debt and can't save any money.</li>
-						<li>I live in a country with low income.</li>
-					</ul>
-					<strong>I can get a&nbsp;</strong>
-					<button class="discount-option-button outline" data-variant="discount2">40% discount</button>
-				</div>
-			</div>
-		</div>
-	</div>
+	{% include sliding-scale-popup.html %}
 	<script src="./assets/pricing-matrix.js"></script>
-	<script src="./assets/discount-popup.js"></script>
+	
 </body>
 
 </html>
