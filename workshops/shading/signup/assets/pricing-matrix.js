@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
         button.addEventListener('click', function() {
             // Get the data attribute that corresponds to the pricing matrix variant
             const variantClass = 'container-pricing-' + this.getAttribute('data-variant');
-            console.log(variantClass);
+            console.log('Selected variant class:', variantClass);
 
             // Hide all pricing matrix variants
             document.querySelectorAll('.container-pricing').forEach(matrix => {
@@ -12,9 +12,15 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
             // Show the corresponding pricing matrix variant by class
-            const activeMatrix = document.querySelector(`.${variantClass}`);
-            if (activeMatrix) {
-                activeMatrix.classList.remove('hidden');
+            const activeMatrix = document.querySelectorAll(`.${variantClass}`);
+            console.log('Active matrices:', activeMatrix); // Debugging line
+
+            if (activeMatrix.length > 0) {
+                activeMatrix.forEach(matrix => {
+                    matrix.classList.remove('hidden');
+                });
+            } else {
+                console.warn('No active matrix found for class:', variantClass);
             }
         });
     });
