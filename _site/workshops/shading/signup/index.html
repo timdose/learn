@@ -109,14 +109,25 @@
 					blending or smudging.</p>
 				<hr id="divider01">
 				<p id="text18" class="style2">Sign up now</p>
-				<div class="discount-section">
-    <p>Sliding scale available</p>
-    <button class="openPopup outline medium">Check for discounts</button>
+				<div class="discount-sections">
+    <div class="discount-section show-if-full">
+        <p>Sliding scale available</p>
+        <button class="openPopup outline medium">Check for discounts</button>
+    </div>
+    <div class="discount-section show-if-discount1 hidden">
+        <p>Sliding scale discount: <strong>25% off</strong></p>
+        <button class="openPopup outline medium">Change</button>
+    </div>
+    <div class="discount-section show-if-discount2 hidden">
+        <p>Sliding scale discount: <strong>50% off</strong></p>
+        <button class="openPopup outline medium">Change</button>
+    </div>
 </div>
+
 
 <div class="pricing-matrix">
     
-<div class="container-pricing container-pricing-full ">
+<div class="container-pricing show-if-full ">
     <div class="pricing-option">
         <div class="pricing-option container columns">
             <div class="wrapper">
@@ -271,7 +282,7 @@
     </div>
 </div>
     
-<div class="container-pricing container-pricing-discount1 hidden">
+<div class="container-pricing show-if-discount1 hidden">
     <div class="pricing-option">
         <div class="pricing-option container columns">
             <div class="wrapper">
@@ -435,7 +446,7 @@
     </div>
 </div>
     
-<div class="container-pricing container-pricing-discount2 hidden">
+<div class="container-pricing show-if-discount2 hidden">
     <div class="pricing-option">
         <div class="pricing-option container columns">
             <div class="wrapper">
@@ -653,14 +664,25 @@
 				</div>
 				<hr id="divider02">
 				<p id="text11" class="style2">Sign up now</p>
-				<div class="discount-section">
-    <p>Sliding scale available</p>
-    <button class="openPopup outline medium">Check for discounts</button>
+				<div class="discount-sections">
+    <div class="discount-section show-if-full">
+        <p>Sliding scale available</p>
+        <button class="openPopup outline medium">Check for discounts</button>
+    </div>
+    <div class="discount-section show-if-discount1 hidden">
+        <p>Sliding scale discount: <strong>25% off</strong></p>
+        <button class="openPopup outline medium">Change</button>
+    </div>
+    <div class="discount-section show-if-discount2 hidden">
+        <p>Sliding scale discount: <strong>50% off</strong></p>
+        <button class="openPopup outline medium">Change</button>
+    </div>
 </div>
+
 
 <div class="pricing-matrix">
     
-<div class="container-pricing container-pricing-full ">
+<div class="container-pricing show-if-full ">
     <div class="pricing-option">
         <div class="pricing-option container columns">
             <div class="wrapper">
@@ -815,7 +837,7 @@
     </div>
 </div>
     
-<div class="container-pricing container-pricing-discount1 hidden">
+<div class="container-pricing show-if-discount1 hidden">
     <div class="pricing-option">
         <div class="pricing-option container columns">
             <div class="wrapper">
@@ -979,7 +1001,7 @@
     </div>
 </div>
     
-<div class="container-pricing container-pricing-discount2 hidden">
+<div class="container-pricing show-if-discount2 hidden">
     <div class="pricing-option">
         <div class="pricing-option container columns">
             <div class="wrapper">
@@ -1218,8 +1240,6 @@
     </div>
 </div>
 <script src="./assets/sliding-scale-popup.js"></script>
-	<script src="./assets/pricing-matrix.js"></script>
-	
 </body>
 
 </html>

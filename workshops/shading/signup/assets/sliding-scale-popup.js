@@ -30,10 +30,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Handle discount selection
     discountOptionButtons.forEach(button => {
         button.addEventListener('click', function() {
-            const variantClass = 'container-pricing-' + this.getAttribute('data-variant');
+            const variantClass = 'show-if-' + this.getAttribute('data-variant');
             
             // Hide all pricing matrix variants
-            document.querySelectorAll('.container-pricing').forEach(matrix => {
+            document.querySelectorAll('.container-pricing, .discount-section').forEach(matrix => {
                 matrix.classList.add('hidden');
             });
 
