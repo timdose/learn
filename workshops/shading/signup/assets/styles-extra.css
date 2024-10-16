@@ -69,6 +69,11 @@ button.medium, .button.medium {
     /* padding-top: 60px; */
 }
 
+.modal .modal-title {
+    margin-bottom: 20px;
+    font-size: 48px;
+}
+
 .modal-content {
     background-color: #fefefe;
     margin: 5% auto;
@@ -109,39 +114,39 @@ button.medium, .button.medium {
 
 #discountPopup li {
     margin-bottom: 0.25em;
-    margin-left: 1.2em;
+    margin-left: 18px;
+    padding-left: 4px;
     list-style-type: disc;
 }
 
 #discountPopup h2 {
-    font-size: 1.5em;
+    margin: 10px 0 20px;
+    font-size: 36px;
 }
 
-#discountPopup h3 {
-    font-size: 1.25em;
-}
 
+.discount-popup-intro {
+    font-size: 24px;
+}
 
 .discount-option {
-    padding: 1em;
-    border-bottom: 1px solid #ccc;
-    margin-bottom: 2em;
-    border-bottom: 1px solid #ccc;
+    padding: 20px;
+    background-color: #EBEBEB;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
-.discount-option:last-child {
-    border-bottom: none;
+.discount-option-button-container {
+    border-top: 1px solid #ccc;
+    padding-top: 18px;
 }
 
 .discount-options {
     flex-direction: row;
-}
-
-.discount-option {
-    flex: 1;
-    padding-right: 2em;
-    border-bottom: none;
-    border-right: 1px solid #ccc;
+    gap: 20px;
+    font-size: 20px;
 }
 
 .discount-section {
@@ -162,10 +167,6 @@ button.medium, .button.medium {
     font-weight: 500;
 }
 
-.discount-option:last-child {
-    border-right: none;
-}
-
 .paypal-powered-by {
     margin-top: .4em;
     font-size: 12px;
@@ -175,26 +176,32 @@ button.medium, .button.medium {
     button, .button {
         font-size: 16px;
     }
+
+    .modal .modal-title {
+        margin-bottom: 20px;
+        font-size: 36px;
+    }
     
     .modal-content {
         padding: 20px;
     }
   
-    #discountPopup {
-        font-size: 1.5em;
+    .discount-popup-intro {
+        font-size: 20px;
     }
 
+    #discountPopup h2 {
+        margin: 10px 0 20px;
+        font-size: 24px;
+    }
+    
     .discount-options {
-        gap: 0;
         flex-direction: column;
     }
 
     .discount-option {
-        padding-bottom: 30px;
-        padding-left: 0;
+        padding: 20px;
         width: 100%;
-        border-right: none;
-        border-bottom: 1px solid #ccc;
     }
 
     .discount-section {
