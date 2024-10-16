@@ -1011,10 +1011,11 @@ hr:before {
 	--indent-right: 0;
 	--margin-left: 0;
 	--margin-right: auto;
+	gap: 4px;
 }
 
 .pricing-option:not(:last-child) {
-	margin-bottom: 0.5rem !important;
+	margin-bottom: 4px;
 }
 
 .pricing-option>.wrapper {

@@ -5,18 +5,18 @@ body {
 h1, h2, h3, h4, h5, h6 {
 	font-family: 'Spectral', serif;
 	line-height: 1;
-    margin-bottom: 0.5em;
+    margin-bottom: 8px; /* 0.5em */
 }
 
 ul {
-    margin-bottom: .8em;
+    margin-bottom: 12.8px; /* .8em */
 }
 
 button, .button {
     background-color: #AD2A71;
     color: #fff;
-    padding: .4em .8em;
-    border-radius: .25em;
+    padding: 6.4px 12.8px; /* .4em .8em */
+    border-radius: 4px; /* .25em */
     border: none;
     cursor: pointer;
     font-family: 'Spectral', serif;
@@ -43,12 +43,12 @@ button.outline:hover, .button.outline:hover {
 }
 
 button.medium, .button.medium {
-    padding: .6em 1em;
+    padding: 9.6px 16px; /* .6em 1em */
     font-size: 16px;
 }
 
 button.large, .button.large {
-    padding: .8em 1.2em;
+    padding: 12.8px 19.2px; /* .8em 1.2em */
     font-size: 18px;
 }
 
@@ -61,6 +61,10 @@ button.large, .button.large {
 	color: #999;
 }
 
+#main .pricing-matrix {
+    margin-top: 4px;
+}
+
 .modal {
     display: none;
     position: fixed;
@@ -71,7 +75,6 @@ button.large, .button.large {
     height: 100%;
     overflow: auto;
     background-color: rgba(0,0,0,0.6);
-    /* padding-top: 60px; */
 }
 
 .modal .modal-title {
@@ -107,18 +110,18 @@ button.large, .button.large {
     display: flex;  
     flex-direction: row;
     flex-wrap: wrap;
-    gap: 2em;
+    gap: 32px; /* 2em */
 }
 
 
 #discountPopup {
     font-family: 'Spectral', serif;
-    letter-spacing: -0.05rem;
+    letter-spacing: -0.8px; /* -0.05rem */
     line-height: 1.5;
 }
 
 #discountPopup li {
-    margin-bottom: 0.25em;
+    margin-bottom: 4px; /* 0.25em */
     margin-left: 18px;
     padding-left: 4px;
     list-style-type: disc;
@@ -154,15 +157,14 @@ button.large, .button.large {
     font-size: 20px;
 }
 
-.discount-section {
+#main div.discount-section {
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    padding: 1em 1.5em;
-    /* border: 1px solid #d695b8; */
-    border-radius: 0.5em;
+    padding: 16px 24px; /* 1em 1.5em */
     background-color: #f6e8f2;
+    margin-bottom: 4px; /* 0.4em */
 }
 
 .discount-section p {
@@ -209,10 +211,10 @@ button.large, .button.large {
         width: 100%;
     }
 
-    .discount-section {
+    #main div.discount-section {
         flex-direction: column;
-        gap: 0.75em;
-        padding-top: 1.5em;
+        gap: 12px; /* 0.75em */
+        padding-top: 24px; /* 1.5em */
         align-items: flex-start;
     }
 }
