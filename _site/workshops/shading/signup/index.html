@@ -1106,17 +1106,23 @@
 		<div class="modal-content">
 			<span class="close">&times;</span>
 			<h2>Select Your Discount</h2>
-			<ul>
-				<li>
-					<button class="discount-option" data-variant="full">No Discount</button>
-				</li>
-				<li>
-					<button class="discount-option" data-variant="discount1">20% Discount</button>
-				</li>
-				<li>
-					<button class="discount-option" data-variant="discount2">40% Discount</button>
-				</li>
-			</ul>
+			<div class="discount-options">
+				<div class="discount-option">
+					<h3>Full price</h3>
+					<p>Full price</p>
+					<button class="discount-option-button" data-variant="full">Select</button>
+				</div>
+				<div class="discount-option" data-variant="discount1">
+					<h3>20% Discount</h3>
+					<p>20% off</p>
+					<button class="discount-option-button" data-variant="discount1">Select</button>
+				</div>
+				<div class="discount-option" data-variant="discount2">
+					<h3>40% Discount</h3>
+					<p>40% off</p>
+					<button class="discount-option-button" data-variant="discount2">Select</button>
+				</div>
+			</div>
 		</div>
 	</div>
 	<script src="./assets/pricing-matrix.js"></script>

@@ -2,8 +2,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const modal = document.getElementById('discountPopup');
     const openButtons = document.querySelectorAll('.openPopup'); // Use a class for all buttons
     const closeBtn = document.querySelector('.close');
-    const discountOptions = document.querySelectorAll('.discount-option');
-
+    const discountOptionButtons = document.querySelectorAll('.discount-option-button');
     // Open the modal for each button
     openButtons.forEach(button => {
         button.addEventListener('click', function() {
@@ -24,7 +23,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Handle discount selection
-    discountOptions.forEach(option => {
+    discountOptionButtons.forEach(option => {
         option.addEventListener('click', function() {
             const variantClass = 'container-pricing-' + this.getAttribute('data-variant');
             console.log('Selected variant class:', variantClass);
