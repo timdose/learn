@@ -7,5 +7,7 @@ prices:
   addon: 100
 discount1: 25
 discount2: 50
+title: "Intro to blocking in"
+description: "Learn simple skills to get accurate proportions and perspective easily"
 background-image: "images/bg-block-in.jpg"
 ---
