@@ -28,6 +28,11 @@
 	<link href="{{ site.workshop-asset-folder }}css2.css" rel="stylesheet" type="text/css">
 	<link href="{{ site.workshop-asset-folder }}styles.css" rel="stylesheet" type="text/css">
 	<link href="{{ site.workshop-asset-folder }}styles-extra.css" rel="stylesheet" type="text/css">
+	<style>
+			body:before {
+				background-image: url('{{ site.workshop-asset-folder }}{{ page.background-image }}');
+			}
+	</style>
 	<script async="" crossorigin="anonymous" src="{{ site.workshop-asset-folder }}js/fs.js"></script>
     <script>
 		window['_fs_host'] = 'fullstory.com';
@@ -75,7 +80,7 @@
 			}), g._v = "2.0.0")
 		}(window, document, window._fs_namespace, "script", window._fs_script);
 	</script>
-    </style><noscript></noscript>
+    <noscript>
 		<style>
 			body {
 				overflow: auto !important;
