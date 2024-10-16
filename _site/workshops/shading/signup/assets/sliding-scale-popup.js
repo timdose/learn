@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Simulate click on the first .openPopup button
-    if (openButtons.length > 0) {
-        openButtons[0].click();
-    }
+    // if (openButtons.length > 0) {
+    //     openButtons[0].click();
+    // }
 });
