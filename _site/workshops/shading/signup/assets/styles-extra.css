@@ -1,3 +1,7 @@
+body {
+    font-family: 'Spectral', serif;
+}
+
 h1, h2, h3, h4, h5, h6 {
 	font-family: 'Spectral', serif;
 	letter-spacing: 0.05rem;
@@ -39,7 +43,7 @@ button.outline:hover, .button.outline:hover {
     color: #fff;
 }
 
-button.button-medium, .button.button-medium {
+button.medium, .button.medium {
     padding: .6em 1em;
     font-size: 1.2em;
 }
@@ -62,7 +66,6 @@ button.button-medium, .button.button-medium {
     width: 100%;
     height: 100%;
     overflow: auto;
-    background-color: rgb(0,0,0);
     background-color: rgba(0,0,0,0.6);
     /* padding-top: 60px; */
 }
@@ -148,9 +151,9 @@ button.button-medium, .button.button-medium {
     align-items: center;
     justify-content: space-between;
     padding: 1em 1.5em;
-    border: 1px solid #d695b8;
+    /* border: 1px solid #d695b8; */
     border-radius: 0.5em;
-    background-color: #fdf6fb;
+    background-color: #f6e8f2;
 }
 
 .discount-section p {
@@ -190,5 +193,6 @@ button.button-medium, .button.button-medium {
     .discount-section {
         flex-direction: column;
         gap: 0.75em;
+        padding-top: 1.5em;
     }
 }
