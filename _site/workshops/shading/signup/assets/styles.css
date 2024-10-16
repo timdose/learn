@@ -2452,7 +2452,7 @@ hr:before {
 	p.style2 {
 		letter-spacing: -0.109375rem;
 		width: 100%;
-		font-size: 2.375em;
+		font-size: 32px;
 		line-height: 1.5;
 	}
 
@@ -2773,6 +2773,7 @@ hr:before {
 	.pricing-option>.wrapper>.inner> :nth-child(1) {
 		min-height: 100% !important;
 		width: 100% !important;
+		padding-bottom: 0 !important;
 	}
 
 	.pricing-option>.wrapper>.inner> :nth-child(2) {
@@ -2784,6 +2785,7 @@ hr:before {
 		--margin-right: auto;
 		min-height: 100% !important;
 		width: 100% !important;
+		padding-top: 0 !important;
 	}
 
 	#container03:not(:first-child) {

@@ -221,4 +221,8 @@ button.large, .button.large {
         padding-top: 24px; /* 1.5em */
         align-items: flex-start;
     }
+
+    .pricing-option h1 {
+        font-size: 26px;
+    }
 }
