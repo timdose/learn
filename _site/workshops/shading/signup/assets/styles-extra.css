@@ -21,7 +21,7 @@ button, .button {
     border: none;
     cursor: pointer;
     font-family: 'Spectral', serif;
-    font-size: 1em;
+    font-size: 16px;
 }
 
 button:active, .button:active{
@@ -45,7 +45,7 @@ button.outline:hover, .button.outline:hover {
 
 button.medium, .button.medium {
     padding: .6em 1em;
-    font-size: 1em;
+    font-size: 16px;
 }
 
 .hidden {
@@ -159,7 +159,7 @@ button.medium, .button.medium {
 .discount-section p {
     margin: 0;
     color: #AD2A71;
-    font-size: 1.2em;
+    font-size: 24px;
     font-weight: 600;
 }
 
@@ -167,9 +167,22 @@ button.medium, .button.medium {
     border-right: none;
 }
 
+.paypal-powered-by {
+    margin-top: .4em;
+    font-size: 12px;
+}
+
 @media (max-width: 980px) {
+    button, .button {
+        font-size: 16px;
+    }
+    
     .modal-content {
         padding: 20px;
+    }
+
+    .discount-section p {
+        font-size: 20px;
     }
 
   
