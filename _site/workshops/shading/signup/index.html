@@ -108,11 +108,8 @@
 					blending or smudging.</p>
 				<hr id="divider01">
 				<p id="text18" class="style2">Sign up now</p>
-				<div class="sliding-scale-buttons">
-    <button class="sliding-scale-button" data-variant="full" data-discount="0">Full price</button>
-    <button class="sliding-scale-button" data-variant="discount1" data-discount="20">20% off</button>
-    <button class="sliding-scale-button" data-variant="discount2" data-discount="40">40% off</button>
-</div>
+				<button class="openPopup">Select Discount</button>
+
 <div class="pricing-matrix">
     
 <div class="container-pricing container-pricing-full hidden">
@@ -625,11 +622,8 @@
 				</div>
 				<hr id="divider02">
 				<p id="text11" class="style2">Sign up now</p>
-				<div class="sliding-scale-buttons">
-    <button class="sliding-scale-button" data-variant="full" data-discount="0">Full price</button>
-    <button class="sliding-scale-button" data-variant="discount1" data-discount="20">20% off</button>
-    <button class="sliding-scale-button" data-variant="discount2" data-discount="40">40% off</button>
-</div>
+				<button class="openPopup">Select Discount</button>
+
 <div class="pricing-matrix">
     
 <div class="container-pricing container-pricing-full hidden">
@@ -1107,7 +1101,26 @@
 		<div class="nav next"></div>
 		<div class="close"></div>
 	</div>
+	<!-- Popup Modal -->
+	<div id="discountPopup" class="modal hidden">
+		<div class="modal-content">
+			<span class="close">&times;</span>
+			<h2>Select Your Discount</h2>
+			<ul>
+				<li>
+					<button class="discount-option" data-variant="full">No Discount</button>
+				</li>
+				<li>
+					<button class="discount-option" data-variant="discount1">20% Discount</button>
+				</li>
+				<li>
+					<button class="discount-option" data-variant="discount2">40% Discount</button>
+				</li>
+			</ul>
+		</div>
+	</div>
 	<script src="./assets/pricing-matrix.js"></script>
+	<script src="./assets/discount-popup.js"></script>
 </body>
 
 </html>
