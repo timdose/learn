@@ -49,4 +49,8 @@ document.addEventListener('DOMContentLoaded', function() {
             modal.style.display = 'none';
         });
     });
+
+    if (openButtons.length > 0) {
+        openButtons[0].click();
+    }
 });
