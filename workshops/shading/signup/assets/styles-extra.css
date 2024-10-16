@@ -45,7 +45,7 @@ button.outline:hover, .button.outline:hover {
 
 button.medium, .button.medium {
     padding: .6em 1em;
-    font-size: 1.2em;
+    font-size: 1em;
 }
 
 .hidden {
@@ -159,7 +159,7 @@ button.medium, .button.medium {
 .discount-section p {
     margin: 0;
     color: #AD2A71;
-    font-size: 1.5em;
+    font-size: 1.2em;
     font-weight: 600;
 }
 
