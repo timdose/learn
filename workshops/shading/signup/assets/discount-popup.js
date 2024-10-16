@@ -1,19 +1,24 @@
 document.addEventListener('DOMContentLoaded', function() {
     const modal = document.getElementById('discountPopup');
-    const openButtons = document.querySelectorAll('.openPopup'); // Use a class for all buttons
-    const closeBtn = document.querySelector('.close');
+    const openButtons = document.querySelectorAll('.openPopup');
+    const closeBtn = modal.querySelector('.close'); // Select the close button within the modal
     const discountOptionButtons = document.querySelectorAll('.discount-option-button');
-    // Open the modal for each button
+
+    // Open the modal
     openButtons.forEach(button => {
         button.addEventListener('click', function() {
             modal.style.display = 'block';
         });
     });
 
-    // Close the modal
-    closeBtn.addEventListener('click', function() {
-        modal.style.display = 'none';
-    });
+    // Close the modal when the close button is clicked
+    if (closeBtn) {
+        closeBtn.addEventListener('click', function() {
+            modal.style.display = 'none';
+        });
+    } else {
+        console.warn('Close button not found in the modal');
+    }
 
     // Close the modal when clicking outside of it
     window.addEventListener('click', function(event) {
@@ -23,11 +28,10 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Handle discount selection
-    discountOptionButtons.forEach(option => {
-        option.addEventListener('click', function() {
+    discountOptionButtons.forEach(button => {
+        button.addEventListener('click', function() {
             const variantClass = 'container-pricing-' + this.getAttribute('data-variant');
-            console.log('Selected variant class:', variantClass);
-
+            
             // Hide all pricing matrix variants
             document.querySelectorAll('.container-pricing').forEach(matrix => {
                 matrix.classList.add('hidden');
@@ -35,8 +39,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Show the corresponding pricing matrix variant by class
             const activeMatrices = document.querySelectorAll(`.${variantClass}`);
-            console.log('Active matrices:', activeMatrices); // Debugging line
-
+            
             if (activeMatrices.length > 0) {
                 activeMatrices.forEach(matrix => {
                     matrix.classList.remove('hidden');
@@ -50,6 +53,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    // Simulate click on the first .openPopup button
     if (openButtons.length > 0) {
         openButtons[0].click();
     }

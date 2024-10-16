@@ -45,6 +45,8 @@ ul {
     float: right;
     font-size: 28px;
     font-weight: bold;
+    position: relative;
+    z-index: 50;
 }
 
 .close:hover,
