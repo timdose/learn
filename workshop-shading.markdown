@@ -12,5 +12,13 @@ description: "Take your shading to the next level in 4 weeks with smooth, sculpt
 background-image: "images/bg.jpg"
 ---
 
-## arglebargle
-fooferaw
+- Exact dates & times TBD
+
+---
+
+## How it works
+
+- **4 weekly online sessions**: with a clear roadmap of how to get from simple gradients to a solid portrait
+- **Small groups of 8**: get your questions answered and learn from like-minded artists.
+- **Theory & practice**: Each session includes lectures + follow-along demos. So you can learn both why it works and how to do it.
+- **Chat with Tim & other students**: Get access to Tim's private Discord server to ask questions and chat with other students.

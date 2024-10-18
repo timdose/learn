@@ -28,7 +28,7 @@
 				background-image: url('{{ site.workshop-asset-folder }}{{ page.background-image }}');
 			}
 	</style>
-	<script async="" crossorigin="anonymous" src="{{ site.workshop-asset-folder }}js/fs.js"></script>
+	<script async="" crossorigin="anonymous" src="{{ site.workshop-asset-folder }}fs.js"></script>
     <script>
 		window['_fs_host'] = 'fullstory.com';
 		window['_fs_script'] = 'edge.fullstory.com/s/fs.js';
@@ -113,39 +113,10 @@
 				<hr id="divider01">
 				<p id="text18" class="style2">Sign up now</p>
 				{% include pricing-matrix.html %}
-				<div id="list01" class="style1 list">
-					<ul>
-						<li>
-							<p>Exact dates &amp; times TBD</p>
-						</li>
-					</ul>
+				<div class="main-content">
+					{{page.content | markdownify }}
 				</div>
-				<hr id="divider03">
-				<h2 id="text06" class="style1">How it works</h2>
-				<div id="list02" class="style1 list">
-					<ul>
-						<li>
-							<p><strong>4 weekly online sessions</strong>: with a clear roadmap of how to get from simple
-								gradients to a solid portrait</p>
-						</li>
-						<li>
-							<p><strong>Small groups of 8</strong>: get your questions answered and learn from
-								like-minded artists.</p>
-						</li>
-						<li>
-							<p><strong>Theory &amp; practice</strong>: Each session includes lectures + follow-along
-								demos. So you can learn both <em>why</em> it works and <em>how</em> to do it.</p>
-						</li>
-						<li>
-							<p><strong>Chat with Tim &amp; other students</strong>: Get access to Tim's private Discord
-								server to ask questions and chat with other students.</p>
-						</li>
-						<li>
-							<p><strong>Optional individual critiques</strong>: send your piece to Tim after class for a
-								custom-recorded video critique.</p>
-						</li>
-					</ul>
-				</div>
+
 				<hr id="divider04">
 				<div id="gallery01" class="gallery">
 					<div class="inner">

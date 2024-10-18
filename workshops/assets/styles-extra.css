@@ -1,3 +1,7 @@
+---
+
+---
+
 body {
     font-family: 'Spectral', serif;
 }
@@ -224,5 +228,116 @@ button.large, .button.large {
 
     .pricing-option h1 {
         font-size: 26px;
+    }
+}
+
+
+/*----------------------------------------*/
+/* Main Content Styles */
+/*----------------------------------------*/
+
+.main-content {
+    margin-top: 48px !important;
+}
+
+.main-content h2 {
+    font-size: 44px;
+    color: #AD2A71;
+    margin-bottom: 32px;
+}
+
+.main-content strong {
+    font-weight: 600;
+}
+
+
+.main-content ul {
+    color: #000000;
+    font-family: 'Spectral', serif;
+    letter-spacing: -0.05rem;
+    font-size: 20px;
+    line-height: 1.5em;
+    font-weight: 300;
+}
+
+.main-content ul li {
+    margin-top: 0.875rem;
+    direction: var(--site-language-direction);
+    /* display: flex; */
+    position: relative;
+    /* gap: 12px; */
+    font-size: 28px;
+    text-align: left;
+    line-height: 1.5;
+    padding-left: 34px;
+}
+
+.main-content ul li p {
+    flex-grow: 1;
+    flex-shrink: 1;
+    order: 3;
+}
+
+.main-content ul li::before {
+    background-image: url(data:image/svg+xml;charset=utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20x%3D%220px%22%20y%3D%220px%22%20viewBox%3D%220%200%2040%2040%22%3E%3Ccircle%20cx%3D%2220%22%20cy%3D%2220%22%20r%3D%2210%22%20fill%3D%22%23B0B0B0%22%20%2F%3E%3C%2Fsvg%3E);
+    background-position: left 60%;
+    background-repeat: no-repeat;
+    background-size: contain;
+    height: 20px;
+    line-height: 20px;
+    min-width: 20px;
+    background-repeat: no-repeat;
+    content: '';
+    display: block;
+    flex-grow: 0;
+    flex-shrink: 0;
+    font-variant: normal !important;
+    letter-spacing: 0 !important;
+    order: 0;
+    position: absolute;
+    top: 10px;
+    left: -2px;
+}
+
+.main-content ul li::after {
+    content: '';
+    display: block;
+    flex-grow: 0;
+    flex-shrink: 0;
+    order: 1;
+    pointer-events: none
+}
+
+
+
+.main-content hr{
+    margin-bottom: 2.875rem !important;
+    margin-top: 2.875rem !important;
+}
+
+.main-content hr::before {
+    content: '';
+    display: block;
+    width: 100%;
+    border-top: dotted 1px #B0B0B0;
+    height: 1px;
+}
+
+
+@media (max-width: 980px) {
+    .main-content h2 {
+        font-size: 25px;
+        margin-bottom: 16px;
+    }
+
+    .main-content ul li {
+        font-size: 21px;
+        left: -2px;
+    }
+
+    .main-content ul li::before {
+        top: 6px;
+        height: 14px;
+        padding-left: 22px;
     }
 }
