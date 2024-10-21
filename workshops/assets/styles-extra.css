@@ -70,7 +70,7 @@ button.large, .button.large {
 }
 
 .modal {
-    display: none;
+    /* display: none; */
     position: fixed;
     z-index: 40;
     left: 0;
@@ -340,4 +340,15 @@ button.large, .button.large {
         height: 14px;
         padding-left: 22px;
     }
+}
+
+/*----------------------------------------*/
+/* Waitlist Styles */
+/*----------------------------------------*/    
+#waitlistEmail {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
 }

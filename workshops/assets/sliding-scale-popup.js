@@ -7,14 +7,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // Open the modal
     openButtons.forEach(button => {
         button.addEventListener('click', function() {
-            modal.style.display = 'block';
+            modal.classList.remove('hidden');
         });
     });
 
     // Close the modal when the close button is clicked
     if (closeBtn) {
         closeBtn.addEventListener('click', function() {
-            modal.style.display = 'none';
+            modal.classList.add('hidden');
         });
     } else {
         console.warn('Close button not found in the modal');
@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Close the modal when clicking outside of it
     window.addEventListener('click', function(event) {
         if (event.target == modal) {
-            modal.style.display = 'none';
+            modal.classList.add('hidden');
         }
     });
 

@@ -12,4 +12,11 @@
 {% else %}
     <h1 id="text09" class="style7">${{final_price}}</h1>
 {% endif %}
-{% include paypal-button.html price=final_price item_name=include.item_name %}
+
+{% if page.registration-open %}
+    {% include paypal-button.html price=final_price item_name=include.item_name %}
+{% else %}
+    <div class="waitlist-container">
+        <button class="waitlist-button button">Join waitlist</button>
+    </div>
+{% endif %}
