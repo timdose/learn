@@ -3,9 +3,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const waitlistEmail = document.getElementById('waitlistEmail');
     const submitWaitlist = document.getElementById('submitWaitlist');
     const closePopup = waitlistPopup.querySelector('.close');
+    const waitlistPrice = document.getElementById('waitlistPrice');
+
+    let currentPrice = '';
 
     document.querySelectorAll('.waitlist-button').forEach(function(button) {
         button.addEventListener('click', function() {
+            currentPrice = this.getAttribute('data-price');
+            waitlistPrice.textContent = '$' + currentPrice;
             waitlistPopup.classList.remove('hidden');
         });
     });
@@ -17,8 +22,8 @@ document.addEventListener('DOMContentLoaded', function() {
     submitWaitlist.addEventListener('click', function(e) {
         e.preventDefault();
         if (waitlistEmail.value) {
-            // Here you would typically send the email to your server
-            console.log('Email submitted:', waitlistEmail.value);
+            // Here you would typically send the email and price to your server
+            console.log('Email submitted:', waitlistEmail.value, 'for price:', currentPrice);
             waitlistPopup.innerHTML = '<div class="modal-content"><p>Thank you for joining the waitlist!</p></div>';
             setTimeout(() => {
                 waitlistPopup.classList.add('hidden');

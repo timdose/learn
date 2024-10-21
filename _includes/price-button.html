@@ -17,6 +17,6 @@
     {% include paypal-button.html price=final_price item_name=include.item_name %}
 {% else %}
     <div class="waitlist-container">
-        <button class="waitlist-button button">Join waitlist</button>
+        <button class="waitlist-button button" data-price="{{final_price}}">Join waitlist</button>
     </div>
 {% endif %}
