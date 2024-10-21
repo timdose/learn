@@ -65,8 +65,8 @@ button.large, .button.large {
     margin-top: 4px;
 }
 
+/* General modal styles */
 .modal {
-    /* display: none; */
     position: fixed;
     z-index: 40;
     left: 0;
@@ -106,35 +106,50 @@ button.large, .button.large {
     cursor: pointer;
 }
 
+/* Styles for the waitlist popup */
+#waitlistPopup .modal-content {
+    max-width: 600px;
+}
+
+#waitlistPopup h2 {
+    font-size: 36px;
+    margin-bottom: 20px;
+}
+
+#waitlistPopup p {
+    font-size: 20px;
+    margin-bottom: 15px;
+}
+
+#waitlistEmail {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+#waitlistPopup button {
+    background-color: #AD2A71;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 18px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+#waitlistPopup button:hover {
+    background-color: #801E56;
+}
+
+/* Specific styles for discount options */
 .discount-options {
     display: flex;  
     flex-direction: row;
     flex-wrap: wrap;
-    gap: 32px; /* 2em */
-}
-
-
-#discountPopup {
-    font-family: 'Spectral', serif;
-    letter-spacing: -0.8px; /* -0.05rem */
-    line-height: 1.5;
-}
-
-#discountPopup li {
-    margin-bottom: 4px; /* 0.25em */
-    margin-left: 18px;
-    padding-left: 4px;
-    list-style-type: disc;
-}
-
-#discountPopup h2 {
-    margin: 10px 0 20px;
-    font-size: 36px;
-}
-
-
-.discount-popup-intro {
-    font-size: 24px;
+    gap: 32px;
 }
 
 .discount-option {
@@ -146,15 +161,20 @@ button.large, .button.large {
     justify-content: space-between;
 }
 
-.discount-option-button-container {
-    border-top: 1px solid #ccc;
-    padding-top: 18px;
+/* Responsive design */
+@media (min-width: 768px) {
+    .discount-options {
+        flex-direction: row;
+    }
+
+    .discount-option {
+        flex: 1;
+    }
 }
 
-.discount-options {
-    flex-direction: row;
-    gap: 20px;
-    font-size: 20px;
+/* Utility class */
+.hidden {
+    display: none;
 }
 
 #main div.discount-sections {
@@ -355,4 +375,168 @@ button.large, .button.large {
 
 #confirmationPopup button {
     margin: 10px;
+}
+
+/* Existing styles for the sliding scale popup */
+.modal {
+    position: fixed;
+    z-index: 40;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.6);
+}
+
+.modal .modal-title {
+    margin-bottom: 20px;
+    font-size: 48px;
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 5% auto;
+    padding: 40px;
+    border: 1px solid #888;
+    width: 90%;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    position: relative;
+    z-index: 50;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Restored and improved styles for sliding scale popup text */
+#discountPopup {
+    font-family: 'Spectral', serif;
+    letter-spacing: -0.8px;
+    line-height: 1.5;
+}
+
+#discountPopup h2 {
+    margin: 10px 0 20px;
+    font-size: 36px;
+}
+
+#discountPopup p, #discountPopup li, #discountPopup strong {
+    font-size: 20px;
+    margin-bottom: 12px;
+}
+
+#discountPopup ul {
+    margin-bottom: 20px;
+    padding-left: 20px;
+}
+
+#discountPopup li {
+    margin-bottom: 8px;
+    margin-left: 18px;
+    padding-left: 4px;
+    list-style-type: disc;
+}
+
+.discount-popup-intro {
+    font-size: 24px;
+}
+
+/* Existing styles for discount options */
+.discount-options {
+    display: flex;  
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 32px;
+}
+
+.discount-option {
+    padding: 20px;
+    background-color: #EBEBEB;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.discount-option-button-container {
+    border-top: 1px solid #ccc;
+    padding-top: 18px;
+}
+
+/* Styles for the waitlist popup */
+#waitlistPopup .modal-content {
+    max-width: 600px;
+}
+
+#waitlistPopup h2 {
+    font-size: 36px;
+    margin-bottom: 20px;
+}
+
+#waitlistPopup p {
+    font-size: 20px;
+    margin-bottom: 15px;
+}
+
+#waitlistEmail {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+#waitlistPopup button {
+    background-color: #AD2A71;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 18px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+#waitlistPopup button:hover {
+    background-color: #801E56;
+}
+
+/* Existing responsive styles */
+@media (max-width: 980px) {
+    .modal .modal-title {
+        margin-bottom: 20px;
+        font-size: 36px;
+    }
+    
+    .modal-content {
+        padding: 20px;
+    }
+  
+    .discount-options {
+        flex-direction: column;
+    }
+
+    .discount-option {
+        padding: 20px;
+        width: 100%;
+    }
+
+    #discountPopup p, #discountPopup li, #discountPopup strong, #waitlistPopup p {
+        font-size: 18px;
+    }
+}
+
+/* Utility class */
+.hidden {
+    display: none;
 }
