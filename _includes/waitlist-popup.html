@@ -2,9 +2,17 @@
 <div id="waitlistPopup" class="modal hidden">
     <div class="modal-content">
         <span class="close">&times;</span>
-        <h2>Join the Course Waitlist</h2>
-        <p>The course is currently full, but you can join the waitlist. You're interested in the <span id="waitlistPrice"></span> price option.</p>
-        <p>Enter your email to be notified when registration opens:</p>
+        <h2>Join the waitlist</h2>
+        <p>Registration is currently closed. We'll notify you when registration opens.</p>
+        <div class="pricing-info">
+            <p id="waitlistItemTitle">{{page.title}}</p>
+            <p id="waitlistItemName"></p>
+            <p>
+                <span id="waitlistOriginalPrice"></span>
+                <span id="waitlistPrice"></span> 
+                <span id="waitlistDiscount"></span>
+            </p>
+        </div>
         <input type="email" id="waitlistEmail" placeholder="Enter your email" required>
         <button id="submitWaitlist" class="button">Join Waitlist</button>
     </div>

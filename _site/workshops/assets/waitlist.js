@@ -7,10 +7,13 @@ document.addEventListener('DOMContentLoaded', function() {
     let waitlistEmail, submitWaitlist, waitlistPrice, closePopup;
 
     function initializeElements() {
+        closePopup = waitlistPopup.querySelector('.close');
         waitlistEmail = document.getElementById('waitlistEmail');
         submitWaitlist = document.getElementById('submitWaitlist');
+        waitlistItemName = document.getElementById('waitlistItemName');
         waitlistPrice = document.getElementById('waitlistPrice');
-        closePopup = waitlistPopup.querySelector('.close');
+        waitlistOriginalPrice = document.getElementById('waitlistOriginalPrice');
+        waitlistDiscount = document.getElementById('waitlistDiscount');
         
         if (closePopup) {
             closePopup.addEventListener('click', closeModal);
@@ -22,8 +25,15 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.waitlist-button').forEach(function(button) {
         button.addEventListener('click', function() {
             currentPrice = this.getAttribute('data-price');
+            originalPrice = this.getAttribute('data-original-price');
+            discount = this.getAttribute('data-discount');
             resetForm();
             waitlistPrice.textContent = '$' + currentPrice;
+            if (originalPrice != currentPrice) {
+                waitlistDiscount.textContent = this.getAttribute('data-discount') + '% off';
+                waitlistOriginalPrice.textContent = '$' + this.getAttribute('data-original-price');
+            }
+            waitlistItemName.textContent = this.getAttribute('data-item-name');
             waitlistPopup.classList.remove('hidden');
         });
     });
