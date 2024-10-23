@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
         waitlistPrice = document.getElementById('waitlistPrice');
         waitlistOriginalPrice = document.getElementById('waitlistOriginalPrice');
         waitlistDiscount = document.getElementById('waitlistDiscount');
-        
+        waitlistForm = document.getElementById('waitlistForm');
         if (closePopup) {
             closePopup.addEventListener('click', closeModal);
         }
@@ -34,6 +34,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 waitlistOriginalPrice.textContent = '$' + this.getAttribute('data-original-price');
             }
             waitlistItemName.textContent = this.getAttribute('data-item-name');
+            waitlistForm.elements.itemName.value = this.getAttribute('data-item-name');
+            waitlistForm.elements.price.value = currentPrice;
+            waitlistForm.elements.originalPrice.value = originalPrice;
+            waitlistForm.elements.discount.value = discount;
             waitlistPopup.classList.remove('hidden');
         });
     });

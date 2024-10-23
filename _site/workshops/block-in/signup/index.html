@@ -1114,20 +1114,27 @@
 	<!-- Add this at the end of the body -->
 <div id="waitlistPopup" class="modal hidden">
     <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2>Join the waitlist</h2>
-        <p>Registration is currently closed. We'll notify you when registration opens.</p>
-        <div class="pricing-info">
-            <p id="waitlistItemTitle">Intro to blocking in</p>
-            <p id="waitlistItemName"></p>
-            <p>
-                <span id="waitlistOriginalPrice"></span>
-                <span id="waitlistPrice"></span> 
-                <span id="waitlistDiscount"></span>
-            </p>
-        </div>
-        <input type="email" id="waitlistEmail" placeholder="Enter your email" required>
-        <button id="submitWaitlist" class="button">Join Waitlist</button>
+        <form id="waitlistForm" action="/waitlist" method="GET">
+            <span class="close">&times;</span>
+            <h2>Join the waitlist</h2>
+            <p>Registration is currently closed. We'll notify you when registration opens.</p>
+            <div class="pricing-info">
+                <p id="waitlistCourse">Intro to blocking in</p>
+                <p id="waitlistItemName"></p>
+                <p>
+                    <span id="waitlistOriginalPrice"></span>
+                    <span id="waitlistPrice"></span> 
+                    <span id="waitlistDiscount"></span>
+                </p>
+            </div>
+            <input type="email" id="waitlistEmail" placeholder="Enter your email" required>
+            <input type="hidden" name="course" value="Intro to blocking in">
+            <input type="hidden" name="itemName" value="">
+            <input type="hidden" name="price" value="">
+            <input type="hidden" name="originalPrice" value="">
+            <input type="hidden" name="discount" value="">
+            <button id="submitWaitlist" class="button">Join waitlist</button>
+        </form>     
     </div>
 </div>
 
