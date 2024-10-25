@@ -21,11 +21,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Close the modal when clicking outside of it
-    window.addEventListener('click', function(event) {
-        if (event.target == modal) {
-            modal.classList.add('hidden');
-        }
-    });
+    // window.addEventListener('click', function(event) {
+    //     if (event.target == modal) {
+    //         modal.classList.add('hidden');
+    //     }
+    // });
 
     // Handle discount selection
     discountOptionButtons.forEach(button => {
@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             // Close the modal
-            modal.classList.add('hidden');
+            modal.style.display = 'none';
         });
     });
 

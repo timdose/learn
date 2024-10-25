@@ -1099,9 +1099,9 @@
 </div>
 <script src="/workshops/assets/sliding-scale-popup.js"></script>
 	<!-- Add this at the end of the body -->
-<div id="waitlistPopup" class="modal hidden">
+<div id="waitlistPopup" class="modal">
     <div class="modal-content">
-        <form id="waitlistForm" method="POST">
+        <form id="waitlistForm">
             <span class="close">&times;</span>
             <h2>Join the waitlist</h2>
             <p>Registration is currently closed. We'll notify you when registration opens.</p>
@@ -1113,7 +1113,7 @@
                     <span id="waitlistDiscount"></span>
                 </p>
             </div>
-            <input type="email" id="waitlistEmail" name="email" placeholder="Enter your email" required>
+            <input type="email" id="waitlistEmail" name="email" placeholder="Enter your email" required oninput="console.log('Email input changed:', this.value)">
             <input type="hidden" name="itemName" id="hiddenItemName">
             <input type="hidden" name="price" id="hiddenPrice">
             <input type="hidden" name="originalPrice" id="hiddenOriginalPrice">
