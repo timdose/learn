@@ -1114,12 +1114,11 @@
 	<!-- Add this at the end of the body -->
 <div id="waitlistPopup" class="modal hidden">
     <div class="modal-content">
-        <form id="waitlistForm" action="/waitlist" method="GET">
+        <form id="waitlistForm" method="POST">
             <span class="close">&times;</span>
             <h2>Join the waitlist</h2>
             <p>Registration is currently closed. We'll notify you when registration opens.</p>
             <div class="pricing-info">
-                <p id="waitlistCourse">Intro to blocking in</p>
                 <p id="waitlistItemName"></p>
                 <p>
                     <span id="waitlistOriginalPrice"></span>
@@ -1127,13 +1126,12 @@
                     <span id="waitlistDiscount"></span>
                 </p>
             </div>
-            <input type="email" id="waitlistEmail" placeholder="Enter your email" required>
-            <input type="hidden" name="courseName" value="Intro to blocking in">
-            <input type="hidden" name="itemName" value="">
-            <input type="hidden" name="price" value="">
-            <input type="hidden" name="originalPrice" value="">
-            <input type="hidden" name="discount" value="">
-            <button id="submitWaitlist" class="button">Join waitlist</button>
+            <input type="email" id="waitlistEmail" name="email" placeholder="Enter your email" required>
+            <input type="hidden" name="itemName" id="hiddenItemName">
+            <input type="hidden" name="price" id="hiddenPrice">
+            <input type="hidden" name="originalPrice" id="hiddenOriginalPrice">
+            <input type="hidden" name="discount" id="hiddenDiscount">
+            <button type="submit" id="submitWaitlistButton" class="button">Join waitlist</button>
         </form>     
     </div>
 </div>
