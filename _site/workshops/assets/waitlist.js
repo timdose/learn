@@ -22,27 +22,38 @@ document.addEventListener('DOMContentLoaded', function() {
             
             console.log('Sending AJAX request');
             
-            fetch('/workshops/process_waitlist.php', {
+            fetch('process_waitlist.php', {
                 method: 'POST',
                 body: formData
             })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Received response:', data);
-                if (data.message) {
-                    const modalContent = document.querySelector('.modal-content');
-                    modalContent.innerHTML = '<span class="close">&times;</span><p>' + data.message + '</p>';
-                    const newClosePopup = modalContent.querySelector('.close');
-                    if (newClosePopup) {
-                        newClosePopup.addEventListener('click', closeModal);
+            .then(response => {
+                console.log('Raw response:', response);
+                return response.text();  // Change this from response.json()
+            })
+            .then(text => {
+                console.log('Response text:', text);
+                try {
+                    const data = JSON.parse(text);
+                    console.log('Parsed JSON:', data);
+                    // Handle the data as before
+                    if (data.message) {
+                        const modalContent = document.querySelector('.modal-content');
+                        modalContent.innerHTML = '<span class="close">&times;</span><p>' + data.message + '</p>';
+                        const newClosePopup = modalContent.querySelector('.close');
+                        if (newClosePopup) {
+                            newClosePopup.addEventListener('click', closeModal);
+                        }
+                        setTimeout(closeModal, 3000);
+                    } else if (data.error) {
+                        alert(data.error);
                     }
-                    setTimeout(closeModal, 3000);
-                } else if (data.error) {
-                    alert(data.error);
+                } catch (e) {
+                    console.error('Error parsing JSON:', e);
+                    alert('An error occurred while processing the response. Please try again.');
                 }
             })
             .catch(error => {
-                console.error('Error:', error);
+                console.error('Fetch error:', error);
                 alert('An error occurred. Please try again.');
             });
         } else {
