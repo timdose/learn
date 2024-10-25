@@ -4,6 +4,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const waitlistForm = document.getElementById('waitlistForm');
     const submitButton = document.getElementById('submitWaitlistButton');
     const waitlistEmail = document.getElementById('waitlistEmail');
+    const waitlistPopup = document.getElementById('waitlistPopup');
+    const modalContent = waitlistPopup.querySelector('.modal-content');
     
     console.log('Form found:', waitlistForm);
     console.log('Submit button found:', submitButton);
@@ -28,22 +30,15 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(response => {
                 console.log('Raw response:', response);
-                return response.text();  // Change this from response.json()
+                return response.text();
             })
             .then(text => {
                 console.log('Response text:', text);
                 try {
                     const data = JSON.parse(text);
                     console.log('Parsed JSON:', data);
-                    // Handle the data as before
                     if (data.message) {
-                        const modalContent = document.querySelector('.modal-content');
-                        modalContent.innerHTML = '<span class="close">&times;</span><p>' + data.message + '</p>';
-                        const newClosePopup = modalContent.querySelector('.close');
-                        if (newClosePopup) {
-                            newClosePopup.addEventListener('click', closeModal);
-                        }
-                        setTimeout(closeModal, 3000);
+                        showSuccessMessage(data.message);
                     } else if (data.error) {
                         alert(data.error);
                     }
