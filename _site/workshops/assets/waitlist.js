@@ -6,10 +6,56 @@ document.addEventListener('DOMContentLoaded', function() {
     const waitlistEmail = document.getElementById('waitlistEmail');
     const waitlistPopup = document.getElementById('waitlistPopup');
     const modalContent = waitlistPopup.querySelector('.modal-content');
+    const closeButton = waitlistPopup.querySelector('.close');
     
     console.log('Form found:', waitlistForm);
     console.log('Submit button found:', submitButton);
     console.log('Email input found:', waitlistEmail);
+
+    // Ensure the popup is hidden on page load
+    waitlistPopup.style.display = 'none';
+
+    // Function to open the modal
+    function openModal() {
+        waitlistPopup.style.display = 'block';
+    }
+
+    // Function to close the modal
+    function closeModal() {
+        waitlistPopup.style.display = 'none';
+    }
+
+    // Add click event to close button
+    if (closeButton) {
+        closeButton.addEventListener('click', closeModal);
+    }
+
+    // Add click events to all waitlist buttons
+    document.querySelectorAll('.waitlist-button').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const itemName = this.getAttribute('data-item-name');
+            const price = this.getAttribute('data-price');
+            const originalPrice = this.getAttribute('data-original-price');
+            const discount = this.getAttribute('data-discount');
+            
+            // Set hidden input values
+            document.getElementById('hiddenItemName').value = itemName;
+            document.getElementById('hiddenPrice').value = price;
+            document.getElementById('hiddenOriginalPrice').value = originalPrice;
+            document.getElementById('hiddenDiscount').value = discount;
+
+            // Update visible text in the modal
+            document.getElementById('waitlistItemName').textContent = itemName;
+            document.getElementById('waitlistPrice').textContent = '$' + price;
+            if (originalPrice !== price) {
+                document.getElementById('waitlistOriginalPrice').textContent = '$' + originalPrice;
+                document.getElementById('waitlistDiscount').textContent = discount + '% off';
+            }
+
+            openModal();
+        });
+    });
 
     function handleSubmit(e) {
         console.log('handleSubmit function called');
@@ -77,15 +123,11 @@ document.addEventListener('DOMContentLoaded', function() {
         // Clear the form
         waitlistForm.reset();
 
-        // Remove the success message after 3 seconds
+        // Remove the success message and close the modal after 3 seconds
         setTimeout(() => {
             document.body.removeChild(successMessage);
             closeModal();
         }, 3000);
-    }
-
-    function closeModal() {
-        waitlistPopup.style.display = 'none';
     }
 
     if (waitlistForm) {
@@ -94,8 +136,6 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
         console.log('Waitlist form not found');
     }
-
-    // Remove all other event listeners
 });
 
 // Outside DOMContentLoaded event
