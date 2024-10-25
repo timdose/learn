@@ -15,6 +15,7 @@ try {
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Retrieve and sanitize form data
         $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
+        $courseName = htmlspecialchars($_POST['courseName'] ?? '', ENT_QUOTES, 'UTF-8');
         $itemName = htmlspecialchars($_POST['itemName'] ?? '', ENT_QUOTES, 'UTF-8');
         $price = filter_var($_POST['price'] ?? '', FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
         $originalPrice = filter_var($_POST['originalPrice'] ?? '', FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
