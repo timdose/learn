@@ -28,7 +28,7 @@ try {
 
         // Send email
         $to = "timdose@gmail.com";
-        $subject = "New Waitlist Submission";
+        $subject = "New Waitlist Submission: $courseName";
         $message = "New waitlist submission:\n\n";
         $message .= "Email: $email\n";
         $message .= "Course: $courseName\n";
