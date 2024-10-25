@@ -57,6 +57,37 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    function showSuccessMessage(message) {
+        const successMessage = document.createElement('div');
+        successMessage.textContent = message;
+        successMessage.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #4CAF50;
+            color: white;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+            z-index: 1000;
+        `;
+        document.body.appendChild(successMessage);
+
+        // Clear the form
+        waitlistForm.reset();
+
+        // Remove the success message after 3 seconds
+        setTimeout(() => {
+            document.body.removeChild(successMessage);
+            closeModal();
+        }, 3000);
+    }
+
+    function closeModal() {
+        waitlistPopup.style.display = 'none';
+    }
+
     if (waitlistForm) {
         waitlistForm.addEventListener('submit', handleSubmit);
         console.log('Submit event listener added to form');
