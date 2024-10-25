@@ -1,20 +1,18 @@
 ---
 layout: workshop
-permalink: /workshops/block-in/signup/
+permalink: /workshops/accuracy/
 prices:
   live: 250
   recordings: 175
   addon: 100
 discount1: 25
 discount2: 50
-title: "Intro to blocking in"
+title: "Accurate drawing"
 description: "Learn simple skills to get accurate proportions and perspective easily"
 background-image: "images/bg-block-in.jpg"
 ---
 
-- Thursdays 10am - 12pm (Eastern Time)
-- May 30, June 6, 13, 20
-- Over Zoom (link to come)
+- Exact dates & times TBD
 
 ---
 

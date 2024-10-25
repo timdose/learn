@@ -1,6 +1,6 @@
 ---
 layout: workshop
-permalink: /workshops/shading/signup/
+permalink: /workshops/shading/
 prices:
   live: 250
   recordings: 175
