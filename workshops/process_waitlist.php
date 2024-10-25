@@ -30,12 +30,13 @@ try {
         $subject = "New Waitlist Submission";
         $message = "New waitlist submission:\n\n";
         $message .= "Email: $email\n";
+        $message .= "Course: $courseName\n";
         $message .= "Item: $itemName\n";
         $message .= "Price: $price\n";
         $message .= "Original Price: $originalPrice\n";
         $message .= "Discount: $discount%\n";
 
-        $headers = "From: waitlist@yourdomain.com\r\n";
+        $headers = "From: waitlist@timdoseart.com\r\n";
         $headers .= "Reply-To: $email\r\n";
         $headers .= "X-Mailer: PHP/" . phpversion();
 
