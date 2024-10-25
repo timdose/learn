@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             console.log('Sending AJAX request');
             
-            fetch('process_waitlist.php', {
+            fetch('/workshops/process_waitlist.php', {
                 method: 'POST',
                 body: formData
             })
