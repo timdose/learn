@@ -34,8 +34,12 @@ try {
         $message .= "Course: $courseName\n";
         $message .= "Item: $itemName\n";
         $message .= "Price: $price\n";
-        $message .= "Original Price: $originalPrice\n";
-        $message .= "Discount: $discount%\n";
+
+        // Only add original price and discount if price is different from original price
+        if ($price != $originalPrice) {
+            $message .= "Original Price: $originalPrice\n";
+            $message .= "Discount: $discount%\n";
+        }
 
         $headers = "From: waitlist@timdoseart.com\r\n";
         $headers .= "Reply-To: $email\r\n";
