@@ -5,13 +5,17 @@ describe('Sliding Scale Popup', () => {
     cy.visit('http://localhost:4000/workshops/shading/')
   })
 
-  it('opens popup when trigger button is clicked', () => {
+  it('opens and closes popup when trigger button is clicked', () => {
     // Get popup trigger button and click it
     cy.get('.openPopup').first().click()
 
     // Verify the popup is visible
     cy.get('#discountPopup').should('not.have.class', 'hidden')
+
+    cy.get('#discountPopup .close').click()
+    cy.get('#discountPopup').should('have.class', 'hidden')
   })
+
 
   // Add more test cases here as needed
 })
