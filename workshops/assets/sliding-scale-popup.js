@@ -22,11 +22,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Close the modal when clicking outside of it
-    // window.addEventListener('click', function(event) {
-    //     if (event.target == modal) {
-    //         modal.classList.add('hidden');
-    //     }
-    // });
+    modal.addEventListener('click', function(event) {
+        const modalContent = modal.querySelector('.modal-content');
+        if (!modalContent.contains(event.target)) {
+            modal.classList.add('hidden');
+        }
+    });
 
     // Handle discount selection
     discountOptionButtons.forEach(button => {
