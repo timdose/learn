@@ -42,6 +42,14 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Add click event to modal wrapper for outside clicks
+    waitlistPopup.addEventListener('click', (e) => {
+        // Close only if clicking the overlay (waitlistPopup) and not its children
+        if (e.target === waitlistPopup) {
+            closeModal();
+        }
+    });
+
     // Add click events to all waitlist buttons
     document.querySelectorAll('.waitlist-button').forEach(button => {
         button.addEventListener('click', function(e) {

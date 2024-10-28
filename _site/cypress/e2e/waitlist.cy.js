@@ -29,7 +29,20 @@ describe('Waitlist Popup', () => {
       // Verify the popup is hidden
       cy.get('#waitlistPopup').should('have.class', 'hidden')
     })
-  
+    
+    it('closes the popup when clicking outside of it', () => {
+      // Get popup trigger button and click it
+      cy.get('.waitlist-button').first().click()
+
+      // Verify the popup is visible
+      cy.get('#waitlistPopup').should('not.have.class', 'hidden')
+
+      // Click outside of the popup
+      cy.get('body').click(0, 0)
+
+      // Verify the popup is hidden
+      cy.get('#waitlistPopup').should('have.class', 'hidden')
+    })
     // Add more test cases here as needed
   })
   
