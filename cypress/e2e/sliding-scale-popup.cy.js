@@ -16,6 +16,19 @@ describe('Sliding Scale Popup', () => {
     cy.get('#discountPopup').should('have.class', 'hidden')
   })
 
+  it('closes the modal when escape key is pressed', () => {
+    // Get popup trigger button and click it
+    cy.get('.openPopup').first().click()
+
+    // Verify the popup is visible
+    cy.get('#discountPopup').should('not.have.class', 'hidden')
+
+    // Press escape key
+    cy.get('body').type('{esc}')
+
+    // Verify the popup is hidden
+    cy.get('#discountPopup').should('have.class', 'hidden')
+  })
 
   // Add more test cases here as needed
 })

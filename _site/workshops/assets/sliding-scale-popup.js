@@ -53,9 +53,16 @@ document.addEventListener('DOMContentLoaded', function() {
             modal.classList.add('hidden');
         });
     });
-
+        
     // Simulate click on the first .openPopup button
     // if (openButtons.length > 0) {
     //     openButtons[0].click();
     // }
+
+    // Add event listener for Escape key
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            modal.classList.add('hidden');
+        }
+    });
 });
