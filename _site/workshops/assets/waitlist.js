@@ -13,27 +13,32 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('Email input found:', waitlistEmail);
 
     // Ensure the popup is hidden on page load
-    waitlistPopup.style.display = 'none';
+    waitlistPopup.classList.add('hidden');
 
     // Function to open the modal
     function openModal() {
-        waitlistPopup.style.display = 'block';
+        waitlistPopup.classList.remove('hidden');
     }
 
     // Function to close the modal
     function closeModal() {
-        waitlistPopup.style.display = 'none';
+        waitlistPopup.classList.add('hidden');
+        // Add a custom event dispatch to help with testing
+        waitlistPopup.dispatchEvent(new CustomEvent('modalClosed'));
     }
 
     // Add click event to close button
     if (closeButton) {
-        closeButton.addEventListener('click', closeModal);
+        closeButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            closeModal();
+        });
     }
 
     // Add click events to all waitlist buttons
     document.querySelectorAll('.waitlist-button').forEach(button => {
         button.addEventListener('click', function(e) {
-            e.preventDefault();
+            e.preventDefault()
             const itemName = this.getAttribute('data-item-name');
             const price = this.getAttribute('data-price');
             const originalPrice = this.getAttribute('data-original-price');
@@ -57,6 +62,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    // Move these function definitions outside DOMContentLoaded
     function handleSubmit(e) {
         console.log('handleSubmit function called');
         e.preventDefault();

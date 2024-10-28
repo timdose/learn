@@ -1,0 +1,35 @@
+describe('Waitlist Popup', () => {
+    beforeEach(() => {
+      // Assuming your page is served at localhost:3000
+      // Adjust this URL to match your development environment
+      cy.visit('http://localhost:4000/workshops/shading/')
+    })
+  
+    it('opens and closes popup when trigger button is clicked', () => {
+      // Get popup trigger button and click it
+      cy.get('.waitlist-button').first().click()
+  
+      // Verify the popup is visible
+      cy.get('#waitlistPopup').should('not.have.class', 'hidden')
+  
+      cy.get('[data-test-id="close-waitlist-popup"]').click()
+      cy.get('#waitlistPopup').should('have.class', 'hidden')
+    })
+  
+    // it('closes the modal when escape key is pressed', () => {
+    //   // Get popup trigger button and click it
+    //   cy.get('.openPopup').first().click()
+  
+    //   // Verify the popup is visible
+    //   cy.get('#waitlistPopup').should('not.have.class', 'hidden')
+  
+    //   // Press escape key
+    //   cy.get('body').type('{esc}')
+  
+    //   // Verify the popup is hidden
+    //   cy.get('#waitlistPopup').should('have.class', 'hidden')
+    // })
+  
+    // Add more test cases here as needed
+  })
+  
