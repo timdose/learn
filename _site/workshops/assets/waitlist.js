@@ -27,6 +27,13 @@ document.addEventListener('DOMContentLoaded', function() {
         waitlistPopup.dispatchEvent(new CustomEvent('modalClosed'));
     }
 
+    // Add keyboard event listener for Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !waitlistPopup.classList.contains('hidden')) {
+            closeModal();
+        }
+    });
+
     // Add click event to close button
     if (closeButton) {
         closeButton.addEventListener('click', (e) => {
