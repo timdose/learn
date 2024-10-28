@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             // Close the modal
-            modal.style.display = 'none';
+            modal.classList.add('hidden');
         });
     });
 
