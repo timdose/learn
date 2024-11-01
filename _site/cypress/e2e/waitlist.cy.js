@@ -43,6 +43,22 @@ describe('Waitlist Popup', () => {
       // Verify the popup is hidden
       cy.get('#waitlistPopup').should('have.class', 'hidden')
     })
-    // Add more test cases here as needed
-  })
-  
+
+    it('shows another popup after the user has entered their email and clicked submit', () => {
+      // Get popup trigger button and click it
+      cy.get('.waitlist-button').first().click()
+
+    // Verify the popup is visible
+      cy.get('#waitlistPopup').should('not.have.class', 'hidden')
+
+      // Enter email and click submit
+      cy.get('#waitlistEmail').type('test@test.com')
+      cy.get('[data-test-id="submit-waitlist-popup"]').click()
+
+      // Verify the popup is hidden
+      cy.get('#waitlistPopup').should('have.class', 'hidden')
+
+      // Verify the time preference popup is visible
+      cy.get('#timePreferencePopup').should('not.have.class', 'hidden')
+    })
+})
