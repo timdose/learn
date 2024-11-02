@@ -19,7 +19,7 @@ try {
     $to = 'timdose@gmail.com';
     $subject = 'New Workshop Time Preference Submission';
     $message = "Email: $email\n";
-    $message .= "Preferred Times:\n" . implode("\n - ", array_map(function($time) {
+    $message .= "Preferred Times:\n - " . implode("\n - ", array_map(function($time) {
         return trim($time);
     }, $timePreference)) . "\n";
     if ($otherTimes) {
