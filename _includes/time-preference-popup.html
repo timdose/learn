@@ -2,14 +2,17 @@
     <div class="modal-content">
         <span class="close" data-test-id="close-time-preference-popup">&times;</span>
         <h2>You've been added to the waitlist!</h2>
-        <p>Please select your preferred time for the workshop.</p>
+        <p>Which times work for you?</p>
+        <p class="subtext">Please check all that apply.</p>
         <form id="timePreferenceForm">
-            <input type="radio" id="morning" name="time" value="morning">
-            <label for="morning">Morning</label>
-            <input type="radio" id="afternoon" name="time" value="afternoon">
-            <label for="afternoon">Afternoon</label>
-            <input type="radio" id="evening" name="time" value="evening">
-            <label for="evening">Evening</label>
+            <div class="time-options-container">
+                {% for time in page.times %}
+                    <div>
+                    <input type="checkbox" id="{{ time }}" name="time" value="{{ time }}">
+                    <label for="{{ time }}">{{ time }}</label>
+                    </div>
+                {% endfor %}
+            </div>
             <input type="hidden" name="waitlistEmail" id="submittedWaitlistEmail" value="">
             <div class="button-container">
                 <button type="submit" id="submitTimePreferenceButton" class="button" data-test-id="submit-time-preference-button">Submit</button>
