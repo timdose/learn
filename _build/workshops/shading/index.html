@@ -1128,15 +1128,38 @@
     <div class="modal-content">
         <span class="close" data-test-id="close-time-preference-popup">&times;</span>
         <h2>You've been added to the waitlist!</h2>
-        <p>Please select your preferred time for the workshop.</p>
+        <p>Which times work for you?</p>
+        <p class="subtext">Please check all that apply.</p>
         <form id="timePreferenceForm">
-            <input type="radio" id="morning" name="time" value="morning">
-            <label for="morning">Morning</label>
-            <input type="radio" id="afternoon" name="time" value="afternoon">
-            <label for="afternoon">Afternoon</label>
-            <input type="radio" id="evening" name="time" value="evening">
-            <label for="evening">Evening</label>
-            <input type="hidden" name="waitlistEmail" id="waitlistEmail">
+            <div class="time-options-container">
+                
+                    <div>
+                    <input type="checkbox" name="timePreference" value="Thursdays 10am-12pm (Eastern Time)">
+                    <label for="Thursdays 10am-12pm (Eastern Time)">Thursdays 10am-12pm (Eastern Time)</label>
+                    </div>
+                
+                    <div>
+                    <input type="checkbox" name="timePreference" value="Thursdays 12:30pm-2:30pm (Eastern Time)">
+                    <label for="Thursdays 12:30pm-2:30pm (Eastern Time)">Thursdays 12:30pm-2:30pm (Eastern Time)</label>
+                    </div>
+                
+                    <div>
+                    <input type="checkbox" name="timePreference" value="Thursdays 7pm-9pm (Eastern Time)">
+                    <label for="Thursdays 7pm-9pm (Eastern Time)">Thursdays 7pm-9pm (Eastern Time)</label>
+                    </div>
+                
+                    <div>
+                    <input type="checkbox" name="timePreference" value="Sundays 10am-12pm (Eastern Time)">
+                    <label for="Sundays 10am-12pm (Eastern Time)">Sundays 10am-12pm (Eastern Time)</label>
+                    </div>
+                
+            </div>
+            <a href="#" id="noTimesLink" class="no-times-link">None of these times work for me</a>
+            <div id="otherTimesContainer" class="hidden">
+                <label for="otherTimes">What days &amp; times would work for you?</label>
+                <textarea id="otherTimes" name="otherTimes" rows="3"></textarea>
+            </div>
+            <input type="hidden" name="waitlistEmail" id="submittedWaitlistEmail" value="">
             <div class="button-container">
                 <button type="submit" id="submitTimePreferenceButton" class="button" data-test-id="submit-time-preference-button">Submit</button>
             </div>

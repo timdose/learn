@@ -478,15 +478,63 @@ button.large, .button.large {
     max-width: 600px;
 }
 
-#waitlistPopup h2 {
+#waitlistPopup h2, .modal-content h2 {
     font-size: 36px;
     margin-bottom: 20px;
 }
 
-#waitlistPopup p {
+#waitlistPopup p, .modal-content p {
     font-size: 20px;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
+    line-height: 1.5;
 }
+
+.modal-content .subtext {
+    font-size: 18px;
+    margin-bottom: 10px;
+    font-style: italic;
+    color: #666;
+}
+
+.modal-content form {
+    margin-bottom: 20px;
+    font-size: 20px;
+}
+
+.time-options-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+    margin-top: 20px;
+}
+
+
+.no-times-link {
+    display: block;
+    margin: 1em 0;
+    color: #666;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+#otherTimesContainer {
+    margin-top: 1em;
+}
+
+#otherTimesContainer label {
+    display: block;
+    margin-bottom: 0.5em;
+}
+
+#otherTimesContainer textarea {
+    width: 100%;
+    padding: 0.5em;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-bottom: 20px;
+}
+
 
 #waitlistEmail {
     width: 100%;
@@ -509,11 +557,6 @@ button.large, .button.large {
 
 #waitlistPopup button:hover {
     background-color: #801E56;
-}
-
-#waitlistPopup p {
-    margin-bottom: 10px;
-    line-height: 1.5;
 }
 
 #waitlistOriginalPrice {

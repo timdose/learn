@@ -15,66 +15,51 @@ document.addEventListener('DOMContentLoaded', function() {
     // Ensure the popup is hidden on page load
     waitlistPopup.classList.add('hidden');
 
-    // Function to open the modal
-    function openModal() {
-        waitlistPopup.classList.remove('hidden');
-    }
-
-    // Function to close the modal
-    function closeModal() {
-        waitlistPopup.classList.add('hidden');
-        // Add a custom event dispatch to help with testing
-        waitlistPopup.dispatchEvent(new CustomEvent('modalClosed'));
-    }
-
-    // Add keyboard event listener for Escape key
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && !waitlistPopup.classList.contains('hidden')) {
-            closeModal();
+    // Generic modal management functions
+    function setupModal(modalElement) {
+        const closeButton = modalElement.querySelector('.close');
+        
+        function closeModal() {
+            modalElement.classList.add('hidden');
+            modalElement.dispatchEvent(new CustomEvent('modalClosed'));
         }
-    });
 
-    // Add click event to close button
-    if (closeButton) {
-        closeButton.addEventListener('click', (e) => {
-            e.preventDefault();
-            closeModal();
-        });
-    }
-
-    // Add click event to modal wrapper for outside clicks
-    waitlistPopup.addEventListener('click', (e) => {
-        // Close only if clicking the overlay (waitlistPopup) and not its children
-        if (e.target === waitlistPopup) {
-            closeModal();
+        function openModal() {
+            modalElement.classList.remove('hidden');
         }
-    });
 
-    // Add click events to all waitlist buttons
-    document.querySelectorAll('.waitlist-button').forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.preventDefault()
-            const itemName = this.getAttribute('data-item-name');
-            const price = this.getAttribute('data-price');
-            const originalPrice = this.getAttribute('data-original-price');
-            const discount = this.getAttribute('data-discount');
-            
-            // Set hidden input values
-            document.getElementById('hiddenItemName').value = itemName;
-            document.getElementById('hiddenPrice').value = price;
-            document.getElementById('hiddenOriginalPrice').value = originalPrice;
-            document.getElementById('hiddenDiscount').value = discount;
+        // Close button click
+        if (closeButton) {
+            closeButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                closeModal();
+            });
+        }
 
-            // Update visible text in the modal
-            document.getElementById('waitlistItemName').textContent = itemName;
-            document.getElementById('waitlistPrice').textContent = '$' + price;
-            if (originalPrice !== price) {
-                document.getElementById('waitlistOriginalPrice').textContent = '$' + originalPrice;
-                document.getElementById('waitlistDiscount').textContent = discount + '% off';
+        // Outside click
+        modalElement.addEventListener('click', (e) => {
+            if (e.target === modalElement) {
+                closeModal();
             }
-
-            openModal();
         });
+
+        return { openModal, closeModal };
+    }
+
+    // Setup both modals
+    const waitlistModal = setupModal(waitlistPopup);
+    const timePreferenceModal = setupModal(timePreferencePopup);
+
+    // Single keyboard event listener for all modals
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            if (!waitlistPopup.classList.contains('hidden')) {
+                waitlistModal.closeModal();
+            }
+            if (!timePreferencePopup.classList.contains('hidden')) {
+                timePreferenceModal.closeModal();
+            }
+        }
     });
 
     // Move these function definitions outside DOMContentLoaded
@@ -120,17 +105,22 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function showSuccessMessage(message) {
+        // Get the email value before clearing the form
+        const email = document.getElementById('waitlistEmail').value;
+        console.log('Email:', email);
+        
         // Close the waitlist modal
-        closeModal();
+        waitlistModal.closeModal();
         
         // Clear the form
         waitlistForm.reset();
         
         // Show time preference popup with success message
         const timePreferencePopup = document.getElementById('timePreferencePopup');
-        const waitlistEmail = document.getElementById('waitlistEmail');
-        waitlistEmail.value = email;
-        timePreferencePopup.classList.remove('hidden');
+        const submittedWaitlistEmail = document.getElementById('submittedWaitlistEmail');
+        console.log('Submitted waitlist email:', submittedWaitlistEmail);
+        submittedWaitlistEmail.value = email;
+        timePreferenceModal.openModal();
     }
 
     if (waitlistForm) {
@@ -139,6 +129,103 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
         console.log('Waitlist form not found');
     }
+
+    // Add event listener for the "None of these times" link
+    const noTimesLink = document.getElementById('noTimesLink');
+    const otherTimesContainer = document.getElementById('otherTimesContainer');
+    
+    noTimesLink.addEventListener('click', function(e) {
+        e.preventDefault();
+        otherTimesContainer.classList.toggle('hidden');
+    });
+
+    function handleTimePreferenceSubmit(e) {
+        e.preventDefault();
+        const form = e.target;
+        const email = document.getElementById('submittedWaitlistEmail').value;
+        const selectedTimes = Array.from(form.querySelectorAll('input[name="timePreference"]:checked'))
+            .map(checkbox => checkbox.value);
+        const otherTimes = document.getElementById('otherTimes').value;
+
+        if (selectedTimes.length === 0 && !otherTimes) {
+            alert('Please select at least one time preference or provide alternative times.');
+            return;
+        }
+
+        const data = {
+            email: email,
+            timePreferences: selectedTimes,
+            otherTimes: otherTimes
+        };
+
+        // Define the endpoint based on environment
+        const endpoint = 'production' === 'production' 
+            ? '/workshops/process_time_preference.php'
+            : '/workshops/process_time_preference.test.json';
+
+        fetch(endpoint, {
+            method: 'production' === 'production' ? 'POST' : 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: 'production' === 'production' ? JSON.stringify(data) : null
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Store the original content
+                const modalContent = timePreferencePopup.querySelector('.modal-content');
+                const originalContent = modalContent.innerHTML;
+                
+                // Replace content with message
+                modalContent.innerHTML = `
+                    <div class="temp-message success">
+                        <h3>Thank You!</h3>
+                        <p>${data.message}</p>
+                    </div>
+                `;
+                
+                // Reset and restore after delay
+                setTimeout(() => {
+                    timePreferenceModal.closeModal();
+                    form.reset();
+                    modalContent.innerHTML = originalContent;
+                }, 2000);
+            } else {
+                throw new Error(data.error || 'An error occurred');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            const modalContent = timePreferencePopup.querySelector('.modal-content');
+            const originalContent = modalContent.innerHTML;
+            
+            modalContent.innerHTML = `
+                <div class="temp-message error">
+                    <h3>Error</h3>
+                    <p>An error occurred. Please try again.</p>
+                </div>
+            `;
+            
+            setTimeout(() => {
+                modalContent.innerHTML = originalContent;
+            }, 3000);
+        });
+    }
+
+    // Add the event listener to the time preference form
+    const timePreferenceForm = document.getElementById('timePreferenceForm');
+    if (timePreferenceForm) {
+        timePreferenceForm.addEventListener('submit', handleTimePreferenceSubmit);
+    }
+
+    // Add click handlers for all waitlist buttons
+    document.querySelectorAll('.waitlist-button').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            waitlistModal.openModal();
+        });
+    });
 });
 
 // Outside DOMContentLoaded event
