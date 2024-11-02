@@ -10,9 +10,9 @@ try {
 
     $email = filter_var($input['email'], FILTER_SANITIZE_EMAIL);
     // Handle timePreference as an array
-    $timePreference = is_array($input['timePreference']) 
-        ? array_map('htmlspecialchars', $input['timePreference'])
-        : [htmlspecialchars($input['timePreference'])];
+    $timePreference = is_array($input['timePreferences']) 
+        ? array_map('htmlspecialchars', $input['timePreferences'])
+        : [htmlspecialchars($input['timePreferences'])];
     $otherTimes = isset($input['otherTimes']) ? htmlspecialchars($input['otherTimes']) : '';
 
     // Prepare email content
