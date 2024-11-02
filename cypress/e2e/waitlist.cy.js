@@ -76,4 +76,43 @@ describe('Waitlist Popup', () => {
       cy.get('#timePreferencePopup input[name="waitlistEmail"]')
         .should('have.value', testEmail)
     })
+
+    it('shows the time preference popup only for live workshop waitlist submissions', () => {
+      // Click the live workshop waitlist button (with data-ask-times attribute)
+      cy.get('.waitlist-button[data-ask-times]').first().click()
+      
+      // Submit email
+      cy.get('#waitlistEmail').type('test@test.com')
+      cy.get('[data-test-id="submit-waitlist-popup"]').click()
+      
+      // Verify time preference popup appears
+      cy.get('#timePreferencePopup').should('not.have.class', 'hidden')
+    })
+
+    it('does not show time preference popup for recordings-only waitlist submissions', () => {
+      // Click the recordings waitlist button (without data-ask-times attribute)
+      cy.get('.waitlist-button:not([data-ask-times])').first().click()
+      
+      // Submit email
+      cy.get('#waitlistEmail').type('test@test.com')
+      cy.get('[data-test-id="submit-waitlist-popup"]').click()
+      
+      // Verify time preference popup stays hidden
+      cy.get('#timePreferencePopup').should('have.class', 'hidden')
+    })
+
+    it('passes email to time preference popup hidden field for live workshop', () => {
+      const testEmail = 'test@test.com';
+      
+      // Click the live workshop waitlist button specifically
+      cy.get('.waitlist-button[data-ask-times]').first().click()
+
+      // Enter email and submit
+      cy.get('#waitlistEmail').type(testEmail)
+      cy.get('[data-test-id="submit-waitlist-popup"]').click()
+
+      // Verify the email was passed to the hidden field
+      cy.get('#timePreferencePopup input[name="waitlistEmail"]')
+        .should('have.value', testEmail)
+    })
 })
