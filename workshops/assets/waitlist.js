@@ -82,36 +82,31 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('handleSubmit function called');
         e.preventDefault();
 
-        console.log('Email input:', waitlistEmail);
-        console.log('Email value:', waitlistEmail ? waitlistEmail.value : 'Email input not found');
-
         if (waitlistEmail && waitlistEmail.value) {
             const formData = new FormData(waitlistForm);
             console.log('Form data:', Object.fromEntries(formData));
             
-            console.log('Sending AJAX request');
+            // Define the endpoint based on environment
+            const endpoint = '{{ jekyll.environment }}' === 'production' 
+                ? '/workshops/process_waitlist.php'
+                : '/workshops/process_waitlist.test.json';
             
-            fetch('/workshops/process_waitlist.php', {
-                method: 'POST',
-                body: formData
+            console.log('Sending request to:', endpoint);
+            
+            fetch(endpoint, {
+                method: '{{ jekyll.environment }}' === 'production' ? 'POST' : 'GET', // Use GET for JSON file
+                body: '{{ jekyll.environment }}' === 'production' ? formData : null   // Don't send body for GET
             })
             .then(response => {
                 console.log('Raw response:', response);
-                return response.text();
+                return response.json(); // Changed from response.text() since we know it's JSON
             })
-            .then(text => {
-                console.log('Response text:', text);
-                try {
-                    const data = JSON.parse(text);
-                    console.log('Parsed JSON:', data);
-                    if (data.message) {
-                        showSuccessMessage(data.message);
-                    } else if (data.error) {
-                        alert(data.error);
-                    }
-                } catch (e) {
-                    console.error('Error parsing JSON:', e);
-                    alert('An error occurred while processing the response. Please try again.');
+            .then(data => {
+                console.log('Response data:', data);
+                if (data.message) {
+                    showSuccessMessage(data.message);
+                } else if (data.error) {
+                    alert(data.error);
                 }
             })
             .catch(error => {
