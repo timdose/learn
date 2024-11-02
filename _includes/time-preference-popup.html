@@ -8,7 +8,7 @@
             <div class="time-options-container">
                 {% for time in page.times %}
                     <div>
-                    <input type="checkbox" id="{{ time }}" name="time" value="{{ time }}">
+                    <input type="checkbox" name="timePreference" value="{{ time }}">
                     <label for="{{ time }}">{{ time }}</label>
                     </div>
                 {% endfor %}

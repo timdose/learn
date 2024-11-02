@@ -109,12 +109,18 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function showSuccessMessage(message) {
+        // Get the email value before clearing the form
         const email = document.getElementById('waitlistEmail').value;
         console.log('Email:', email);
         
+        // Close the waitlist modal
         waitlistModal.closeModal();
+        
+        // Clear the form
         waitlistForm.reset();
         
+        // Show time preference popup with success message
+        const timePreferencePopup = document.getElementById('timePreferencePopup');
         const submittedWaitlistEmail = document.getElementById('submittedWaitlistEmail');
         console.log('Submitted waitlist email:', submittedWaitlistEmail);
         submittedWaitlistEmail.value = email;
@@ -137,29 +143,90 @@ document.addEventListener('DOMContentLoaded', function() {
         otherTimesContainer.classList.toggle('hidden');
     });
 
-    // Update waitlist button click handlers
+    function handleTimePreferenceSubmit(e) {
+        e.preventDefault();
+        const form = e.target;
+        const email = document.getElementById('submittedWaitlistEmail').value;
+        const selectedTimes = Array.from(form.querySelectorAll('input[name="timePreference"]:checked'))
+            .map(checkbox => checkbox.value);
+        const otherTimes = document.getElementById('otherTimes').value;
+
+        if (selectedTimes.length === 0 && !otherTimes) {
+            alert('Please select at least one time preference or provide alternative times.');
+            return;
+        }
+
+        const data = {
+            email: email,
+            timePreferences: selectedTimes,
+            otherTimes: otherTimes
+        };
+
+        // Define the endpoint based on environment
+        const endpoint = '{{ jekyll.environment }}' === 'production' 
+            ? '/workshops/process_time_preference.php'
+            : '/workshops/process_time_preference.test.json';
+
+        fetch(endpoint, {
+            method: '{{ jekyll.environment }}' === 'production' ? 'POST' : 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: '{{ jekyll.environment }}' === 'production' ? JSON.stringify(data) : null
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Store the original content
+                const modalContent = timePreferencePopup.querySelector('.modal-content');
+                const originalContent = modalContent.innerHTML;
+                
+                // Replace content with message
+                modalContent.innerHTML = `
+                    <div class="temp-message success">
+                        <h3>Thank You!</h3>
+                        <p>${data.message}</p>
+                    </div>
+                `;
+                
+                // Reset and restore after delay
+                setTimeout(() => {
+                    timePreferenceModal.closeModal();
+                    form.reset();
+                    modalContent.innerHTML = originalContent;
+                }, 2000);
+            } else {
+                throw new Error(data.error || 'An error occurred');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            const modalContent = timePreferencePopup.querySelector('.modal-content');
+            const originalContent = modalContent.innerHTML;
+            
+            modalContent.innerHTML = `
+                <div class="temp-message error">
+                    <h3>Error</h3>
+                    <p>An error occurred. Please try again.</p>
+                </div>
+            `;
+            
+            setTimeout(() => {
+                modalContent.innerHTML = originalContent;
+            }, 3000);
+        });
+    }
+
+    // Add the event listener to the time preference form
+    const timePreferenceForm = document.getElementById('timePreferenceForm');
+    if (timePreferenceForm) {
+        timePreferenceForm.addEventListener('submit', handleTimePreferenceSubmit);
+    }
+
+    // Add click handlers for all waitlist buttons
     document.querySelectorAll('.waitlist-button').forEach(button => {
         button.addEventListener('click', function(e) {
-            e.preventDefault()
-            const itemName = this.getAttribute('data-item-name');
-            const price = this.getAttribute('data-price');
-            const originalPrice = this.getAttribute('data-original-price');
-            const discount = this.getAttribute('data-discount');
-            
-            // Set hidden input values
-            document.getElementById('hiddenItemName').value = itemName;
-            document.getElementById('hiddenPrice').value = price;
-            document.getElementById('hiddenOriginalPrice').value = originalPrice;
-            document.getElementById('hiddenDiscount').value = discount;
-
-            // Update visible text in the modal
-            document.getElementById('waitlistItemName').textContent = itemName;
-            document.getElementById('waitlistPrice').textContent = '$' + price;
-            if (originalPrice !== price) {
-                document.getElementById('waitlistOriginalPrice').textContent = '$' + originalPrice;
-                document.getElementById('waitlistDiscount').textContent = discount + '% off';
-            }
-
+            e.preventDefault();
             waitlistModal.openModal();
         });
     });
