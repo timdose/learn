@@ -124,6 +124,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function showSuccessMessage(message) {
+        // Get the email value before clearing the form
+        const email = document.getElementById('waitlistEmail').value;
+        console.log('Email:', email);
+        
         // Close the waitlist modal
         closeModal();
         
@@ -132,8 +136,9 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Show time preference popup with success message
         const timePreferencePopup = document.getElementById('timePreferencePopup');
-        const waitlistEmail = document.getElementById('waitlistEmail');
-        waitlistEmail.value = email;
+        const submittedWaitlistEmail = document.getElementById('submittedWaitlistEmail');
+        console.log('Submitted waitlist email:', submittedWaitlistEmail);
+        submittedWaitlistEmail.value = email;
         timePreferencePopup.classList.remove('hidden');
     }
 
