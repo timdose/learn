@@ -4,28 +4,32 @@ header('Content-Type: application/json');
 try {
     // Validate input
     $input = json_decode(file_get_contents('php://input'), true);
-    if (!isset($input['email']) || !isset($input['timePreferences'])) {
+    if (!isset($input['email'])) {
         throw new Exception('Missing required fields');
     }
 
     $email = filter_var($input['email'], FILTER_SANITIZE_EMAIL);
-    // Handle timePreference as an array
-    $timePreference = is_array($input['timePreferences']) 
-        ? array_map('htmlspecialchars', $input['timePreferences'])
-        : [htmlspecialchars($input['timePreferences'])];
+    // Make timePreferences optional with empty array as default
+    $timePreferences = isset($input['timePreferences']) ? (
+        is_array($input['timePreferences']) 
+            ? array_map('htmlspecialchars', $input['timePreferences'])
+            : [htmlspecialchars($input['timePreferences'])]
+    ) : [];
     $otherTimes = isset($input['otherTimes']) ? htmlspecialchars($input['otherTimes']) : '';
 
     // Prepare email content
-    $to = 'timdose@gmail.com';
-    $subject = 'New Workshop Time Preference Submission';
     $message = "Email: $email\n";
-    $message .= "Preferred Times:\n - " . implode("\n - ", array_map(function($time) {
-        return trim($time);
-    }, $timePreference)) . "\n";
+    if (!empty($timePreferences)) {
+        $message .= "Preferred Times:\n - " . implode("\n - ", array_map(function($time) {
+            return trim($time);
+        }, $timePreferences)) . "\n";
+    }
     if ($otherTimes) {
         $message .= "Other Times: $otherTimes\n";
     }
     
+    $to = 'timdose@gmail.com';
+    $subject = 'New Workshop Time Preference Submission';
     $headers = [
         'From' => 'waitlist@timdoseart.com',
         'Reply-To' => $email,
