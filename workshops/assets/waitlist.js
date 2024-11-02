@@ -120,30 +120,15 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function showSuccessMessage(message) {
-        const successMessage = document.createElement('div');
-        successMessage.textContent = message;
-        successMessage.style.cssText = `
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: #4CAF50;
-            color: white;
-            padding: 20px;
-            border-radius: 5px;
-            text-align: center;
-            z-index: 1000;
-        `;
-        document.body.appendChild(successMessage);
-
+        // Close the waitlist modal
+        closeModal();
+        
         // Clear the form
         waitlistForm.reset();
-
-        // Remove the success message and close the modal after 3 seconds
-        setTimeout(() => {
-            document.body.removeChild(successMessage);
-            closeModal();
-        }, 3000);
+        
+        // Show time preference popup with success message
+        const timePreferencePopup = document.getElementById('timePreferencePopup');        
+        timePreferencePopup.classList.remove('hidden');
     }
 
     if (waitlistForm) {
