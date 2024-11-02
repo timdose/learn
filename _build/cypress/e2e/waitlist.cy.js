@@ -44,7 +44,7 @@ describe('Waitlist Popup', () => {
       cy.get('#waitlistPopup').should('have.class', 'hidden')
     })
 
-    it('shows another popup after the user has entered their email and clicked submit', () => {
+    it('shows the time preference popup after the user has successfully submitted their email', () => {
       // Get popup trigger button and click it
       cy.get('.waitlist-button').first().click()
 
