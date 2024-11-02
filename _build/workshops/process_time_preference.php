@@ -25,7 +25,7 @@ try {
     }
     
     $headers = [
-        'From' => 'noreply@yourdomain.com',
+        'From' => 'waitlist@timdoseart.com',
         'Reply-To' => $email,
         'X-Mailer' => 'PHP/' . phpversion()
     ];
