@@ -1,3 +1,7 @@
+---
+
+---
+
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOMContentLoaded event fired');
 
@@ -127,7 +131,9 @@ document.addEventListener('DOMContentLoaded', function() {
         waitlistForm.reset();
         
         // Show time preference popup with success message
-        const timePreferencePopup = document.getElementById('timePreferencePopup');        
+        const timePreferencePopup = document.getElementById('timePreferencePopup');
+        const waitlistEmail = document.getElementById('waitlistEmail');
+        waitlistEmail.value = email;
         timePreferencePopup.classList.remove('hidden');
     }
 
