@@ -9,7 +9,10 @@
                 {% for time in page.times %}
                     <div>
                     <input type="checkbox" name="timePreference" value="{{ time }}">
-                    <label for="{{ time }}">{{ time }}</label>
+                    <label for="{{ time }}">
+                        {{ time }} 
+                        <span class="local-time" data-original-time="{{ time }}"></span>
+                    </label>
                     </div>
                 {% endfor %}
             </div>
@@ -25,3 +28,4 @@
         </form>
     </div>
 </div>
+<script src="{{ site.workshop-asset-folder }}time-preference-popup.js"></script>
