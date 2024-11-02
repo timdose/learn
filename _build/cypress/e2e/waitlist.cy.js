@@ -61,4 +61,19 @@ describe('Waitlist Popup', () => {
       // Verify the time preference popup is visible
       cy.get('#timePreferencePopup').should('not.have.class', 'hidden')
     })
+
+    it('passes email to time preference popup hidden field', () => {
+      const testEmail = 'test@test.com';
+      
+      // Get popup trigger button and click it
+      cy.get('.waitlist-button').first().click()
+
+      // Enter email and submit
+      cy.get('#waitlistEmail').type(testEmail)
+      cy.get('[data-test-id="submit-waitlist-popup"]').click()
+
+      // Verify the email was passed to the hidden field
+      cy.get('#timePreferencePopup input[name="waitlistEmail"]')
+        .should('have.value', testEmail)
+    })
 })

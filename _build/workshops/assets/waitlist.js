@@ -87,15 +87,15 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('Form data:', Object.fromEntries(formData));
             
             // Define the endpoint based on environment
-            const endpoint = '{{ jekyll.environment }}' === 'production' 
+            const endpoint = 'production' === 'production' 
                 ? '/workshops/process_waitlist.php'
                 : '/workshops/process_waitlist.test.json';
             
             console.log('Sending request to:', endpoint);
             
             fetch(endpoint, {
-                method: '{{ jekyll.environment }}' === 'production' ? 'POST' : 'GET', // Use GET for JSON file
-                body: '{{ jekyll.environment }}' === 'production' ? formData : null   // Don't send body for GET
+                method: 'production' === 'production' ? 'POST' : 'GET', // Use GET for JSON file
+                body: 'production' === 'production' ? formData : null   // Don't send body for GET
             })
             .then(response => {
                 console.log('Raw response:', response);
@@ -127,7 +127,9 @@ document.addEventListener('DOMContentLoaded', function() {
         waitlistForm.reset();
         
         // Show time preference popup with success message
-        const timePreferencePopup = document.getElementById('timePreferencePopup');        
+        const timePreferencePopup = document.getElementById('timePreferencePopup');
+        const waitlistEmail = document.getElementById('waitlistEmail');
+        waitlistEmail.value = email;
         timePreferencePopup.classList.remove('hidden');
     }
 
