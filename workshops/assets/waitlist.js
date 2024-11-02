@@ -19,66 +19,51 @@ document.addEventListener('DOMContentLoaded', function() {
     // Ensure the popup is hidden on page load
     waitlistPopup.classList.add('hidden');
 
-    // Function to open the modal
-    function openModal() {
-        waitlistPopup.classList.remove('hidden');
-    }
-
-    // Function to close the modal
-    function closeModal() {
-        waitlistPopup.classList.add('hidden');
-        // Add a custom event dispatch to help with testing
-        waitlistPopup.dispatchEvent(new CustomEvent('modalClosed'));
-    }
-
-    // Add keyboard event listener for Escape key
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && !waitlistPopup.classList.contains('hidden')) {
-            closeModal();
+    // Generic modal management functions
+    function setupModal(modalElement) {
+        const closeButton = modalElement.querySelector('.close');
+        
+        function closeModal() {
+            modalElement.classList.add('hidden');
+            modalElement.dispatchEvent(new CustomEvent('modalClosed'));
         }
-    });
 
-    // Add click event to close button
-    if (closeButton) {
-        closeButton.addEventListener('click', (e) => {
-            e.preventDefault();
-            closeModal();
-        });
-    }
-
-    // Add click event to modal wrapper for outside clicks
-    waitlistPopup.addEventListener('click', (e) => {
-        // Close only if clicking the overlay (waitlistPopup) and not its children
-        if (e.target === waitlistPopup) {
-            closeModal();
+        function openModal() {
+            modalElement.classList.remove('hidden');
         }
-    });
 
-    // Add click events to all waitlist buttons
-    document.querySelectorAll('.waitlist-button').forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.preventDefault()
-            const itemName = this.getAttribute('data-item-name');
-            const price = this.getAttribute('data-price');
-            const originalPrice = this.getAttribute('data-original-price');
-            const discount = this.getAttribute('data-discount');
-            
-            // Set hidden input values
-            document.getElementById('hiddenItemName').value = itemName;
-            document.getElementById('hiddenPrice').value = price;
-            document.getElementById('hiddenOriginalPrice').value = originalPrice;
-            document.getElementById('hiddenDiscount').value = discount;
+        // Close button click
+        if (closeButton) {
+            closeButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                closeModal();
+            });
+        }
 
-            // Update visible text in the modal
-            document.getElementById('waitlistItemName').textContent = itemName;
-            document.getElementById('waitlistPrice').textContent = '$' + price;
-            if (originalPrice !== price) {
-                document.getElementById('waitlistOriginalPrice').textContent = '$' + originalPrice;
-                document.getElementById('waitlistDiscount').textContent = discount + '% off';
+        // Outside click
+        modalElement.addEventListener('click', (e) => {
+            if (e.target === modalElement) {
+                closeModal();
             }
-
-            openModal();
         });
+
+        return { openModal, closeModal };
+    }
+
+    // Setup both modals
+    const waitlistModal = setupModal(waitlistPopup);
+    const timePreferenceModal = setupModal(timePreferencePopup);
+
+    // Single keyboard event listener for all modals
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            if (!waitlistPopup.classList.contains('hidden')) {
+                waitlistModal.closeModal();
+            }
+            if (!timePreferencePopup.classList.contains('hidden')) {
+                timePreferenceModal.closeModal();
+            }
+        }
     });
 
     // Move these function definitions outside DOMContentLoaded
@@ -124,22 +109,16 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function showSuccessMessage(message) {
-        // Get the email value before clearing the form
         const email = document.getElementById('waitlistEmail').value;
         console.log('Email:', email);
         
-        // Close the waitlist modal
-        closeModal();
-        
-        // Clear the form
+        waitlistModal.closeModal();
         waitlistForm.reset();
         
-        // Show time preference popup with success message
-        const timePreferencePopup = document.getElementById('timePreferencePopup');
         const submittedWaitlistEmail = document.getElementById('submittedWaitlistEmail');
         console.log('Submitted waitlist email:', submittedWaitlistEmail);
         submittedWaitlistEmail.value = email;
-        timePreferencePopup.classList.remove('hidden');
+        timePreferenceModal.openModal();
     }
 
     if (waitlistForm) {
@@ -156,6 +135,33 @@ document.addEventListener('DOMContentLoaded', function() {
     noTimesLink.addEventListener('click', function(e) {
         e.preventDefault();
         otherTimesContainer.classList.toggle('hidden');
+    });
+
+    // Update waitlist button click handlers
+    document.querySelectorAll('.waitlist-button').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault()
+            const itemName = this.getAttribute('data-item-name');
+            const price = this.getAttribute('data-price');
+            const originalPrice = this.getAttribute('data-original-price');
+            const discount = this.getAttribute('data-discount');
+            
+            // Set hidden input values
+            document.getElementById('hiddenItemName').value = itemName;
+            document.getElementById('hiddenPrice').value = price;
+            document.getElementById('hiddenOriginalPrice').value = originalPrice;
+            document.getElementById('hiddenDiscount').value = discount;
+
+            // Update visible text in the modal
+            document.getElementById('waitlistItemName').textContent = itemName;
+            document.getElementById('waitlistPrice').textContent = '$' + price;
+            if (originalPrice !== price) {
+                document.getElementById('waitlistOriginalPrice').textContent = '$' + originalPrice;
+                document.getElementById('waitlistDiscount').textContent = discount + '% off';
+            }
+
+            waitlistModal.openModal();
+        });
     });
 });
 
