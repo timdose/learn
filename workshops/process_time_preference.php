@@ -4,7 +4,7 @@ header('Content-Type: application/json');
 try {
     // Validate input
     $input = json_decode(file_get_contents('php://input'), true);
-    if (!isset($input['email']) || !isset($input['timePreference'])) {
+    if (!isset($input['email']) || !isset($input['timePreferences'])) {
         throw new Exception('Missing required fields');
     }
 

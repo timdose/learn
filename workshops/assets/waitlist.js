@@ -161,7 +161,9 @@ document.addEventListener('DOMContentLoaded', function() {
             timePreferences: selectedTimes,
             otherTimes: otherTimes
         };
-
+        
+        console.log('Submitting data:', data); // Debug log
+        
         // Define the endpoint based on environment
         const endpoint = '{{ jekyll.environment }}' === 'production' 
             ? '/workshops/process_time_preference.php'
