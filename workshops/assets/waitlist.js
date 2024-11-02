@@ -119,13 +119,20 @@ document.addEventListener('DOMContentLoaded', function() {
         // Clear the form
         waitlistForm.reset();
         
-        // Show time preference popup with success message
-        const timePreferencePopup = document.getElementById('timePreferencePopup');
-        const submittedWaitlistEmail = document.getElementById('submittedWaitlistEmail');
-        console.log('Submitted waitlist email:', submittedWaitlistEmail);
-        submittedWaitlistEmail.value = email;
-        timePreferenceModal.openModal();
+        // Check if the last clicked button had the data-ask-times attribute
+        const shouldAskTimes = lastClickedButton && lastClickedButton.hasAttribute('data-ask-times');
+        
+        if (shouldAskTimes) {
+            const timePreferencePopup = document.getElementById('timePreferencePopup');
+            const submittedWaitlistEmail = document.getElementById('submittedWaitlistEmail');
+            console.log('Submitted waitlist email:', submittedWaitlistEmail);
+            submittedWaitlistEmail.value = email;
+            timePreferenceModal.openModal();
+        }
     }
+
+    // Track the last clicked waitlist button
+    let lastClickedButton = null;
 
     if (waitlistForm) {
         waitlistForm.addEventListener('submit', handleSubmit);
@@ -229,6 +236,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.waitlist-button').forEach(button => {
         button.addEventListener('click', function(e) {
             e.preventDefault();
+            lastClickedButton = this; // Store the clicked button
             waitlistModal.openModal();
         });
     });

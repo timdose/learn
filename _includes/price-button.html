@@ -21,7 +21,11 @@
             data-price="{{final_price}}" 
             data-item-name="{{include.item_name}}" 
             data-discount="{{include.discount}}"
-            data-original-price="{{include.price}}">
+            data-original-price="{{include.price}}"
+            {% if include.ask_times %}
+                data-ask-times="true"
+            {% endif %}
+        >
             Join waitlist
         </button>
     </div>
