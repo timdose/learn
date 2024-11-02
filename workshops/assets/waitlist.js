@@ -148,6 +148,15 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
         console.log('Waitlist form not found');
     }
+
+    // Add event listener for the "None of these times" link
+    const noTimesLink = document.getElementById('noTimesLink');
+    const otherTimesContainer = document.getElementById('otherTimesContainer');
+    
+    noTimesLink.addEventListener('click', function(e) {
+        e.preventDefault();
+        otherTimesContainer.classList.toggle('hidden');
+    });
 });
 
 // Outside DOMContentLoaded event

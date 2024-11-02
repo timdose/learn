@@ -13,6 +13,11 @@
                     </div>
                 {% endfor %}
             </div>
+            <a href="#" id="noTimesLink" class="no-times-link">None of these times work for me</a>
+            <div id="otherTimesContainer" class="hidden">
+                <label for="otherTimes">What days &amp; times would work for you?</label>
+                <textarea id="otherTimes" name="otherTimes" rows="3"></textarea>
+            </div>
             <input type="hidden" name="waitlistEmail" id="submittedWaitlistEmail" value="">
             <div class="button-container">
                 <button type="submit" id="submitTimePreferenceButton" class="button" data-test-id="submit-time-preference-button">Submit</button>

@@ -513,6 +513,33 @@ button.large, .button.large {
     margin-top: 20px;
 }
 
+
+.no-times-link {
+    display: block;
+    margin: 1em 0;
+    color: #666;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+#otherTimesContainer {
+    margin-top: 1em;
+}
+
+#otherTimesContainer label {
+    display: block;
+    margin-bottom: 0.5em;
+}
+
+#otherTimesContainer textarea {
+    width: 100%;
+    padding: 0.5em;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-bottom: 20px;
+}
+
+
 #waitlistEmail {
     width: 100%;
     padding: 10px;
