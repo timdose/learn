@@ -2,9 +2,10 @@
     <div class="modal-content">
         <span class="close" data-test-id="close-time-preference-popup">&times;</span>
         <h2>You've been added to the waitlist!</h2>
-        <p>Which times work for you?</p>
-        <p class="subtext">Please check all that apply.</p>
         <form id="timePreferenceForm">
+            {% if page.times and page.times.size > 0 %}
+            <p>Which times work for you?</p>
+            <p class="subtext">Please check all that apply.</p>
             <div class="time-options-container">
                 {% for time in page.times %}
                     <div>
@@ -18,6 +19,9 @@
             </div>
             <a href="#" id="noTimesLink" class="no-times-link">None of these times work for me</a>
             <div id="otherTimesContainer" class="hidden">
+            {% else %}
+            <div id="otherTimesContainer">
+            {% endif %}
                 <label for="otherTimes">What days &amp; times would work for you?</label>
                 <textarea id="otherTimes" name="otherTimes" rows="3"></textarea>
             </div>
@@ -28,4 +32,4 @@
         </form>
     </div>
 </div>
-<!-- <script src="{{ site.workshop-asset-folder }}time-preference-popup.js"></script> -->
+<!-- <script src="{{ site.workshop-asset-folder }}time-preference-popup.js"></script>    -->

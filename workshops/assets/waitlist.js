@@ -145,10 +145,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const noTimesLink = document.getElementById('noTimesLink');
     const otherTimesContainer = document.getElementById('otherTimesContainer');
     
-    noTimesLink.addEventListener('click', function(e) {
-        e.preventDefault();
-        otherTimesContainer.classList.toggle('hidden');
-    });
+    if (noTimesLink) {  // Only add the event listener if the link exists
+        noTimesLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            otherTimesContainer.classList.toggle('hidden');
+        });
+    }
 
     function handleTimePreferenceSubmit(e) {
         e.preventDefault();
