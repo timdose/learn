@@ -244,6 +244,24 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             lastClickedButton = this;
             
+            // Add this code to update pricing info
+            const price = this.getAttribute('data-price');
+            const originalPrice = this.getAttribute('data-original-price');
+            const discount = this.getAttribute('data-discount');
+            const itemName = this.getAttribute('data-item-name');
+            
+            // Update the existing elements
+            document.getElementById('waitlistItemName').textContent = itemName;
+            document.getElementById('waitlistPrice').textContent = `$${price}`;
+            
+            if (discount) {
+                document.getElementById('waitlistOriginalPrice').textContent = `$${originalPrice}`;
+                document.getElementById('waitlistDiscount').textContent = `${discount}% off`;
+            } else {
+                document.getElementById('waitlistOriginalPrice').textContent = '';
+                document.getElementById('waitlistDiscount').textContent = '';
+            }
+
             // Generate request ID: YYYYMMDD-XXXX
             const today = new Date();
             const dateStr = today.getFullYear() +
