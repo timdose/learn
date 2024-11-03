@@ -107,7 +107,9 @@ document.addEventListener('DOMContentLoaded', function() {
     function showSuccessMessage(message) {
         // Get the email value before clearing the form
         const email = document.getElementById('waitlistEmail').value;
+        const requestId = document.getElementById('hiddenRequestId').value;
         console.log('Email:', email);
+        console.log('Request ID:', requestId);
         
         // Close the waitlist modal
         waitlistModal.closeModal();
@@ -121,8 +123,10 @@ document.addEventListener('DOMContentLoaded', function() {
         if (shouldAskTimes) {
             const timePreferencePopup = document.getElementById('timePreferencePopup');
             const submittedWaitlistEmail = document.getElementById('submittedWaitlistEmail');
+            const submittedRequestId = document.getElementById('submittedRequestId');
             console.log('Submitted waitlist email:', submittedWaitlistEmail);
             submittedWaitlistEmail.value = email;
+            submittedRequestId.value = requestId;
             timePreferenceModal.openModal();
         }
     }
@@ -234,7 +238,15 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.waitlist-button').forEach(button => {
         button.addEventListener('click', function(e) {
             e.preventDefault();
-            lastClickedButton = this; // Store the clicked button
+            lastClickedButton = this;
+            
+            // Generate request ID: YYYYMMDD-XXXX
+            const today = new Date();
+            const dateStr = today.getFullYear() +
+                String(today.getMonth() + 1).padStart(2, '0') +
+                String(today.getDate()).padStart(2, '0');
+            const randomStr = Math.random().toString(36).substring(2, 6).toUpperCase();
+            const requestId = `${dateStr}-${randomStr}`;
             
             // Copy data attributes to hidden fields
             const form = document.getElementById('waitlistForm');
@@ -245,6 +257,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 'original-price',
                 'ask-times'
             ];
+            
+            // Add requestId to form
+            const requestIdField = form.querySelector('input[name="requestId"]');
+            console.log('Request ID field:', requestIdField);
+            if (!requestIdField) {
+                console.error('Request ID field not found in the form.');
+                return;
+            }
+            requestIdField.value = requestId;
             
             dataAttributes.forEach(attr => {
                 const value = this.getAttribute(`data-${attr}`);

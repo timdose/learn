@@ -150,3 +150,43 @@ describe('Waitlist Popup', () => {
       })
     })
 })
+
+describe('Waitlist Form', () => {
+  beforeEach(() => {
+    cy.visit('/workshops/shading/') // Adjust this path to match your actual page URL
+  })
+
+  it('should generate a properly formatted request ID and pass it to time preference popup', () => {
+    // Click the waitlist button with data-ask-times
+    cy.get('.waitlist-button[data-ask-times]').first().click()
+
+    // Check that the modal opens
+    cy.get('#waitlistPopup').should('not.have.class', 'hidden')
+
+    // Get today's date in YYYYMMDD format
+    const today = new Date()
+    const dateStr = today.getFullYear() +
+      String(today.getMonth() + 1).padStart(2, '0') +
+      String(today.getDate()).padStart(2, '0')
+
+    // Get and verify the request ID format
+    cy.get('#waitlistForm input[name="requestId"]')
+      .should('exist')
+      .invoke('val')
+      .then(requestId => {
+        // Verify format matches YYYYMMDD-XXXX
+        expect(requestId).to.match(new RegExp(`^${dateStr}-[A-Z0-9]{4}$`))
+
+        // Wait for email field to be enabled before typing
+        cy.get('#waitlistEmail')
+          .should('not.be.disabled')
+          .type('test@test.com')
+          
+        cy.get('[data-test-id="submit-waitlist-popup"]').click()
+
+        // Verify the request ID was passed to the time preference popup
+        cy.get('#timePreferencePopup input[name="requestId"]')
+          .should('have.value', requestId)
+      })
+  })
+})
