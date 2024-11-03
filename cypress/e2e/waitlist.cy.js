@@ -150,3 +150,29 @@ describe('Waitlist Popup', () => {
       })
     })
 })
+
+describe('Waitlist Form', () => {
+  beforeEach(() => {
+    cy.visit('/workshops/shading/') // Adjust this path to match your actual page URL
+  })
+
+  it('should generate a properly formatted request ID when opening waitlist modal', () => {
+    // Click the waitlist button
+    cy.get('.waitlist-button').first().click()
+
+    // Check that the modal opens
+    cy.get('#waitlistPopup').should('not.have.class', 'hidden')
+
+    // Get today's date in YYYYMMDD format
+    const today = new Date()
+    const dateStr = today.getFullYear() +
+      String(today.getMonth() + 1).padStart(2, '0') +
+      String(today.getDate()).padStart(2, '0')
+
+    // Verify the request ID format
+    cy.get('#waitlistForm input[name="requestId"]')
+      .should('exist')
+      .invoke('val')
+      .should('match', new RegExp(`^${dateStr}-[A-Z0-9]{4}$`))
+  })
+})

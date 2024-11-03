@@ -238,7 +238,15 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.waitlist-button').forEach(button => {
         button.addEventListener('click', function(e) {
             e.preventDefault();
-            lastClickedButton = this; // Store the clicked button
+            lastClickedButton = this;
+            
+            // Generate request ID: YYYYMMDD-XXXX
+            const today = new Date();
+            const dateStr = today.getFullYear() +
+                String(today.getMonth() + 1).padStart(2, '0') +
+                String(today.getDate()).padStart(2, '0');
+            const randomStr = Math.random().toString(36).substring(2, 6).toUpperCase();
+            const requestId = `${dateStr}-${randomStr}`;
             
             // Copy data attributes to hidden fields
             const form = document.getElementById('waitlistForm');
@@ -249,6 +257,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 'original-price',
                 'ask-times'
             ];
+            
+            // Add requestId to form
+            const requestIdField = form.querySelector('input[name="requestId"]') || (() => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'requestId';
+                form.appendChild(input);
+                return input;
+            })();
+            requestIdField.value = requestId;
             
             dataAttributes.forEach(attr => {
                 const value = this.getAttribute(`data-${attr}`);
