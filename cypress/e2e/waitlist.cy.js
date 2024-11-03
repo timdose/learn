@@ -115,4 +115,38 @@ describe('Waitlist Popup', () => {
       cy.get('#timePreferencePopup input[name="waitlistEmail"]')
         .should('have.value', testEmail)
     })
+
+
+    it('passes all button data attributes to waitlist popup form fields', () => {
+      // Get the first waitlist button and verify all its data attributes
+      cy.get('.waitlist-button').first().then(($button) => {
+          // Get all relevant data attributes
+          const price = $button.attr('data-price')
+          const itemName = $button.attr('data-item-name')
+          const discount = $button.attr('data-discount')
+          const originalPrice = $button.attr('data-original-price')
+          const askTimes = $button.attr('data-ask-times') !== undefined
+          
+          // Click this specific button
+          cy.get('.waitlist-button').first().click()
+          
+          // Verify all hidden fields match the button's data attributes
+          cy.get('#waitlistPopup input[name="price"]')
+            .should('have.value', price)
+          cy.get('#waitlistPopup input[name="itemName"]')
+            .should('have.value', itemName)
+          cy.get('#waitlistPopup input[name="originalPrice"]')
+            .should('have.value', originalPrice)
+          
+          // Check discount field (might be empty)
+          if (discount) {
+            cy.get('#waitlistPopup input[name="discount"]')
+              .should('have.value', discount)
+          }
+          
+          // Verify data-ask-times presence is reflected in form
+          cy.get('#waitlistPopup input[name="askTimes"]')
+            .should('have.value', askTimes.toString())
+      })
+    })
 })
