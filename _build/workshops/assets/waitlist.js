@@ -249,7 +249,12 @@ document.addEventListener('DOMContentLoaded', function() {
             const dateStr = today.getFullYear() +
                 String(today.getMonth() + 1).padStart(2, '0') +
                 String(today.getDate()).padStart(2, '0');
-            const randomStr = Math.random().toString(36).substring(2, 6).toUpperCase();
+            
+            // Generate 4 random uppercase letters (A-Z only)
+            const randomStr = Array.from({ length: 4 }, () => 
+                String.fromCharCode(65 + Math.floor(Math.random() * 26))
+            ).join('');
+            
             const requestId = `${dateStr}-${randomStr}`;
             
             // Copy data attributes to hidden fields
