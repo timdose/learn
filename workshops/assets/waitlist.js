@@ -160,6 +160,8 @@ document.addEventListener('DOMContentLoaded', function() {
         e.preventDefault();
         const form = e.target;
         const email = document.getElementById('submittedWaitlistEmail').value;
+        const requestId = document.getElementById('submittedRequestId').value;
+        const courseName = document.getElementById('submittedCourseName').value;
         const selectedTimes = Array.from(form.querySelectorAll('input[name="timePreference"]:checked'))
             .map(checkbox => checkbox.value);
         const otherTimes = document.getElementById('otherTimes').value;
@@ -171,6 +173,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const data = {
             email: email,
+            requestId: requestId,
+            courseName: courseName,
             timePreferences: selectedTimes,
             otherTimes: otherTimes
         };
