@@ -111,7 +111,9 @@ document.addEventListener('DOMContentLoaded', function() {
     function showSuccessMessage(message) {
         // Get the email value before clearing the form
         const email = document.getElementById('waitlistEmail').value;
+        const requestId = document.getElementById('hiddenRequestId').value;
         console.log('Email:', email);
+        console.log('Request ID:', requestId);
         
         // Close the waitlist modal
         waitlistModal.closeModal();
@@ -125,8 +127,10 @@ document.addEventListener('DOMContentLoaded', function() {
         if (shouldAskTimes) {
             const timePreferencePopup = document.getElementById('timePreferencePopup');
             const submittedWaitlistEmail = document.getElementById('submittedWaitlistEmail');
+            const submittedRequestId = document.getElementById('submittedRequestId');
             console.log('Submitted waitlist email:', submittedWaitlistEmail);
             submittedWaitlistEmail.value = email;
+            submittedRequestId.value = requestId;
             timePreferenceModal.openModal();
         }
     }
@@ -259,13 +263,12 @@ document.addEventListener('DOMContentLoaded', function() {
             ];
             
             // Add requestId to form
-            const requestIdField = form.querySelector('input[name="requestId"]') || (() => {
-                const input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = 'requestId';
-                form.appendChild(input);
-                return input;
-            })();
+            const requestIdField = form.querySelector('input[name="requestId"]');
+            console.log('Request ID field:', requestIdField);
+            if (!requestIdField) {
+                console.error('Request ID field not found in the form.');
+                return;
+            }
             requestIdField.value = requestId;
             
             dataAttributes.forEach(attr => {
