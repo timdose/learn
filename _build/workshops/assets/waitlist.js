@@ -141,10 +141,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const noTimesLink = document.getElementById('noTimesLink');
     const otherTimesContainer = document.getElementById('otherTimesContainer');
     
-    noTimesLink.addEventListener('click', function(e) {
-        e.preventDefault();
-        otherTimesContainer.classList.toggle('hidden');
-    });
+    if (noTimesLink) {  // Only add the event listener if the link exists
+        noTimesLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            otherTimesContainer.classList.toggle('hidden');
+        });
+    }
 
     function handleTimePreferenceSubmit(e) {
         e.preventDefault();
@@ -233,6 +235,36 @@ document.addEventListener('DOMContentLoaded', function() {
         button.addEventListener('click', function(e) {
             e.preventDefault();
             lastClickedButton = this; // Store the clicked button
+            
+            // Copy data attributes to hidden fields
+            const form = document.getElementById('waitlistForm');
+            const dataAttributes = [
+                'price',
+                'item-name',
+                'discount',
+                'original-price',
+                'ask-times'
+            ];
+            
+            dataAttributes.forEach(attr => {
+                const value = this.getAttribute(`data-${attr}`);
+                const fieldName = attr.replace(/-([a-z])/g, g => g[1].toUpperCase()); // convert to camelCase
+                const hiddenField = form.querySelector(`input[name="${fieldName}"]`);
+                
+                if (!hiddenField) {
+                    // Create field if it doesn't exist
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = fieldName;
+                    form.appendChild(input);
+                }
+                
+                // Set the value (convert empty string to "true" for boolean attributes)
+                const isBoolean = value === '';
+                form.querySelector(`input[name="${fieldName}"]`).value = 
+                    isBoolean ? 'true' : value;
+            });
+            
             waitlistModal.openModal();
         });
     });

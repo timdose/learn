@@ -474,7 +474,7 @@ button.large, .button.large {
 }
 
 /* Styles for the waitlist popup */
-#waitlistPopup .modal-content {
+#waitlistPopup .modal-content, #timePreferencePopup .modal-content {
     max-width: 600px;
 }
 

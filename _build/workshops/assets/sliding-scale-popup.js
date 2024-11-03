@@ -6,7 +6,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Open the modal
     openButtons.forEach(button => {
-        console.log('openButtons: ', button);
         button.addEventListener('click', function() {
             modal.classList.remove('hidden');
         });
