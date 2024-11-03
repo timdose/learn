@@ -9,6 +9,8 @@ try {
     }
 
     $email = filter_var($input['email'], FILTER_SANITIZE_EMAIL);
+    $requestId = htmlspecialchars($input['requestId'] ?? '', ENT_QUOTES, 'UTF-8');
+    $courseName = htmlspecialchars($input['courseName'] ?? '', ENT_QUOTES, 'UTF-8');
     // Make timePreferences optional with empty array as default
     $timePreferences = isset($input['timePreferences']) ? (
         is_array($input['timePreferences']) 
@@ -29,7 +31,7 @@ try {
     }
     
     $to = 'timdose@gmail.com';
-    $subject = 'New Workshop Time Preference Submission';
+    $subject = "New Waitlist Submission: $courseName - $requestId";
     $headers = [
         'From' => 'waitlist@timdoseart.com',
         'Reply-To' => $email,

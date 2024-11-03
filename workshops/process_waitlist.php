@@ -20,6 +20,7 @@ try {
         $price = filter_var($_POST['price'] ?? '', FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
         $originalPrice = filter_var($_POST['originalPrice'] ?? '', FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
         $discount = filter_var($_POST['discount'] ?? '', FILTER_SANITIZE_NUMBER_INT);
+        $requestId = htmlspecialchars($_POST['requestId'] ?? '', ENT_QUOTES, 'UTF-8');
 
         // Validate email
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -28,7 +29,7 @@ try {
 
         // Send email
         $to = "timdose@gmail.com";
-        $subject = "New Waitlist Submission: $courseName";
+        $subject = "New Waitlist Submission: $courseName - $requestId";
         $message = "New waitlist submission:\n\n";
         $message .= "Email: $email\n";
         $message .= "Course: $courseName\n";
