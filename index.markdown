@@ -5,9 +5,11 @@
 layout: home
 ---
 
-## Workshops
+## Online workshops
 
-[Shading workshop signup](workshops/shading/signup/)
+[Shading workshop](workshops/shading/)
+
+[Accuracy workshop](workshops/shading/)
 
 ## Resources
 [Form direction training](https://learning.timdoseart.com/form-direction-training/)
