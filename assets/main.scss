@@ -4,3 +4,19 @@
 
 @import "minima";
 
+$layout-breakpoint-small: 980px;
+$layout-breakpoint-medium: 1024px;
+$layout-breakpoint-large: 1280px;
+$layout-breakpoint-xlarge: 1920px;
+
+.page-content {
+    font-size: 1.25rem;
+}
+
+
+@media screen and (max-width: 800px) {
+    .wrapper {
+        padding-right: 21.3333px;
+        padding-left: 21.3333px;
+    }
+}

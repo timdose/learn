@@ -13,4 +13,4 @@ permalink: /workshops/
 
 [Portrait drawing workshop](/workshops/portrait-drawing/)
 
-[Open drawing & painting](/open-studies/)
+[Open drawing & painting](/workshops/open-drawing-painting/)
