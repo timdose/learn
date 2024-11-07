@@ -2,11 +2,11 @@
 layout: workshop
 permalink: /workshops/accuracy/
 prices:
-  live: 250
-  recordings: 175
+  live: 300
+  recordings: 120
   addon: 100
-discount1: 20
-discount2: 40
+discount1: 25
+discount2: 50
 title: "Accurate drawing"
 description: "Learn simple skills to get accurate proportions and perspective easily"
 background-image: "images/bg-block-in.jpg"
