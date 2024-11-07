@@ -139,6 +139,16 @@ ul {
     height: 1px;
 }
 
+#main h2 {
+    line-height: 1em;
+    margin-top: 0;
+}
+
+h3.category {
+    font-size: 2.2rem;
+    margin-bottom: 0;
+    color: $grey-color;
+}
 
 @media (max-width: 980px) {
     .main-content h2 {
@@ -157,6 +167,5 @@ ul {
         padding-left: 22px;
     }
 }
-
 
 

@@ -269,10 +269,7 @@ deferred-script {
 	padding: var(--padding-vertical) var(--padding-horizontal);
 }
 
-#main>.inner>* {
-	margin-top: var(--spacing);
-	margin-bottom: var(--spacing);
-}
+
 
 #main>.inner> :first-child {
 	margin-top: 0 !important;
