@@ -1,0 +1,27 @@
+$layout-breakpoint-small: 980px;
+$layout-breakpoint-medium: 1024px;
+$layout-breakpoint-large: 1280px;
+$layout-breakpoint-xlarge: 1920px;
+
+.site-header {
+    padding-left: 3rem;
+    padding-right: 3rem;
+    z-index: 1000;
+    background-color: #fff;
+    @media (max-width: $layout-breakpoint-small) {
+        position: absolute;
+        width: 100%;
+        font-size: 1.5rem;
+    }
+}
+
+.site-title {
+    text-decoration: none;
+}
+
+
+@media (max-width: $layout-breakpoint-small) {
+    body:before {
+        margin-top: 80px;
+    }
+}

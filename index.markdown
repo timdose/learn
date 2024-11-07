@@ -13,7 +13,7 @@ layout: home
 
 [Portrait drawing workshop](workshops/portrait-drawing/)
 
-[Open studies](open-studies/)
+[Open drawing & painting](open-studies/)
 
 
 ## Resources

@@ -40,7 +40,8 @@ workshop-asset-folder: "/workshops/assets/"
 # Excluded items can be processed by explicitly listing the directories or
 # their entries' file path in the `include:` list.
 #
-# exclude:
+exclude:
+  - minima-2.5.2
 #   - .sass-cache/
 #   - .jekyll-cache/
 #   - gemfiles/

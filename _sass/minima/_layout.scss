@@ -1,7 +1,7 @@
 /**
  * Site header
  */
-.site-header {
+ .site-header {
   border-bottom: 1px solid $grey-color-light;
   min-height: $spacing-unit * 1.865;
 
@@ -100,7 +100,6 @@
 }
 
 
-
 /**
  * Site footer
  */
@@ -124,7 +123,7 @@
   @include relative-font-size(0.9375);
   color: $grey-color;
   margin-left: -$spacing-unit * 0.5;
-  @extend %clearfix;
+  @extend %clearfix !optional;
 }
 
 .footer-col {
