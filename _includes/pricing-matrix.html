@@ -1,18 +1,4 @@
-<div class="discount-sections">
-    <div class="discount-section show-if-full">
-        <p>Sliding scale available</p>
-        <button class="openPopup outline medium">Check for discounts</button>
-    </div>
-    <div class="discount-section show-if-discount1 hidden">
-        <p>Sliding scale discount: <strong>{{ page.discount1 }}% off</strong></p>
-        <button class="openPopup outline medium">Change</button>
-    </div>
-    <div class="discount-section show-if-discount2 hidden">
-        <p>Sliding scale discount: <strong>{{ page.discount2 }}% off</strong></p>
-        <button class="openPopup outline medium">Change</button>
-    </div>
-</div>
-
+{% include discount.html %}
 
 <div class="pricing-matrix">
     {% include product-grid.html price-variant="full" visible=true %}
