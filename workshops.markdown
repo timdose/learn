@@ -7,6 +7,10 @@ permalink: /workshops/
 
 ## Online Workshops
 
-[Shading workshop](workshops/shading/)
+[Shading workshop](/workshops/shading/)
 
-[Accuracy workshop](workshops/shading/)
+[Accuracy workshop](/workshops/accuracy/)
+
+[Portrait drawing workshop](/workshops/portrait-drawing/)
+
+[Open drawing & painting](/open-studies/)

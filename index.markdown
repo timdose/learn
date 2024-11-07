@@ -7,13 +7,13 @@ layout: home
 
 ## Online classes & workshops
 
-[Shading workshop](workshops/shading/)
+[Shading workshop](/workshops/shading/)
 
-[Accuracy workshop](workshops/shading/)
+[Accuracy workshop](/workshops/accuracy/)
 
-[Portrait drawing workshop](workshops/portrait-drawing/)
+[Portrait drawing workshop](/workshops/portrait-drawing/)
 
-[Open drawing & painting](open-studies/)
+[Open drawing & painting](/open-studies/)
 
 
 ## Resources
