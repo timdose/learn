@@ -12,6 +12,11 @@ description: "Learn advanced techniques to block in and model portraits"
 background-image: "images/bg-portrait@1000h.jpg"
 prereqs: "Before you take this workshop, please take the [Accurate Drawing](/workshops/accuracy/) and the [Intro to Shading](/workshops/shading/) workshops first—or get permission from Tim."
 category: "Online workshop"
+
+times:
+  - Fridays 9am-12pm (Eastern Time)
+  - Mondays 6pm-9pm (Eastern Time)
+  - Sundays 9am-12pm (Eastern Time)
 ---
 
 
