@@ -2,7 +2,7 @@
 layout: workshop
 permalink: /workshops/shading/
 prices:
-  live: 300
+  live: 250
   recordings: 120
   addon: 100
 discount1: 25
@@ -15,6 +15,7 @@ times:
   - Thursdays 12:30pm-2:30pm (Eastern Time)
   - Thursdays 7pm-9pm (Eastern Time)
   - Sundays 10am-12pm (Eastern Time)
+category: "Online workshop"
 
 registration-open: false
 
