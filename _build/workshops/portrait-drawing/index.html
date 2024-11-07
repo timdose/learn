@@ -1214,7 +1214,37 @@
         <h2>You've been added to the waitlist!</h2>
         <form id="timePreferenceForm">
             
-            <div id="otherTimesContainer">
+            <p>Which times work for you?</p>
+            <p class="subtext">Please check all that apply.</p>
+            <div class="time-options-container">
+                
+                    <div>
+                    <input type="checkbox" name="timePreference" value="Fridays 9am-12pm (Eastern Time)">
+                    <label for="Fridays 9am-12pm (Eastern Time)">
+                        Fridays 9am-12pm (Eastern Time) 
+                        <span class="local-time" data-original-time="Fridays 9am-12pm (Eastern Time)"></span>
+                    </label>
+                    </div>
+                
+                    <div>
+                    <input type="checkbox" name="timePreference" value="Mondays 6pm-9pm (Eastern Time)">
+                    <label for="Mondays 6pm-9pm (Eastern Time)">
+                        Mondays 6pm-9pm (Eastern Time) 
+                        <span class="local-time" data-original-time="Mondays 6pm-9pm (Eastern Time)"></span>
+                    </label>
+                    </div>
+                
+                    <div>
+                    <input type="checkbox" name="timePreference" value="Sundays 9am-12pm (Eastern Time)">
+                    <label for="Sundays 9am-12pm (Eastern Time)">
+                        Sundays 9am-12pm (Eastern Time) 
+                        <span class="local-time" data-original-time="Sundays 9am-12pm (Eastern Time)"></span>
+                    </label>
+                    </div>
+                
+            </div>
+            <a href="#" id="noTimesLink" class="no-times-link">None of these times work for me</a>
+            <div id="otherTimesContainer" class="hidden">
             
                 <label for="otherTimes">What days &amp; times would work for you?</label>
                 <textarea id="otherTimes" name="otherTimes" rows="3"></textarea>
