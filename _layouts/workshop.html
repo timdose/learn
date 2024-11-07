@@ -109,8 +109,14 @@
 	<div id="wrapper">
 		<div id="main">
 			<div class="inner">
+				{% if page.category %}
+					<h3 class="category">{{page.category}}</h3>
+				{% endif %}
 				<h2 id="text01">{{page.title}}</h2>
 				<p id="text26">{{page.description}}</p>
+				{% if page.prereqs %}
+					{% include prereqs.html %}
+				{% endif %}
 				<hr id="divider01">
 				<p id="text18" class="style2">Sign up now</p>
 				{% include pricing-matrix.html %}

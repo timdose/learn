@@ -9,15 +9,15 @@ layout: home
 
 ## Online classes & workshops
 
-[Shading workshop](/workshops/shading/)
+[Intro to shading](/workshops/shading/)
 
-[Accuracy workshop](/workshops/accuracy/)
+[Accurate drawing](/workshops/accuracy/)
 
-[Portrait drawing workshop](/workshops/portrait-drawing/)
+[Portrait drawing](/workshops/portrait-drawing/)
 
 
 ## Resources
-[Form direction training](https://learning.timdoseart.com/form-direction-training/)
+[Form direction training](https://learning.timdoseart.com/form-direction-training/) (experimental)
 
 
 <span style="color: #ddd;font-size: 12px;">v1</span>
