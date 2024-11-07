@@ -15,8 +15,6 @@ layout: home
 
 [Portrait drawing workshop](/workshops/portrait-drawing/)
 
-[Open drawing & painting](/classes/open-drawing-painting/)
-
 
 ## Resources
 [Form direction training](https://learning.timdoseart.com/form-direction-training/)

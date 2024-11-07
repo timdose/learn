@@ -12,5 +12,3 @@ permalink: /workshops/
 [Accuracy workshop](/workshops/accuracy/)
 
 [Portrait drawing workshop](/workshops/portrait-drawing/)
-
-[Open drawing & painting](/workshops/open-drawing-painting/)
