@@ -8,6 +8,7 @@ $layout-breakpoint-xlarge: 1920px;
     padding-right: 3rem;
     z-index: 39;
     background-color: #fff;
+    width: 50rem;
     @media (max-width: $layout-breakpoint-small) {
         position: absolute;
         width: 100%;
