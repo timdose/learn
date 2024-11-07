@@ -6,7 +6,7 @@ $layout-breakpoint-xlarge: 1920px;
 .site-header {
     padding-left: 3rem;
     padding-right: 3rem;
-    z-index: 1000;
+    z-index: 39;
     background-color: #fff;
     @media (max-width: $layout-breakpoint-small) {
         position: absolute;
