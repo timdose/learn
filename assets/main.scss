@@ -11,6 +11,19 @@ $layout-breakpoint-xlarge: 1920px;
 
 .page-content {
     font-size: 1.25rem;
+
+}
+
+.wrapper {
+    max-width: $layout-breakpoint-large;
+
+
+    @media (max-width: $layout-breakpoint-large) {
+        max-width: $layout-breakpoint-medium;
+    }   
+    @media (max-width: $layout-breakpoint-medium) {
+        max-width: $layout-breakpoint-small;
+    }
 }
 
 

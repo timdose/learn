@@ -5,6 +5,8 @@
 layout: home
 ---
 
+![Hero image](/workshops/assets/images/hero.jpg)
+
 ## Online classes & workshops
 
 [Shading workshop](/workshops/shading/)
