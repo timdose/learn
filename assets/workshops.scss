@@ -19,45 +19,6 @@ ul {
     margin-bottom: 12.8px; /* .8em */
 }
 
-button, .button {
-    background-color: #AD2A71;
-    color: #fff;
-    padding: 6.4px 12.8px; /* .4em .8em */
-    border-radius: 4px; /* .25em */
-    border: none;
-    cursor: pointer;
-    font-family: 'Spectral', serif;
-    font-size: 16px;
-}
-
-button:active, .button:active{
-    background-color: #53183a;
-}
-
-button:hover, .button:hover {
-    background-color: #801E56;
-}
-
-button.outline, .button.outline {
-    background-color: transparent;
-    border: 1px solid #AD2A71;
-    color: #AD2A71;
-}
-
-button.outline:hover, .button.outline:hover {
-    background-color: #AD2A71;
-    color: #fff;
-}
-
-button.medium, .button.medium {
-    padding: 9.6px 16px; /* .6em 1em */
-    font-size: 16px;
-}
-
-button.large, .button.large {
-    padding: 12.8px 19.2px; /* .8em 1.2em */
-    font-size: 18px;
-}
 
 .hidden {
 	display: none !important;
