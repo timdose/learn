@@ -7,6 +7,10 @@ button, .button {
     cursor: pointer;
     font-family: 'Spectral', serif;
     font-size: 16px;
+
+    @media (max-width: $layout-breakpoint-small) {
+        font-size: 16px;
+    }
 }
 
 button:active, .button:active{

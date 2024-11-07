@@ -2,7 +2,7 @@
 # Only the main Sass file needs front matter (the dashes are enough)
 ---
 
-@import "workshops-base";
+@import "workshops-imports";
 
 
 body {
@@ -98,19 +98,7 @@ ul {
     font-size: 16px;
 }
 
-#waitlistPopup button {
-    background-color: #AD2A71;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    font-size: 18px;
-    cursor: pointer;
-    border-radius: 4px;
-}
 
-#waitlistPopup button:hover {
-    background-color: #801E56;
-}
 
 /* Specific styles for discount options */
 .discount-options {
@@ -172,9 +160,7 @@ ul {
 }
 
 @media (max-width: 980px) {
-    button, .button {
-        font-size: 16px;
-    }
+   
 
     .modal .modal-title {
         margin-bottom: 20px;
@@ -513,15 +499,7 @@ ul {
     font-size: 16px;
 }
 
-#waitlistPopup button {
-    background-color: #AD2A71;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    font-size: 18px;
-    cursor: pointer;
-    border-radius: 4px;
-}
+
 
 #waitlistPopup button:hover {
     background-color: #801E56;
