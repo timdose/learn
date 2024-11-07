@@ -17,6 +17,7 @@ times:
   - Sundays 10am-12pm (Eastern Time)
 
 registration-open: false
+
 ---
 
 - Exact dates & times TBD
