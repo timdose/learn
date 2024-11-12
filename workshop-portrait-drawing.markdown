@@ -29,10 +29,13 @@ times:
 
 ## How it works
 
-- **4 weekly online sessions**: starting with simple shapes and progressing to a portrait block-in.
+- **Focus on one portrait**: Work on one portrait for the whole month, with photos provided by Tim.
+- **Work along with Tim**: Tim will guide you through the process of drawing the portrait, step by step.
+- **Personalized feedback**: Post your work to an online whiteboard and get live feedback from Tim.
 - **Small groups of 8**: get your questions answered and learn from like-minded artists.
-- **Live critique**: Post your work to an online whiteboard and get live feedback from Tim.
 
 ## Why take this workshop?
 
+- **More flexible**: Work with the group from Tim's photos, or optionally work on your own project.
+- **Longer classes**: 3 hours each session, to leave time for questions, discussion, and feedback.
 - **Chat with Tim & other students**: Get access to Tim's private Discord server to ask questions and chat with other students.
