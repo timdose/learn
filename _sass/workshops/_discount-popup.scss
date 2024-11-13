@@ -1,30 +1,8 @@
-#discountPopup {
-    font-family: 'Spectral', serif;
-    letter-spacing: -0.8px;
-    line-height: 1.5;
-}
+/* Typography */
 
-#discountPopup h2 {
-    margin: 10px 0 20px;
-    font-size: 36px;
-}
+.discount-section p { font-size: 1rem; font-weight: 500; }
+#discountPopup      { font-size: 1rem; margin-bottom: .5em;  line-height: 1.5; }
 
-#discountPopup p, #discountPopup li, #discountPopup strong {
-    font-size: 20px;
-    margin-bottom: 12px;
-}
-
-
-#discountPopup li {
-    margin-bottom: 8px;
-    margin-left: 18px;
-    padding-left: 4px;
-    list-style-type: disc;
-}
-
-.discount-popup-intro {
-    font-size: 24px;
-}
 
 
 /* Existing styles for discount options */
@@ -52,13 +30,9 @@
 
 @media (max-width: 980px) {
    
-    .discount-popup-intro {
-        font-size: 20px;
-    }
 
     #discountPopup h2 {
         margin: 10px 0 20px;
-        font-size: 24px;
     }
     
     .discount-options {
@@ -75,14 +49,6 @@
         gap: 12px; /* 0.75em */
         padding-top: 24px; /* 1.5em */
         align-items: flex-start;
-    }
-    
-    #discountPopup p, #discountPopup li, #discountPopup strong, #waitlistPopup p {
-        font-size: 18px;
-    }
-
-    .pricing-option h1 {
-        font-size: 26px;
     }
 
 }
@@ -102,12 +68,10 @@
     margin-bottom: 4px; /* 0.4em */
 }
 
-.discount-section p {
-    margin: 0;
-    color: #AD2A71;
-    font-size: 20px;
-    font-weight: 500;
+.discount-section {
+    color: $brand-color;
 }
+
 
 
 @media (max-width: 980px) {

@@ -1,4 +1,8 @@
 
+.pricing-matrix {
+	margin-bottom: 2rem;
+}
+
 .pricing-option {
 	--alignment: left;
 	--flex-alignment: flex-start;
@@ -10,7 +14,7 @@
 }
 
 .pricing-option:not(:last-child) {
-	margin-bottom: 4px;
+	margin-bottom: .5rem;
 }
 
 .pricing-option>.wrapper {

@@ -1,3 +1,7 @@
+/* Typography */
+button, .button { font-size: 0.9rem; font-family: 'Spectral', serif; }
+
+
 button, .button {
     background-color: #AD2A71;
     color: #fff;
@@ -5,12 +9,6 @@ button, .button {
     border-radius: 4px; /* .25em */
     border: none;
     cursor: pointer;
-    font-family: 'Spectral', serif;
-    font-size: 16px;
-
-    @media (max-width: $layout-breakpoint-small) {
-        font-size: 16px;
-    }
 }
 
 button:active, .button:active{
@@ -34,10 +32,8 @@ button.outline:hover, .button.outline:hover {
 
 button.medium, .button.medium {
     padding: 9.6px 16px; /* .6em 1em */
-    font-size: 16px;
 }
 
 button.large, .button.large {
     padding: 12.8px 19.2px; /* .8em 1.2em */
-    font-size: 18px;
 }

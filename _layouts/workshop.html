@@ -110,15 +110,15 @@
 		<div id="main">
 			<div class="inner">
 				{% if page.category %}
-					<h3 class="category">{{page.category}}</h3>
+					<h3 id="page-category">{{page.category}}</h3>
 				{% endif %}
-				<h2 id="text01">{{page.title}}</h2>
-				<p id="text26">{{page.description}}</p>
+				<h2 id="page-title">{{page.title}}</h2>
+				<p id="page-description">{{page.description}}</p>
 				{% if page.prereqs %}
 					{% include prereqs.html %}
 				{% endif %}
 				<hr id="divider01">
-				<p id="text18" class="style2">Sign up now</p>
+				<h3>Sign up now</h3>
 				{% include pricing-matrix.html %}
 				<div class="main-content">
 					{{page.content | markdownify }}
@@ -146,14 +146,15 @@
 				<hr id="divider02">
 				<p id="text11" class="style2">Sign up now</p>
 				{% include pricing-matrix.html %}
-				<p id="text07" class="style4"><span class="p">What impresses me most about Tim is not that he is a great
+				<div class="testimonial">
+					<p>What impresses me most about Tim is not that he is a great
 						painter or draftsman (both of which are true), it’s that he’s able to take his encyclopedic
 						knowledge of art and cater it to each one of his student’s personal needs, and he does this
 						without any pretension. He understands that what may be easy for one student is very difficult
 						for the next. Whether you’ve never picked up a paint brush before or have years of experience,
-						Tim will help you become a better artist. I would recommend his class to everyone.</span><span
-						class="p">—Gus Hoffman &nbsp;&nbsp;<a href="http://www.augustushoffman.com/">website</a></span>
-				</p>
+						Tim will help you become a better artist. I would recommend his class to everyone.</p>
+						<p class="testimonial-attribution">—Gus Hoffman <a href="http://www.augustushoffman.com/">website</a></p>
+				</div>
 			</div>
 		</div>
 	</div>

@@ -1,19 +1,11 @@
+/* Typography */
 
+#waitlistPopup p { font-weight: 300; }
+#waitlistPopup .pricing-info p { font-weight: 600; }
 
 /* Styles for the waitlist popup */
 #waitlistPopup .modal-content, #timePreferencePopup .modal-content {
     max-width: 600px;
-}
-
-#waitlistPopup h2, .modal-content h2 {
-    font-size: 36px;
-    margin-bottom: 20px;
-}
-
-#waitlistPopup p, .modal-content p {
-    font-size: 20px;
-    margin-bottom: 10px;
-    line-height: 1.5;
 }
 
 
@@ -74,21 +66,14 @@
 }
 
 #waitlistPopup .pricing-info {
-    margin-top: 20px;
+    margin-top: 1em;
+    margin-bottom: 1em;
 }
 
-#waitlistPopup .pricing-info p {
-    font-size: 24px;
-    font-weight: 600;
-    line-height: 1em;
-}
+
 
 #waitlistPopup #waitlistPrice {
     color: #AD2A71;
-}
-
-#waitlistPopup #waitlistItemTitle {
-    font-size: 32px;
 }
 
 #waitlistPopup #waitlistItemName {
@@ -97,8 +82,5 @@
 
 #waitlistPopup #waitlistDiscount {
     color: #AD2A71;
-    font-size: 18px;
     display: none;
 }
-
-
