@@ -101,7 +101,7 @@ body:before {
 	position: fixed;
 	top: 0;
 	transform: scale(1);
-	width: calc(100vw - 50rem);
+	width: calc(100vw - 40rem);
 	z-index: 0;
 	right: 0;
 	background-position: center;
@@ -259,11 +259,10 @@ deferred-script {
 	--padding-horizontal: 3rem;
 	--padding-vertical: 3rem;
 	--spacing: 0.75rem;
-	--width: 50rem;
+	--width: 40rem;
 	border-radius: var(--border-radius-tl) var(--border-radius-tr) var(--border-radius-br) var(--border-radius-bl);
 	max-width: 100%;
 	position: relative;
-	width: var(--width);
 	z-index: 1;
 	padding: var(--padding-vertical) var(--padding-horizontal);
 }
@@ -317,69 +316,68 @@ body.is-instant:after {
 	transition: none !important;
 }
 
-h1, h2, h3 {
-    text-align: left;
-    color: #000000;
-    font-family: 'Spectral', serif;
-    width: 100%;
-    line-height: 1.5;
-    font-weight: 500;
-}
-
-h1 {
-    font-size: 2.375em;
-}
-
-h2 {
-    font-size: 1.875em;
-}
-
-h3 {
-    font-size: 1.625em;
-}
-
-h1,
-h2,
-h3,
-p {
-	direction: var(--site-language-direction);
-	position: relative;
+h1, h2, h3, p {
+    direction: var(--site-language-direction);
+    position: relative;
 }
 
 h1 span.p,
 h2 span.p,
 h3 span.p,
 p span.p {
-	display: block;
-	position: relative;
+    display: block;
+    position: relative;
 }
 
-h1 span[style],
-h2 span[style],
-h3 span[style],
-p span[style],
-h1 strong,
-h2 strong,
-h3 strong,
-p strong,
-h1 a,
-h2 a,
-h3 a,
-p a,
-h1 code,
-h2 code,
-h3 code,
-p code,
-h1 mark,
-h2 mark,
-h3 mark,
-p mark,
-h1 spoiler-text,
-h2 spoiler-text,
-h3 spoiler-text,
-p spoiler-text {
-	-webkit-text-fill-color: currentcolor;
+h1, h2, h3, p {
+    &[class*="style"] {
+        text-align: left;
+        color: #000000;
+        font-family: 'Spectral', serif;
+        width: 100%;
+        line-height: 1.5;
+        
+        a {
+            text-decoration: underline;
+            &:hover { text-decoration: none; }
+        }
+
+        span.p:nth-child(n + 2) {
+            margin-top: 1rem;
+        }
+    }
 }
+
+.style1, .style2 {
+    letter-spacing: -0.125rem;
+    font-size: 2.375em;
+    font-weight: 500;
+}
+
+.style6, .style7 {
+    letter-spacing: -0.05rem;
+    font-size: 1.625em;
+    line-height: 1.25;
+}
+
+.style8 {
+    letter-spacing: -0.05rem;
+    font-size: 1.25em;
+    line-height: 1.25;
+    font-weight: 700;
+    color: #AD2A71;
+}
+
+.style2, .style6, .style8 {
+    &:not(:first-child) { margin-top: 0rem !important; }
+    &:not(:last-child) { margin-bottom: 0rem !important; }
+}
+
+.style7:not(:first-child) { margin-top: 0.625rem !important; }
+.style7:not(:last-child) { margin-bottom: 0.625rem !important; }
+
+.style1:not(:first-child) { margin-top: 2rem !important; }
+.style1:not(:last-child) { margin-bottom: 2rem !important; }
 
 #text01 {
 	text-align: left;
@@ -400,10 +398,6 @@ p spoiler-text {
 	text-decoration: none;
 }
 
-#text01 span.p:nth-child(n + 2) {
-	margin-top: 1rem;
-}
-
 #text26 {
 	text-align: left;
 	color: #AD2A71;
@@ -421,291 +415,6 @@ p spoiler-text {
 
 #text26 a:hover {
 	text-decoration: none;
-}
-
-#text26 span.p:nth-child(n + 2) {
-	margin-top: 1rem;
-}
-
-h1.style2:not(:first-child),
-h2.style2:not(:first-child),
-h3.style2:not(:first-child),
-p.style2:not(:first-child) {
-	margin-top: 0rem !important;
-}
-
-h1.style2:not(:last-child),
-h2.style2:not(:last-child),
-h3.style2:not(:last-child),
-p.style2:not(:last-child) {
-	margin-bottom: 0rem !important;
-}
-
-h1.style2,
-h2.style2,
-h3.style2,
-p.style2 {
-	text-align: left;
-	color: #000000;
-	font-family: 'Spectral', serif;
-	letter-spacing: -0.125rem;
-	width: 100%;
-	font-size: 2.375em;
-	line-height: 1.5;
-	font-weight: 500;
-}
-
-h1.style2 a,
-h2.style2 a,
-h3.style2 a,
-p.style2 a {
-	text-decoration: underline;
-}
-
-h1.style2 a:hover,
-h2.style2 a:hover,
-h3.style2 a:hover,
-p.style2 a:hover {
-	text-decoration: none;
-}
-
-h1.style2 span.p:nth-child(n + 2),
-h2.style2 span.p:nth-child(n + 2),
-h3.style2 span.p:nth-child(n + 2),
-p.style2 span.p:nth-child(n + 2) {
-	margin-top: 1rem;
-}
-
-h1.style6:not(:first-child),
-h2.style6:not(:first-child),
-h3.style6:not(:first-child),
-p.style6:not(:first-child) {
-	margin-top: 0rem !important;
-}
-
-h1.style6:not(:last-child),
-h2.style6:not(:last-child),
-h3.style6:not(:last-child),
-p.style6:not(:last-child) {
-	margin-bottom: 0rem !important;
-}
-
-h1.style6,
-h2.style6,
-h3.style6,
-p.style6 {
-	text-align: left;
-	color: #000000;
-	font-family: 'Spectral', serif;
-	letter-spacing: -0.05rem;
-	width: 100%;
-	font-size: 1.625em;
-	line-height: 1.25;
-	font-weight: 500;
-}
-
-h1.style6 a,
-h2.style6 a,
-h3.style6 a,
-p.style6 a {
-	text-decoration: underline;
-}
-
-h1.style6 a:hover,
-h2.style6 a:hover,
-h3.style6 a:hover,
-p.style6 a:hover {
-	text-decoration: none;
-}
-
-h1.style6 span.p:nth-child(n + 2),
-h2.style6 span.p:nth-child(n + 2),
-h3.style6 span.p:nth-child(n + 2),
-p.style6 span.p:nth-child(n + 2) {
-	margin-top: 1rem;
-}
-
-h1.style7:not(:first-child),
-h2.style7:not(:first-child),
-h3.style7:not(:first-child),
-p.style7:not(:first-child) {
-	margin-top: 0.625rem !important;
-}
-
-h1.style7:not(:last-child),
-h2.style7:not(:last-child),
-h3.style7:not(:last-child),
-p.style7:not(:last-child) {
-	margin-bottom: 0.625rem !important;
-}
-
-h1.style7,
-h2.style7,
-h3.style7,
-p.style7 {
-	text-align: left;
-	color: #000000;
-	font-family: 'Spectral', serif;
-	letter-spacing: -0.05rem;
-	width: 100%;
-	font-size: 1.625em;
-	line-height: 1.25;
-	font-weight: 600;
-}
-
-h1.style7 a,
-h2.style7 a,
-h3.style7 a,
-p.style7 a {
-	text-decoration: underline;
-}
-
-h1.style7 a:hover,
-h2.style7 a:hover,
-h3.style7 a:hover,
-p.style7 a:hover {
-	text-decoration: none;
-}
-
-h1.style7 span.p:nth-child(n + 2),
-h2.style7 span.p:nth-child(n + 2),
-h3.style7 span.p:nth-child(n + 2),
-p.style7 span.p:nth-child(n + 2) {
-	margin-top: 1rem;
-}
-
-h1.style8:not(:first-child),
-h2.style8:not(:first-child),
-h3.style8:not(:first-child),
-p.style8:not(:first-child) {
-	margin-top: 0rem !important;
-}
-
-h1.style8:not(:last-child),
-h2.style8:not(:last-child),
-h3.style8:not(:last-child),
-p.style8:not(:last-child) {
-	margin-bottom: 0rem !important;
-}
-
-h1.style8,
-h2.style8,
-h3.style8,
-p.style8 {
-	text-align: left;
-	color: #AD2A71;
-	font-family: 'Spectral', serif;
-	letter-spacing: -0.05rem;
-	width: 100%;
-	font-size: 1.25em;
-	line-height: 1.25;
-	font-weight: 700;
-}
-
-h1.style8 a,
-h2.style8 a,
-h3.style8 a,
-p.style8 a {
-	text-decoration: underline;
-}
-
-h1.style8 a:hover,
-h2.style8 a:hover,
-h3.style8 a:hover,
-p.style8 a:hover {
-	text-decoration: none;
-}
-
-h1.style8 span.p:nth-child(n + 2),
-h2.style8 span.p:nth-child(n + 2),
-h3.style8 span.p:nth-child(n + 2),
-p.style8 span.p:nth-child(n + 2) {
-	margin-top: 1rem;
-}
-
-h1.style1:not(:first-child),
-h2.style1:not(:first-child),
-h3.style1:not(:first-child),
-p.style1:not(:first-child) {
-	margin-top: 2rem !important;
-}
-
-h1.style1:not(:last-child),
-h2.style1:not(:last-child),
-h3.style1:not(:last-child),
-p.style1:not(:last-child) {
-	margin-bottom: 2rem !important;
-}
-
-h1.style1,
-h2.style1,
-h3.style1,
-p.style1 {
-	text-align: left;
-	color: #000000;
-	font-family: 'Spectral', serif;
-	letter-spacing: -0.125rem;
-	width: 100%;
-	font-size: 2.375em;
-	line-height: 1.5;
-	font-weight: 500;
-}
-
-h1.style1 a,
-h2.style1 a,
-h3.style1 a,
-p.style1 a {
-	text-decoration: underline;
-}
-
-h1.style1 a:hover,
-h2.style1 a:hover,
-h3.style1 a:hover,
-p.style1 a:hover {
-	text-decoration: none;
-}
-
-h1.style1 span.p:nth-child(n + 2),
-h2.style1 span.p:nth-child(n + 2),
-h3.style1 span.p:nth-child(n + 2),
-p.style1 span.p:nth-child(n + 2) {
-	margin-top: 1rem;
-}
-
-h1.style4:not(:first-child),
-h2.style4:not(:first-child),
-h3.style4:not(:first-child),
-p.style4:not(:first-child) {
-	margin-top: 2.25rem !important;
-}
-
-h1.style4:not(:last-child),
-h2.style4:not(:last-child),
-h3.style4:not(:last-child),
-p.style4:not(:last-child) {
-	margin-bottom: 2.25rem !important;
-}
-
-
-h1.style4 a,
-h2.style4 a,
-h3.style4 a,
-p.style4 a {
-	text-decoration: underline;
-}
-
-h1.style4 a:hover,
-h2.style4 a:hover,
-h3.style4 a:hover,
-p.style4 a:hover {
-	text-decoration: none;
-}
-
-h1.style4 span.p:nth-child(n + 2),
-h2.style4 span.p:nth-child(n + 2),
-h3.style4 span.p:nth-child(n + 2),
-p.style4 span.p:nth-child(n + 2) {
-	margin-top: 1rem;
 }
 
 hr {

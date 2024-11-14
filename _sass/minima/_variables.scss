@@ -18,13 +18,18 @@ $table-text-align: left !default;
 // Width of the content area
 $content-width:    800px !default;
 
-$on-palm:          600px !default;
-$on-laptop:        800px !default;
+$on-palm:          980px !default;
+$on-laptop:        1024px !default;
 
+$layout-breakpoint-xsmall: 736px;
 $layout-breakpoint-small: 980px;
 $layout-breakpoint-medium: 1024px;
 $layout-breakpoint-large: 1280px;
 $layout-breakpoint-xlarge: 1920px;
+
+$main-width: 45rem;
+$main-width-large: 40rem;
+$main-width-medium: 35rem;
 
 // Use media queries like this:
 // @include media-query($on-palm) {

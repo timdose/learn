@@ -1,5 +1,6 @@
 ---
 ---
+
 @import "workshops-imports";
 
 html { font-size: 24px; font-weight: 300; }
@@ -24,6 +25,66 @@ body {
     font-family: 'Spectral', serif;
     text-align: left;
 }
+
+/* main size containers */
+
+#main>.inner, .site-header  { width: $main-width; }
+body:before                 { width: calc(100vw - $main-width); }
+
+
+
+
+@media (max-width: $layout-breakpoint-large) {
+  html { font-size: 20px; }
+  #main>.inner, .site-header  { width: $main-width-medium; }
+  body:before                 { width: calc(100vw - $main-width-medium); }
+}
+
+
+@media (max-width: $layout-breakpoint-medium) {
+}
+
+@media (max-width: $layout-breakpoint-xlarge) {
+    #main>.inner, .site-header  { width: $main-width-medium; }
+    body:before                 { width: calc(100vw - $main-width-medium); }
+}
+
+@media (max-width: $layout-breakpoint-small) {
+  #main>.inner, .site-header  { width: 100%; }
+  body:before {
+    flex-grow: 1;
+    flex-shrink: 0;
+    max-height: 45vh;
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+  }
+
+  .site-header {
+    position: absolute;
+    top: 0;
+  }
+
+  #wrapper {
+      height: auto !important;
+      min-height: 0;
+      padding: 0;
+  }
+}
+
+
+
+
+
+@media (max-width: $layout-breakpoint-xsmall) {
+    #main>.inner {
+        --padding-horizontal: 1.5rem;
+        --padding-vertical: 2rem;
+        --spacing: 0.75rem;
+        max-width: 100%;
+    }
+}
+
 
 
 #page-description {
@@ -87,12 +148,10 @@ ul {
     }
 }
 
-@media (max-width: 980px) {
+@media (max-width: $layout-breakpoint-medium) {
     .main-content {
         ul li {
-            font-size: 21px;
             left: -2px;
-
             &::before {
                 top: 6px;
                 height: 14px;
@@ -110,11 +169,6 @@ ul {
 .paypal-powered-by {
     margin-top: 8px;
     font-size: 14px;
-}
-
-/* Utility class */
-.hidden {
-    display: none;
 }
 
 
@@ -140,3 +194,4 @@ ul {
 .testimonial-attribution {
     margin-top: 0.5em;
 }
+

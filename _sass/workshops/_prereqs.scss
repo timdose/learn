@@ -24,8 +24,4 @@
     a {
         color: $brand-color;
     }
-
-    @media (max-width: $layout-breakpoint-small) {
-        font-size: 1.5em;
-    }
 }
