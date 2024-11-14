@@ -44,9 +44,13 @@
 }
 
 .pricing-option.columns>.wrapper>.inner {
-	flex-wrap: wrap;
+	// flex-wrap: wrap;
 	display: flex;
-	align-items: center;
+	flex-direction: row;
+
+	@media (max-width: $layout-breakpoint-medium) {
+		flex-direction: column;
+	}
 }
 
 .pricing-option.columns>.wrapper>.inner>* {
@@ -54,7 +58,11 @@
 	flex-shrink: 0;
 	max-width: 100%;
 	text-align: var(--alignment);
-	padding: 0 0 0 var(--gutters);
+	// padding: 0 0 0 2rem;
+
+	@media (max-width: $layout-breakpoint-medium) {
+		padding: 0;
+	}
 }
 
 .pricing-option.columns>.wrapper>.inner>*>* {
@@ -64,15 +72,13 @@
 
 .pricing-option.columns>.wrapper>.inner>*>*:first-child {
 	margin-top: 0 !important;
+	padding: 0 2rem 0 0;
 }
 
 .pricing-option.columns>.wrapper>.inner>*>*:last-child {
 	margin-bottom: 0 !important;
 }
 
-.pricing-option.columns>.wrapper>.inner>*:first-child {
-	margin-left: calc(var(--gutters) * -1);
-}
 
 .pricing-option.default>.wrapper>.inner>.full {
 	margin-left: calc(var(--padding-horizontal) * -1);
@@ -143,6 +149,9 @@
 
 .pricing-option>.wrapper>.inner> :nth-child(1) {
 	width: calc(75% + (var(--gutters) / 2));
+	@media (max-width: $layout-breakpoint-small) {
+		width: 100%;
+	}
 }
 
 .pricing-option>.wrapper>.inner> :nth-child(2) {
@@ -153,6 +162,9 @@
 	--indent-right: 0;
 	--margin-left: 0;
 	--margin-right: auto;
+	@media (max-width: $layout-breakpoint-small) {
+		width: 100%;
+	}
 }
 
 .original-price {

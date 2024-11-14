@@ -3,7 +3,17 @@
 
 @import "workshops-imports";
 
-html { font-size: 24px; font-weight: 300; }
+:root {
+    font-size: 24px;
+    @media (max-width: $layout-breakpoint-large) { font-size: 20px; }
+    @media (max-width: $layout-breakpoint-medium) { font-size: 18px; }
+    @media (max-width: $layout-breakpoint-small)  { font-size: 16px; }
+}
+
+html { 
+    font-weight: 300; 
+   
+}
 
 h1, h2, h3, h4, h5, h6 {
     font-family: 'Spectral', serif;
@@ -26,12 +36,21 @@ body {
     text-align: left;
 }
 
+
+/*------------------------------------*\
+    #MAIN
+\*------------------------------------*/
+
+@media (max-width: $layout-breakpoint-small) {
+    body:before {
+        margin-top: 56px;
+    }
+}
+
 /* main size containers */
 
 #main>.inner, .site-header  { width: $main-width; }
 body:before                 { width: calc(100vw - $main-width); }
-
-
 
 
 @media (max-width: $layout-breakpoint-large) {
@@ -135,6 +154,11 @@ ul {
             position: absolute;
             top: 8px;
             left: 2px;
+            @media (max-width: $layout-breakpoint-small) {
+                top: 2px;
+                height: 12px;
+                min-width: 12px;
+            }
         }
 
         &::after {

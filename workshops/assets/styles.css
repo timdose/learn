@@ -144,9 +144,6 @@ body.is-loading:after {
 	--viewport-height: 100vh;
 }
 
-html {
-	font-size: 14pt;
-}
 
 u {
 	text-decoration: underline;
