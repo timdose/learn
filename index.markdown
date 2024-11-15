@@ -15,6 +15,8 @@ layout: home
 
 [Portrait drawing](/workshops/portrait-drawing/)
 
+[Color theory & mixing](/workshops/color/)
+
 
 ## Resources
 [Form direction training](https://learning.timdoseart.com/form-direction-training/) (experimental)

@@ -12,3 +12,5 @@ permalink: /workshops/
 [Accurate drawing](/workshops/accuracy/)
 
 [Portrait drawing](/workshops/portrait-drawing/)
+
+[Color theory & mixing](/workshops/color/)
