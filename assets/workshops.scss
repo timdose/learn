@@ -221,4 +221,9 @@ ul {
 
 .main-content p {
     margin-bottom: 1em;
+    line-height: 1.4em;
+}
+
+mark {
+    background-color: $highlight-color;
 }

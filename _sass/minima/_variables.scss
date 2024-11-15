@@ -13,6 +13,8 @@ $grey-color:       #828282 !default;
 $grey-color-light: color.adjust($grey-color, $lightness: 44%) !default;
 $grey-color-dark:  color.adjust($grey-color, $lightness: -25%) !default;
 
+$highlight-color: #ad8e2a62 !default;
+
 $table-text-align: left !default;
 
 // Width of the content area

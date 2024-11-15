@@ -149,8 +149,10 @@
 
 .pricing-option>.wrapper>.inner> :nth-child(1) {
 	width: calc(75% + (var(--gutters) / 2));
+	padding-right: 1rem;
 	@media (max-width: $layout-breakpoint-small) {
 		width: 100%;
+		padding-right: 0;
 	}
 }
 
