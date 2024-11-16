@@ -48,6 +48,7 @@
         return days[day];
     }
     </script>
+    <div class="schedule-visible">
     {% for year_group in site.data.schedule.months %}
         {% assign has_year_classes = false %}
         {% for month in year_group.months %}
@@ -77,7 +78,8 @@
                 {% endfor %}
 
                 {% if has_class %}
-                    <div class="schedule-row">
+                    {% assign total_shown = total_shown | plus: 1 %}
+                    <div class="schedule-row {% if total_shown > 3 %}schedule-hidden{% endif %}">
                         <div class="schedule-month">{{ month.month }}</div>
                         <div class="schedule-time" 
                              data-day="{{ class_time.reference_time.day }}"
@@ -99,6 +101,9 @@
             {% endfor %}
         {% endif %}
     {% endfor %}
+    </div>
+
+    <a href="#" class="show-more-btn">Show All</a>
 </div>
 
 <style>
@@ -138,4 +143,42 @@ h4 {
         width: auto;
     }
 }
+
+.schedule-hidden {
+    display: none;
+}
+
+.show-more-btn {
+    display: inline-block;
+    margin-top: 1rem;
+    color: #0366d6;  /* Standard link color */
+    text-decoration: none;
+}
+
+.show-more-btn:hover {
+    text-decoration: underline;
+}
+
+.show-more-btn.hidden {
+    display: none;
+}
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const showMoreBtn = document.querySelector('.show-more-btn');
+    const hiddenItems = document.querySelectorAll('.schedule-hidden');
+    
+    if (hiddenItems.length === 0) {
+        showMoreBtn.classList.add('hidden');
+    }
+
+    showMoreBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        hiddenItems.forEach(item => {
+            item.classList.remove('schedule-hidden');
+        });
+        showMoreBtn.classList.add('hidden');
+    });
+});
+</script>
