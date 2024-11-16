@@ -1,0 +1,27 @@
+<div class="schedule">
+    <h3>Schedule</h3>
+    {% for month in site.data.schedule.months %}
+        {% assign has_class = false %}
+        {% for session in month.sessions %}
+            {% for time_slot in session %}
+                {% if time_slot[1] == include.classID %}
+                    {% assign has_class = true %}
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+
+        {% if has_class %}
+            <h4>{{ month.month }}</h4>
+            <ul>
+                {% for session in month.sessions %}
+                    {% for time_slot in session %}
+                        {% if time_slot[1] == include.classID %}
+                            {% assign time = site.data.schedule.times | where: "id", time_slot[0] | first %}
+                            <li>{{ time.reference_time.day }}s {{ time.reference_time.start | date: "%-I:%M %P" }} - {{ time.reference_time.end | date: "%-I:%M %P" }} ET</li>
+                        {% endif %}
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endfor %}
+</div>

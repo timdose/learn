@@ -120,6 +120,9 @@
 				<hr class="divider" id="divider01">
 				<h3>Sign up now</h3>
 				{% include pricing-matrix.html %}
+				<div class="schedule-container">
+					{% include schedule.html classID=page.classID %}
+				</div>
 				<div class="main-content">
 					{{page.content | markdownify }}
 				</div>

@@ -16,6 +16,7 @@ times:
   - Thursdays 7pm-9pm (Eastern Time)
   - Sundays 10am-12pm (Eastern Time)
 category: "Online workshop"
+classID: shading
 
 registration-open: false
 
