@@ -14,7 +14,9 @@
         {% endfor %}
 
         {% if has_year_classes %}
-            <h4>{{ year_group.year }}</h4>
+            <div class="schedule-row">
+                <div class="schedule-year"><strong>{{ year_group.year }}</strong></div>
+            </div>
             {% for month in year_group.months %}
                 {% assign has_class = false %}
                 {% for session in month.sessions %}
