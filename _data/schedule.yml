@@ -16,118 +16,130 @@ classes:
     url: /workshops/portrait
 
 times:
-  - Mon Evening
-  - Tue Afternoon
-  - Thu Morning
-  - Thu Evening
-  - Fri Morning
-  - Sun Morning
+  - id: Mon-Evening
+    day: Monday
+    time: Evening
+  - id: Tue-Afternoon
+    day: Tuesday
+    time: Afternoon
+  - id: Thu-Morning
+    day: Thursday
+    time: Morning
+  - id: Thu-Evening
+    day: Thursday
+    time: Evening
+  - id: Fri-Morning
+    day: Friday
+    time: Morning
+  - id: Sun-Morning
+    day: Sunday
+    time: Morning
 
 months:
   - month: December 2024
     sessions:
-      - Mon Evening: OpenStudies
-      - Tue Afternoon: Shading
-      - Thu Morning: Accuracy
-      - Thu Evening: Color
-      - Fri Morning: OpenStudies
-      - Sun Morning: Portrait
+      - Mon-Evening: OpenStudies
+      - Tue-Afternoon: Shading
+      - Thu-Morning: Accuracy
+      - Thu-Evening: Color
+      - Fri-Morning: OpenStudies
+      - Sun-Morning: Portrait
 
   - month: January 2025
     sessions:
-      - Mon Evening: OpenStudies
-      - Tue Afternoon: Portrait
-      - Thu Morning: Shading
-      - Thu Evening: Accuracy
-      - Fri Morning: OpenStudies
-      - Sun Morning: Color
+      - Mon-Evening: OpenStudies
+      - Tue-Afternoon: Portrait
+      - Thu-Morning: Shading
+      - Thu-Evening: Accuracy
+      - Fri-Morning: OpenStudies
+      - Sun-Morning: Color
 
   - month: March 2025
     sessions:
-      - Mon Evening: OpenStudies
-      - Tue Afternoon: Color
-      - Thu Morning: Portrait
-      - Thu Evening: Shading
-      - Fri Morning: OpenStudies
-      - Sun Morning: Accuracy
+      - Mon-Evening: OpenStudies
+      - Tue-Afternoon: Color
+      - Thu-Morning: Portrait
+      - Thu-Evening: Shading
+      - Fri-Morning: OpenStudies
+      - Sun-Morning: Accuracy
 
   - month: April 2025
     sessions:
-      - Mon Evening: OpenStudies
-      - Tue Afternoon: Accuracy
-      - Thu Morning: Color
-      - Thu Evening: Portrait
-      - Fri Morning: OpenStudies
-      - Sun Morning: Shading
+      - Mon-Evening: OpenStudies
+      - Tue-Afternoon: Accuracy
+      - Thu-Morning: Color
+      - Thu-Evening: Portrait
+      - Fri-Morning: OpenStudies
+      - Sun-Morning: Shading
 
   - month: May 2025
     sessions:
-      - Mon Evening: OpenStudies
-      - Tue Afternoon: Shading
-      - Thu Morning: Accuracy
-      - Thu Evening: Color
-      - Fri Morning: OpenStudies
-      - Sun Morning: Portrait
+      - Mon-Evening: OpenStudies
+      - Tue-Afternoon: Shading
+      - Thu-Morning: Accuracy
+      - Thu-Evening: Color
+      - Fri-Morning: OpenStudies
+      - Sun-Morning: Portrait
 
   - month: June 2025
     sessions:
-      - Mon Evening: OpenStudies
-      - Tue Afternoon: Portrait
-      - Thu Morning: Shading
-      - Thu Evening: Accuracy
-      - Fri Morning: OpenStudies
-      - Sun Morning: Color
+      - Mon-Evening: OpenStudies
+      - Tue-Afternoon: Portrait
+      - Thu-Morning: Shading
+      - Thu-Evening: Accuracy
+      - Fri-Morning: OpenStudies
+      - Sun-Morning: Color
 
   - month: July 2025
     sessions:
-      - Mon Evening: OpenStudies
-      - Tue Afternoon: Color
-      - Thu Morning: Portrait
-      - Thu Evening: Shading
-      - Fri Morning: OpenStudies
-      - Sun Morning: Accuracy
+      - Mon-Evening: OpenStudies
+      - Tue-Afternoon: Color
+      - Thu-Morning: Portrait
+      - Thu-Evening: Shading
+      - Fri-Morning: OpenStudies
+      - Sun-Morning: Accuracy
 
   - month: August 2025
     sessions:
-      - Mon Evening: OpenStudies
-      - Tue Afternoon: Accuracy
-      - Thu Morning: Color
-      - Thu Evening: Portrait
-      - Fri Morning: OpenStudies
-      - Sun Morning: Shading
+      - Mon-Evening: OpenStudies
+      - Tue-Afternoon: Accuracy
+      - Thu-Morning: Color
+      - Thu-Evening: Portrait
+      - Fri-Morning: OpenStudies
+      - Sun-Morning: Shading
 
   - month: September 2025
     sessions:
-      - Mon Evening: OpenStudies
-      - Tue Afternoon: Shading
-      - Thu Morning: Accuracy
-      - Thu Evening: Color
-      - Fri Morning: OpenStudies
-      - Sun Morning: Portrait
+      - Mon-Evening: OpenStudies
+      - Tue-Afternoon: Shading
+      - Thu-Morning: Accuracy
+      - Thu-Evening: Color
+      - Fri-Morning: OpenStudies
+      - Sun-Morning: Portrait
 
   - month: October 2025
     sessions:
-      - Mon Evening: OpenStudies
-      - Tue Afternoon: Portrait
-      - Thu Morning: Shading
-      - Thu Evening: Accuracy
-      - Fri Morning: OpenStudies
-      - Sun Morning: Color
+      - Mon-Evening: OpenStudies
+      - Tue-Afternoon: Portrait
+      - Thu-Morning: Shading
+      - Thu-Evening: Accuracy
+      - Fri-Morning: OpenStudies
+      - Sun-Morning: Color
 
   - month: November 2025
     sessions:
-      - Mon Evening: OpenStudies
-      - Tue Afternoon: Color
-      - Thu Morning: Portrait
-      - Thu Evening: Shading
-      - Fri Morning: OpenStudies
-      - Sun Morning: Accuracy
+      - Mon-Evening: OpenStudies
+      - Tue-Afternoon: Color
+      - Thu-Morning: Portrait
+      - Thu-Evening: Shading
+      - Fri-Morning: OpenStudies
+      - Sun-Morning: Accuracy
 
   - month: December 2025
     sessions:
-      - Mon Evening: OpenStudies
-      - Tue Afternoon: Accuracy
-      - Thu Morning: Color
-      - Thu Evening: Portrait
-      - Fri Morning: OpenStudies
+      - Mon-Evening: OpenStudies
+      - Tue-Afternoon: Accuracy
+      - Thu-Morning: Color
+      - Thu-Evening: Portrait
+      - Fri-Morning: OpenStudies
       - Sun Morning: Shading

@@ -14,7 +14,7 @@ layout: default
     <tr>
       <th></th>
     {% for time in site.data.schedule.times %}
-        <th>{{ time }}</th>
+        <th>{{ time.day }} {{ time.time }}</th>
     {% endfor %}
     </tr>
     {% for month in site.data.schedule.months %}
@@ -22,9 +22,9 @@ layout: default
         <td>{{ month.month }}</td>
         {% for time in site.data.schedule.times %}
           {% for session in month.sessions %}
-            {% if session[time] %}
+            {% if session[time.id] %}
               <td>
-                {% assign class_name = session[time] %}
+                {% assign class_name = session[time.id] %}
                 <a href="{{ site.data.schedule.classes[class_name].url }}">{{ site.data.schedule.classes[class_name].title }}</a>
               </td>
             {% endif %}
