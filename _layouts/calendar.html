@@ -1,0 +1,36 @@
+---
+layout: default
+---
+
+<div class="home">
+  {%- if page.title -%}
+    <h1 class="page-heading">{{ page.title }}</h1>
+  {%- endif -%}
+
+  {{ content }}
+
+
+  <table>
+    <tr>
+      <th></th>
+    {% for time in site.data.schedule.times %}
+        <th>{{ time }}</th>
+    {% endfor %}
+    </tr>
+    {% for month in site.data.schedule.months %}
+      <tr>
+        <td>{{ month.month }}</td>
+        {% for time in site.data.schedule.times %}
+          {% for session in month.sessions %}
+            {% if session[time] %}
+              <td>
+                {% assign class_name = session[time] %}
+                <a href="{{ site.data.schedule.classes[class_name].url }}">{{ site.data.schedule.classes[class_name].title }}</a>
+              </td>
+            {% endif %}
+          {% endfor %}
+        {% endfor %}
+      </tr>
+    {% endfor %}
+  </table>
+</div>
