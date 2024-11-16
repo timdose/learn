@@ -32,12 +32,23 @@ layout: default
           hour12: true
       };
 
+      // Create mapping for weekday numbers to English names
+      const weekdays = {
+          1: 'Mon',
+          2: 'Tue',
+          3: 'Wed',
+          4: 'Thu',
+          5: 'Fri',
+          6: 'Sat',
+          7: 'Sun'
+      };
+
       if (localStart.weekday !== localEnd.weekday) {
-          return `${localStart.toLocaleString({ weekday: 'short' })} ${localStart.toLocaleString(formatOpts)} -
-                  ${localEnd.toLocaleString({ weekday: 'short' })} ${localEnd.toLocaleString(formatOpts)}`;
+          return `${weekdays[localStart.weekday]} ${localStart.toLocaleString(formatOpts)} -
+                  ${weekdays[localEnd.weekday]} ${localEnd.toLocaleString(formatOpts)}`;
       }
 
-      return `${localStart.toLocaleString({ weekday: 'short' })} ${localStart.toLocaleString(formatOpts)} - ${localEnd.toLocaleString(formatOpts)}`;
+      return `${weekdays[localStart.weekday]} ${localStart.toLocaleString(formatOpts)} - ${localEnd.toLocaleString(formatOpts)}`;
   }
 
   function getWeekdayNumber(day) {
