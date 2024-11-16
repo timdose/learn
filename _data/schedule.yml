@@ -17,23 +17,41 @@ classes:
 
 times:
   - id: Mon-Evening
-    day: Monday
-    time: Evening
+    reference_time:
+      day: Monday
+      start: "17:00"  # 5:00 PM
+      end: "19:00"    # 7:00 PM
+      timezone: "America/New_York"
   - id: Tue-Afternoon
-    day: Tuesday
-    time: Afternoon
+    reference_time:
+      day: Tuesday
+      start: "13:00"  # 1:00 PM
+      end: "15:00"    # 3:00 PM
+      timezone: "America/New_York"
   - id: Thu-Morning
-    day: Thursday
-    time: Morning
+    reference_time:
+      day: Thursday
+      start: "10:00"  # 10:00 AM
+      end: "12:00"    # 12:00 PM
+      timezone: "America/New_York"
   - id: Thu-Evening
-    day: Thursday
-    time: Evening
+    reference_time:
+      day: Thursday
+      start: "17:00"  # 5:00 PM
+      end: "19:00"    # 7:00 PM
+      timezone: "America/New_York"
   - id: Fri-Morning
-    day: Friday
-    time: Morning
+    reference_time:
+      day: Friday
+      start: "10:00"  # 10:00 AM
+      end: "12:00"    # 12:00 PM
+      timezone: "America/New_York"
   - id: Sun-Morning
-    day: Sunday
-    time: Morning
+    reference_time:
+      day: Sunday
+      start: "10:00"  # 10:00 AM
+      end: "12:00"    # 12:00 PM
+      timezone: "America/New_York"
 
 months:
   - month: December 2024

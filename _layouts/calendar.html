@@ -9,12 +9,62 @@ layout: default
 
   {{ content }}
 
+  <script src="https://moment.github.io/luxon/global/luxon.min.js"></script>
+  <script>
+  function formatTimeRange(day, startTime, endTime, referenceZone) {
+      const DateTime = luxon.DateTime;
+      
+      const now = DateTime.now();
+      const nextOccurrence = now.setZone(referenceZone)
+          .set({ hour: parseInt(startTime.split(':')[0]), 
+                 minute: parseInt(startTime.split(':')[1]) })
+          .set({ weekday: getWeekdayNumber(day) });
+
+      const localStart = nextOccurrence.toLocal();
+      const localEnd = nextOccurrence
+          .set({ hour: parseInt(endTime.split(':')[0]), 
+                 minute: parseInt(endTime.split(':')[1]) })
+          .toLocal();
+
+      const formatOpts = {
+          hour: 'numeric',
+          minute: '2-digit',
+          hour12: true
+      };
+
+      if (localStart.weekday !== localEnd.weekday) {
+          return `${localStart.toLocaleString({ weekday: 'short' })} ${localStart.toLocaleString(formatOpts)} -
+                  ${localEnd.toLocaleString({ weekday: 'short' })} ${localEnd.toLocaleString(formatOpts)}`;
+      }
+
+      return `${localStart.toLocaleString({ weekday: 'short' })} ${localStart.toLocaleString(formatOpts)} - ${localEnd.toLocaleString(formatOpts)}`;
+  }
+
+  function getWeekdayNumber(day) {
+      const days = { Sunday: 7, Monday: 1, Tuesday: 2, Wednesday: 3, 
+                    Thursday: 4, Friday: 5, Saturday: 6 };
+      return days[day];
+  }
+  </script>
 
   <table>
     <tr>
       <th></th>
     {% for time in site.data.schedule.times %}
-        <th>{{ time.day }} {{ time.time }}</th>
+        <th data-day="{{ time.reference_time.day }}" 
+            data-start="{{ time.reference_time.start }}"
+            data-end="{{ time.reference_time.end }}"
+            data-zone="{{ time.reference_time.timezone }}">
+            <script>
+                document.currentScript.parentElement.innerHTML = 
+                    formatTimeRange(
+                        '{{ time.reference_time.day }}',
+                        '{{ time.reference_time.start }}',
+                        '{{ time.reference_time.end }}',
+                        '{{ time.reference_time.timezone }}'
+                    );
+            </script>
+        </th>
     {% endfor %}
     </tr>
     {% for month in site.data.schedule.months %}
