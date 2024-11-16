@@ -1,23 +1,40 @@
 <div class="schedule">
     <h3>Schedule</h3>
-    {% for month in site.data.schedule.months %}
-        {% assign has_class = false %}
-        {% for session in month.sessions %}
-            {% for time_slot in session %}
-                {% if time_slot[1] == include.classID %}
-                    {% assign has_class = true %}
-                    {% assign class_time = site.data.schedule.times | where: "id", time_slot[0] | first %}
-                {% endif %}
+    {% for year_group in site.data.schedule.months %}
+        {% assign has_year_classes = false %}
+        {% for month in year_group.months %}
+            {% for session in month.sessions %}
+                {% for time_slot in session %}
+                    {% if time_slot[1] == include.classID %}
+                        {% assign has_year_classes = true %}
+                        {% break %}
+                    {% endif %}
+                {% endfor %}
             {% endfor %}
         {% endfor %}
 
-        {% if has_class %}
-            <div class="schedule-row">
-                <h4 class="schedule-month">{{ month.month }}</h4>
-                <div class="schedule-time">
-                    {{ class_time.reference_time.day }}s {{ class_time.reference_time.start | date: "%-I:%M %P" }} - {{ class_time.reference_time.end | date: "%-I:%M %P" }} ET
-                </div>
-            </div>
+        {% if has_year_classes %}
+            <h4>{{ year_group.year }}</h4>
+            {% for month in year_group.months %}
+                {% assign has_class = false %}
+                {% for session in month.sessions %}
+                    {% for time_slot in session %}
+                        {% if time_slot[1] == include.classID %}
+                            {% assign has_class = true %}
+                            {% assign class_time = site.data.schedule.times | where: "id", time_slot[0] | first %}
+                        {% endif %}
+                    {% endfor %}
+                {% endfor %}
+
+                {% if has_class %}
+                    <div class="schedule-row">
+                        <div class="schedule-month">{{ month.month }}</div>
+                        <div class="schedule-time">
+                            {{ class_time.reference_time.day }}s {{ class_time.reference_time.start | date: "%-I:%M %P" }} - {{ class_time.reference_time.end | date: "%-I:%M %P" }} ET
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
         {% endif %}
     {% endfor %}
 </div>
@@ -38,6 +55,11 @@
 
 .schedule-time {
     margin: 0;
+}
+
+h4 {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
 }
 
 @media (max-width: 600px) {

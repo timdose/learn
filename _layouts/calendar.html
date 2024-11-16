@@ -47,40 +47,54 @@ layout: default
   }
   </script>
 
-  <table>
-    <tr>
-      <th></th>
-    {% for time in site.data.schedule.times %}
-        <th data-day="{{ time.reference_time.day }}" 
-            data-start="{{ time.reference_time.start }}"
-            data-end="{{ time.reference_time.end }}"
-            data-zone="{{ time.reference_time.timezone }}">
-            <script>
-                document.currentScript.parentElement.innerHTML = 
-                    formatTimeRange(
-                        '{{ time.reference_time.day }}',
-                        '{{ time.reference_time.start }}',
-                        '{{ time.reference_time.end }}',
-                        '{{ time.reference_time.timezone }}'
-                    );
-            </script>
-        </th>
-    {% endfor %}
-    </tr>
-    {% for month in site.data.schedule.months %}
+  {% for year_group in site.data.schedule.months %}
+    <h1>{{ year_group.year }}</h1>
+    <table>
       <tr>
-        <td>{{ month.month }}</td>
+        <th></th>
         {% for time in site.data.schedule.times %}
-          {% for session in month.sessions %}
-            {% if session[time.id] %}
-              <td>
-                {% assign class_name = session[time.id] %}
-                <a href="{{ site.data.schedule.classes[class_name].url }}">{{ site.data.schedule.classes[class_name].title }}</a>
-              </td>
-            {% endif %}
-          {% endfor %}
+          <th data-day="{{ time.reference_time.day }}" 
+              data-start="{{ time.reference_time.start }}"
+              data-end="{{ time.reference_time.end }}"
+              data-zone="{{ time.reference_time.timezone }}">
+              <script>
+                  document.currentScript.parentElement.innerHTML = 
+                      formatTimeRange(
+                          '{{ time.reference_time.day }}',
+                          '{{ time.reference_time.start }}',
+                          '{{ time.reference_time.end }}',
+                          '{{ time.reference_time.timezone }}'
+                      );
+              </script>
+          </th>
         {% endfor %}
       </tr>
-    {% endfor %}
-  </table>
+      {% for month in year_group.months %}
+        <tr>
+          <td>{{ month.month }}</td>
+          {% for time in site.data.schedule.times %}
+            {% for session in month.sessions %}
+              {% if session[time.id] %}
+                <td>
+                  {% assign class_name = session[time.id] %}
+                  <a href="{{ site.data.schedule.classes[class_name].url }}">{{ site.data.schedule.classes[class_name].title }}</a>
+                </td>
+              {% endif %}
+            {% endfor %}
+          {% endfor %}
+        </tr>
+      {% endfor %}
+    </table>
+  {% endfor %}
 </div>
+
+<style>
+  h3 {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+  }
+  
+  table {
+    margin-bottom: 2rem;
+  }
+</style>
