@@ -76,6 +76,15 @@ months:
           - Fri-Morning: open-studies
           - Sun-Morning: color
 
+      - month: February
+        sessions:
+          - Mon-Evening: open-studies
+          - Tue-Afternoon: color
+          - Thu-Morning: portrait
+          - Thu-Evening: shading
+          - Fri-Morning: open-studies
+          - Sun-Morning: accuracy
+
       - month: March
         sessions:
           - Mon-Evening: open-studies
