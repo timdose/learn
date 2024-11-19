@@ -17,6 +17,10 @@ times:
   - Fridays 9am-12pm (Eastern Time)
   - Mondays 6pm-9pm (Eastern Time)
   - Sundays 9am-12pm (Eastern Time)
+
+showDetailedCalendar: false
+classID: portrait
+
 ---
 
 

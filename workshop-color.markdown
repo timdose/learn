@@ -11,6 +11,8 @@ title: "Color Theory & Mixing"
 description: "Learn practical color theory and how to mix colors"
 background-image: "images/bg-color@1000h.jpg"
 category: "Online workshop"
+showDetailedCalendar: false
+classID: color
 
 ---
 

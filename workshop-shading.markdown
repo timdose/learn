@@ -17,6 +17,7 @@ times:
   - Sundays 10am-12pm (Eastern Time)
 category: "Online workshop"
 classID: shading
+showDetailedCalendar: false
 
 registration-open: false
 

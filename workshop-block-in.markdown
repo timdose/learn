@@ -11,6 +11,8 @@ title: "Accurate drawing"
 description: "Learn simple skills to get accurate proportions and perspective easily"
 background-image: "images/bg-block-in.jpg"
 category: "Online workshop"
+showDetailedCalendar: false
+classID: accuracy
 ---
 
 - Exact dates & times TBD
