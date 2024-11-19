@@ -1,8 +1,8 @@
 ---
 layout: page
-title: Workshops
+title: Classes
 show_in_nav: true
-permalink: /workshops/
+permalink: /classes/
 ---
 
 ## Online Workshops
