@@ -5,8 +5,8 @@ prices:
   live: 250
   recordings: 120
   addon: 100
-discount1: 25
-discount2: 50
+discount1: 20
+discount2: 40
 title: "Color Theory & Mixing"
 description: "Learn practical color theory and how to mix colors"
 background-image: "images/bg-color@1000h.jpg"

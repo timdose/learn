@@ -5,8 +5,8 @@ prices:
   live: 350
   recordings: 160
   addon: 100
-discount1: 25
-discount2: 50
+discount1: 20
+discount2: 40
 title: "Portrait drawing"
 description: "Learn advanced techniques to block in and model portraits"
 background-image: "images/bg-portrait@1000h.jpg"
