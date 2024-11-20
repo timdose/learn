@@ -3,11 +3,11 @@
         <span class="close" data-test-id="close-time-preference-popup">&times;</span>
         <h2>You've been added to the waitlist!</h2>
         <form id="timePreferenceForm">
-            {% if page.times and page.times.size > 0 %}
+            {% if page.possibleTimes and page.possibleTimes.size > 0 %}
             <p>Which times work for you?</p>
             <p class="subtext">Please check all that apply.</p>
             <div class="time-options-container">
-                {% for time in page.times %}
+                {% for time in page.possibleTimes %}
                     <div>
                     <input type="checkbox" name="timePreference" value="{{ time }}">
                     <label for="{{ time }}">
