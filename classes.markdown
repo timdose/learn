@@ -9,7 +9,7 @@ permalink: /classes/
 
 [Intro to shading](/workshops/shading/)
 
-[Accurate drawing](/workshops/accuracy/)
+[Accurate drawing skills](/workshops/accuracy/)
 
 [Portrait drawing](/workshops/portrait-drawing/)
 

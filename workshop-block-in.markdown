@@ -7,7 +7,7 @@ prices:
   addon: 100
 discount1: 20
 discount2: 40
-title: "Accurate drawing"
+title: "Accurate drawing skills"
 description: "Learn simple skills to get accurate proportions and perspective easily"
 background-image: "images/bg-block-in.jpg"
 category: "Online workshop"
