@@ -95,6 +95,21 @@ describe('Waitlist Popup', () => {
       cy.get('#timePreferencePopup').should('have.class', 'hidden')
     })
 
+    it('shows thank you message after submitting email if data-ask-times is false', () => {
+      // Get popup trigger button and click it
+      cy.get('.waitlist-button').first().not('[data-ask-times="true"]').click()
+
+      // Verify the popup is visible
+      cy.get('#waitlistPopup').should('not.have.class', 'hidden')
+
+      // Enter email and submit
+      cy.get('#waitlistEmail').type('test@test.com')
+      cy.get('[data-test-id="submit-waitlist-popup"]').click()
+
+      // Verify the thank you message is visible  
+      cy.get('#waitlistPopup h2').should('contain', 'Thank you!')
+    })
+
     //--------------------------------------------------------------------------------------------
     // 2024-11-21: Commented out ⬇️ for now since I'm temporarily not showing the time preference popup
     //--------------------------------------------------------------------------------------------
