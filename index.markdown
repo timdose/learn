@@ -20,7 +20,7 @@ layout: home
 
 ## Resources
 
-#### [Form direction training](https://learning.timdoseart.com/form-direction-training/) (experimental)
+#### [Form direction training](/form-direction/) (experimental)
 
 A training tool to help improve your ability to identify the direction a form faces at different points.
 
