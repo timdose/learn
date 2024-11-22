@@ -16,6 +16,13 @@ classID: color
 
 ---
 
+## Dates & times
+
+The next session of this workshop isn't scheduled yet. 
+
+Add your name to the waitlist to get notified when it's scheduled.
+
+---
 
 ## What you'll learn
 
@@ -36,6 +43,7 @@ classID: color
 - 4 weekly sessions
 - 2 hours each session
 - Exact dates & times TBD
+
 
 ## Note
 

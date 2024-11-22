@@ -23,7 +23,11 @@ registration-open: false
 
 ---
 
-- Exact dates & times TBD
+## Next class
+
+- December 2024
+- Tuesdays 12-2pm EST 
+- Dec 3, 10, 17, 31 (no class Dec 24)
 
 ---
 

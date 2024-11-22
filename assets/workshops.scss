@@ -197,12 +197,12 @@ ul {
 }
 
 
-.divider {
+hr, .divider {
     margin-bottom: 1rem !important;
     margin-top: 1rem !important;
 }
 
-.divider::before {
+hr::before, .divider::before {
     content: '';
     display: block;
     width: 100%;

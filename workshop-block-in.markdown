@@ -15,7 +15,11 @@ showDetailedCalendar: false
 classID: accuracy
 ---
 
-- Exact dates & times TBD
+## Dates & times
+
+- December 2024
+- Thursdays 8-10pm EST
+- Dec 5, 12, 19, 26
 
 ---
 

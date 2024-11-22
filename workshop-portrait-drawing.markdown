@@ -23,6 +23,15 @@ classID: portrait
 
 ---
 
+## Dates & times
+
+The next session of this workshop isn't scheduled yet. 
+
+Add your name to the waitlist to get notified when it's scheduled.
+
+---
+
+## Details
 
 - 4 weekly sessions
 - 3 hours each session
