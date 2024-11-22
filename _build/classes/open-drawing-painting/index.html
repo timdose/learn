@@ -193,8 +193,6 @@
             data-discount=""
             data-original-price="300"
             
-                data-ask-times
-            
         >
             Join waitlist
         </button>
@@ -337,8 +335,6 @@
             data-item-name="Live Online Workshop" 
             data-discount="25"
             data-original-price="300"
-            
-                data-ask-times
             
         >
             Join waitlist
@@ -488,8 +484,6 @@
             data-item-name="Live Online Workshop" 
             data-discount="50"
             data-original-price="300"
-            
-                data-ask-times
             
         >
             Join waitlist
@@ -701,8 +695,6 @@
             data-discount=""
             data-original-price="300"
             
-                data-ask-times
-            
         >
             Join waitlist
         </button>
@@ -845,8 +837,6 @@
             data-item-name="Live Online Workshop" 
             data-discount="25"
             data-original-price="300"
-            
-                data-ask-times
             
         >
             Join waitlist
@@ -996,8 +986,6 @@
             data-item-name="Live Online Workshop" 
             data-discount="50"
             data-original-price="300"
-            
-                data-ask-times
             
         >
             Join waitlist
@@ -1182,9 +1170,9 @@
 	<!-- Add this at the end of the body -->
 <div id="waitlistPopup" class="modal">
     <div class="modal-content">
+        <span class="close" data-test-id="close-waitlist-popup">&times;</span>
+        <h2>Join the waitlist</h2>  
         <form id="waitlistForm">
-            <span class="close" data-test-id="close-waitlist-popup">&times;</span>
-            <h2>Join the waitlist</h2>
             <p>Registration is currently closed. We'll notify you when registration opens.</p>
             <div class="pricing-info">
                 <p id="waitlistItemName"></p>
@@ -1203,6 +1191,15 @@
             <input type="hidden" name="requestId" id="hiddenRequestId">
             <button type="submit" id="submitWaitlistButton" class="button large" data-test-id="submit-waitlist-popup">Join waitlist</button>
         </form>     
+    </div>
+</div>
+
+<div id="thankYouPopup" class="modal hidden">
+    <div class="modal-content">
+        <span class="close" data-test-id="close-waitlist-popup">&times;</span>
+        <h2>Thank you!</h2>
+        <p>Your email has been added to the waitlist.</p>
+        <p>We'll notify you when registration opens.</p>
     </div>
 </div>
 

@@ -49,6 +49,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Setup both modals
     const waitlistModal = setupModal(waitlistPopup);
     const timePreferenceModal = setupModal(timePreferencePopup);
+    const thankYouModal = setupModal(thankYouPopup);
 
     // Single keyboard event listener for all modals
     document.addEventListener('keydown', (e) => {
@@ -58,6 +59,9 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             if (!timePreferencePopup.classList.contains('hidden')) {
                 timePreferenceModal.closeModal();
+            }
+            if (!thankYouPopup.classList.contains('hidden')) {
+                thankYouModal.closeModal();
             }
         }
     });
@@ -128,6 +132,10 @@ document.addEventListener('DOMContentLoaded', function() {
             submittedWaitlistEmail.value = email;
             submittedRequestId.value = requestId;
             timePreferenceModal.openModal();
+        } else {
+            // Show thank you message
+            const thankYouPopup = document.getElementById('thankYouPopup');
+            thankYouPopup.classList.remove('hidden');
         }
     }
 

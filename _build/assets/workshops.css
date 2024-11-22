@@ -647,16 +647,16 @@ button.large, .button.large {
 }
 
 /* Typography */
-#waitlistPopup p {
+#waitlistPopup p, #thankYouPopup p {
   font-weight: 300;
 }
 
-#waitlistPopup .pricing-info p {
+#waitlistPopup .pricing-info p, #thankYouPopup .pricing-info p {
   font-weight: 600;
 }
 
 /* Styles for the waitlist popup */
-#waitlistPopup .modal-content, #timePreferencePopup .modal-content {
+#waitlistPopup .modal-content, #timePreferencePopup .modal-content, #thankYouPopup .modal-content {
   max-width: 600px;
 }
 
