@@ -26,12 +26,16 @@
         f="XMLHttpRequest",g._w={},g._w[f]=m[f],g._w[s]=m[s],m[s]&&(m[s]=function(){return g._w[s].apply(this,arguments)}),g._v="2.0.0")
         }(window,document,window._fs_namespace,"script",window._fs_script);
     </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         body, html {
             margin: 0;
             padding: 0;
             height: 100%;
             overflow: hidden;
+            font-family: 'Montserrat', sans-serif;
         }
         .image-container {
             position: relative;
@@ -117,6 +121,11 @@
             border-radius: 4px; /* Optional: rounded corners */
             z-index: 20;
         }
+        #bottomLeftContainer {
+            position: absolute; /* Position the container absolutely */
+            bottom: 20px; /* Distance from the bottom */
+            left: 20px; /* Distance from the left */
+        }
         #subjectSelect {
             font-size: 16px; /* Adjust font size as needed */
             height: 32px;
@@ -131,6 +140,7 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            font-size: 18px;
         }
 
         .button img {
@@ -138,7 +148,7 @@
             height: 20px; /* Adjust size as needed */
         }
         /* Add this CSS for the hover state of the random button */
-        #randomButton:hover {
+        .button:hover {
             background-color: #0056b3; /* Darker shade on hover */
             color: white; /* Text color on hover */
             cursor: pointer; /* Pointer cursor on hover */
@@ -146,6 +156,19 @@
         
         .button {
             position: relative; /* Position relative for tooltip positioning */
+        }
+
+        #helpButton {
+            font-size: 24px;
+            background-color: #fff;
+            color: #333;
+            border: 1px solid #333;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+        }
+        #helpButton:hover {
+            background-color: rgba(0, 86, 179, 0.2);
         }
 
         .tooltip {
@@ -172,13 +195,87 @@
         }
         
         /* Add this CSS for active button state */
-        #prevButton.active, #checkButton.active, #nextButton.active, #randomButton.active {
+        .button.active {
             background-color: #0056b3; /* Darker shade to indicate active state */
             opacity: 0.8; /* Slightly transparent */
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 24px;
+            width: 600px;
+            height: 600px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .modal-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-header h2 {
+            margin: 0;
+        }
+        .close-button {
+            height: 36px;
+            width: 36px;
+            font-size: 36px;
+            padding: 12px;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            display: flex;
+        }
+        .close-button:hover {
+            color: #007bff;
+        }
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 80%;
+            }
+        }
+        .hidden {
+            display: none;
         }
     </style>
 </head>
 <body>
+    <div id="helpModal" class="modal">
+        <div class="modal-screen"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Form direction training</h2>
+                <div class="close-button">&times;</div>
+            </div>
+            <div class="modal-body">
+                <p>This training is designed to help you improve your ability to identify the direction of a form. 
+                <p>Look for the crosshairs on the form on the left, which identifies a specific point on the form.</p>
+                <p>Try to feel which way the form is facing at that point.</p>
+                <p>Try to find a corresponding point on the sphere that's facing the same direction.</p>
+                <p>Mark your guess by clicking on the sphere.</p>
+                <p>Click "Show answer" to see how close your guess was.</p>
+            </div>
+        </div>
+    </div>
     <div class="image-container">
         <img src="quiz/images/vase/0000.png" alt="Vase" id="subjectImage">
         <img src="quiz/images/vase/0001.png" alt="Dot Overlay" id="dotImage">
@@ -188,6 +285,12 @@
             <select id="subjectSelect"> <!-- Existing subject dropdown -->
                 <!-- Options will be added dynamically -->
             </select>
+        </div>
+        <div id="bottomLeftContainer">
+            <button id="helpButton" class="button">
+                ?
+                <span class="tooltip"><strong>Help</strong><br>Shortcut: ?</span>
+            </button>
         </div>
         <div class="button-container"> <!-- New container for buttons -->
             <button id="prevButton" class="button">

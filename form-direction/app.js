@@ -308,6 +308,31 @@ document.addEventListener('DOMContentLoaded', (event) => {
             case 'r':
                 document.getElementById('randomButton').classList.remove('active');
                 break;
+            case '?':
+                helpModal.classList.remove('hidden');
+                break;
+            case 'Escape':
+                helpModal.classList.add('hidden');
+                break;
         }
+    });
+
+    // Help modal
+    const helpModal = document.getElementById('helpModal');
+    const closeButton = document.querySelector('.close-button');  
+    const modalScreen = document.querySelector('.modal-screen');
+    const helpButton = document.getElementById('helpButton');
+    
+    helpButton.addEventListener('click', () => {
+        helpModal.classList.remove('hidden');
+    });
+    
+    closeButton.addEventListener('click', () => {
+        console.log('Close button clicked');
+        helpModal.classList.add('hidden');
+    });
+    modalScreen.addEventListener('click', () => {
+        console.log('Modal screen clicked');
+        helpModal.classList.add('hidden');
     });
 });
