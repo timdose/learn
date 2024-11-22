@@ -107,7 +107,10 @@ describe('Waitlist Popup', () => {
       cy.get('[data-test-id="submit-waitlist-popup"]').click()
 
       // Verify the thank you message is visible  
-      cy.get('#waitlistPopup h2').should('contain', 'Thank you!')
+      cy.get('#thankYouPopup').should('not.have.class', 'hidden')
+
+      // Verify the waitlist popup is hidden
+      cy.get('#waitlistPopup').should('have.class', 'hidden')
     })
 
     //--------------------------------------------------------------------------------------------
