@@ -13,6 +13,7 @@ background-image: "images/bg-portrait@1000h.jpg"
 prereqs: "Before you take this workshop, please take the [Accurate Drawing](/workshops/accuracy/) and the [Intro to Shading](/workshops/shading/) workshops—or get permission from Tim."
 category: "Online workshop"
 
+showPossibleTimes: false
 possibleTimes:
   - Fridays 9am-12pm (Eastern Time)
   - Mondays 6pm-9pm (Eastern Time)

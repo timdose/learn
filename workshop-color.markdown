@@ -14,6 +14,8 @@ category: "Online workshop"
 showDetailedCalendar: false
 classID: color
 
+showPossibleTimes: false
+
 ---
 
 ## Dates & times

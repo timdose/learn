@@ -10,6 +10,8 @@ discount2: 40
 title: "Intro to shading"
 description: "Take your shading to the next level in 4 weeks with smooth, sculptural 3D shading—without blending or smudging."
 background-image: "images/bg.jpg"
+
+showPossibleTimes: false
 possibleTimes:
   - Thursdays 10am-12pm (Eastern Time)
   - Thursdays 12:30pm-2:30pm (Eastern Time)

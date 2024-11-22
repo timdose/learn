@@ -13,6 +13,8 @@ background-image: "images/bg-block-in.jpg"
 category: "Online workshop"
 showDetailedCalendar: false
 classID: accuracy
+showPossibleTimes: false
+
 ---
 
 ## Dates & times
