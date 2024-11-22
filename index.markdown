@@ -9,17 +9,20 @@ layout: home
 
 ## Online workshops
 
-[Intro to shading](/workshops/shading/)
+#### [Intro to shading](/workshops/shading/)
 
-[Accurate drawing skills](/workshops/accuracy/)
+#### [Accurate drawing skills](/workshops/accuracy/)
 
-[Portrait drawing](/workshops/portrait-drawing/)
+#### [Portrait drawing](/workshops/portrait-drawing/)
 
-[Color theory & mixing](/workshops/color/)
+#### [Color theory & mixing](/workshops/color/)
 
 
 ## Resources
-[Form direction training](https://learning.timdoseart.com/form-direction-training/) (experimental)
+
+#### [Form direction training](https://learning.timdoseart.com/form-direction-training/) (experimental)
+
+A training tool to help improve your ability to identify the direction a form faces at different points.
 
 
 <span style="color: #ddd;font-size: 12px;">v1</span>
