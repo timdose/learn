@@ -14,6 +14,7 @@ category: "Online workshop"
 showDetailedCalendar: false
 classID: accuracy
 showPossibleTimes: false
+registration-open: true
 
 ---
 

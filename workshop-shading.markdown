@@ -21,7 +21,7 @@ category: "Online workshop"
 classID: shading
 showDetailedCalendar: false
 
-registration-open: false
+registration-open: true
 
 ---
 
