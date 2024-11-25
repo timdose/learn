@@ -8,7 +8,7 @@ prices:
 discount1: 20
 discount2: 40
 title: "Accurate drawing skills"
-description: "Learn simple skills to get accurate proportions and perspective easily"
+description: "Learn simple skills to get accurate proportions and perspective easily—without gridding or tracing"
 background-image: "images/bg-block-in.jpg"
 category: "Online workshop"
 showDetailedCalendar: false
