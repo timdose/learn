@@ -22,7 +22,7 @@ classID: shading
 showDetailedCalendar: false
 
 registration-open: true
-
+purchase_return_url: "/workshops/shading/thank-you/"
 ---
 
 ## Next class

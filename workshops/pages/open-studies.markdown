@@ -20,7 +20,7 @@ possibleTimes:
 showDetailedCalendar: false
 classID: open-studies
 registration-open: true
-
+purchase_return_url: "/workshops/open-studies/thank-you/"
 ---
 
 ## Next class

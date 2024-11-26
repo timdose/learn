@@ -13,9 +13,8 @@ background-image: "images/bg-color@1000h.jpg"
 category: "Online workshop"
 showDetailedCalendar: false
 classID: color
-
 showPossibleTimes: false
-
+purchase_return_url: "/workshops/color/thank-you/"
 ---
 
 ## Dates & times

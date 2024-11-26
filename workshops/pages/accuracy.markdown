@@ -15,7 +15,7 @@ showDetailedCalendar: false
 classID: accuracy
 showPossibleTimes: false
 registration-open: true
-
+purchase_return_url: "/workshops/accuracy/thank-you/"
 ---
 
 ## Dates & times
