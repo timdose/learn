@@ -10,6 +10,7 @@ discount2: 40
 title: "Accurate drawing skills"
 description: "Learn simple skills to get accurate proportions and perspective easily—without gridding or tracing"
 background-image: "images/bg-block-in.jpg"
+opengraph-preview-image: "images/card-accuracy.jpg"
 category: "Online workshop"
 showDetailedCalendar: false
 classID: accuracy

@@ -8,6 +8,7 @@ discount2: 40
 title: "Open studies"
 description: "Only for Tim's previous students! Work on your own projects & get live critiques and demos from Tim."
 background-image: "images/bg-open-studies@1000h.jpg"
+opengraph-preview-image: "images/card-open-studies.jpg"
 prereqs: "Before you take this workshop, please take one of Tim's intro workshops ([Accurate Drawing](/workshops/accuracy/) or [Intro to Shading](/workshops/shading/)), or get permission from Tim."
 category: "✨Secret class✨"
 

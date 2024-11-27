@@ -10,6 +10,7 @@ discount2: 40
 title: "Portrait drawing"
 description: "Learn advanced techniques to block in and model portraits"
 background-image: "images/bg-portrait@1000h.jpg"
+opengraph-preview-image: "images/card-portrait-drawing.jpg"
 prereqs: "Before you take this workshop, please take the [Accurate Drawing](/workshops/accuracy/) and the [Intro to Shading](/workshops/shading/) workshops—or get permission from Tim."
 category: "Online workshop"
 
@@ -21,7 +22,6 @@ possibleTimes:
 
 showDetailedCalendar: false
 classID: portrait
-
 ---
 
 ## Dates & times

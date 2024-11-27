@@ -10,6 +10,7 @@ discount2: 40
 title: "Intro to shading"
 description: "Take your shading to the next level in 4 weeks with smooth, sculptural 3D shading—without blending or smudging."
 background-image: "images/bg.jpg"
+opengraph-preview-image: "images/card-shading.jpg"
 
 showPossibleTimes: false
 possibleTimes:
