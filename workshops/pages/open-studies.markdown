@@ -46,4 +46,5 @@ purchase_return_url: "/workshops/open-studies/thank-you/"
 - **Work on your own project**: Bring your own project and work on it during the Zoom session.
 - **Live, personalized feedback**: Post your work to an online whiteboard and get live feedback from Tim.
 - **Request demos & explanations**: Wondering how to do something? Ask Tim to demonstrate a technique or explain a concept.
+- **Video recordings ✨forever✨**: Review concepts and feedback with video recordings with no expiration date.
 
