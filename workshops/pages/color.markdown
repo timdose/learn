@@ -3,7 +3,7 @@ layout: workshop
 permalink: /workshops/color/
 prices:
   live: 250
-  recordings: 120
+  recordings-only: 120
   addon: 100
 discount1: 20
 discount2: 40

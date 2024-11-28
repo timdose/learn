@@ -3,7 +3,7 @@ layout: workshop
 permalink: /workshops/portrait-drawing/
 prices:
   live: 350
-  recordings: 160
+  recordings-only: 160
   addon: 100
 discount1: 20
 discount2: 40
