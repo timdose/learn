@@ -9,9 +9,9 @@ permalink: /workshops/shading/thank-you/
 
 I’m looking forward to working with you 😊
 
-I’ll send you a link for Zoom a few days before the class starts. In the meantime, please check out the supply list below.
+I’ll send you a link for Zoom a few days before the class starts. In the meantime, please check out the [supply list]({{site.url}}/workshops/shading/supplies/).
 
 If you have any questions, please don’t hesitate to reach out!
 
 
-<button class="button" onclick="window.location.href='https://www.timdoseart.com/shading-workshop-supply-list/'">Supply list</button>
+<button class="button large" onclick="window.location.href='{{site.url}}/workshops/shading/supplies/'">Supply list</button>
