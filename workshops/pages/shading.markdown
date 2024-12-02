@@ -29,8 +29,8 @@ purchase_return_url: "/workshops/shading/thank-you/"
 ## Next class
 
 - December 2024
-- Tuesdays 12-2pm EST 
-- Dec 3, 10, 17, 31 (no class Dec 24)
+- Wednesdays 12-2pm EST 
+- Dec 4, 11, 18 + Jan 8
 
 ---
 
