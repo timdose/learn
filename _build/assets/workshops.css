@@ -1143,7 +1143,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 p {
-  line-height: 1.2em;
+  line-height: 1.5em;
 }
 
 h3 {
@@ -1161,20 +1161,21 @@ h4 {
   margin-top: 1em;
 }
 
-#page-category {
+.page-category {
   font-size: 2rem;
   margin-bottom: 0;
   color: #828282;
 }
 
-#page-title {
+h1, .page-title {
   font-size: 3rem;
   margin-bottom: 0.15em;
   margin-top: 0.2rem;
 }
 
-#page-description {
+.page-description {
   font-size: 1.5rem;
+  color: #AD2A71;
 }
 
 body {
@@ -1248,10 +1249,6 @@ body:before {
     max-width: 100%;
   }
 }
-#page-description {
-  color: #AD2A71;
-}
-
 ul {
   font-family: "Spectral", serif;
   font-size: 1rem;

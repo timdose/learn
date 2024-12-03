@@ -689,6 +689,76 @@ button.large, .button.large {
   padding: 12.8px 19.2px; /* .8em 1.2em */
 }
 
+:root {
+  font-size: 24px;
+}
+@media (max-width: 1280px) {
+  :root {
+    font-size: 20px;
+  }
+}
+@media (max-width: 1024px) {
+  :root {
+    font-size: 18px;
+  }
+}
+@media (max-width: 980px) {
+  :root {
+    font-size: 18px;
+  }
+}
+
+html {
+  font-weight: 400;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Spectral", serif;
+  line-height: 1;
+  margin-bottom: 0.5em;
+}
+
+p {
+  line-height: 1.5em;
+}
+
+h3 {
+  font-size: 2rem;
+}
+
+h4 {
+  font-size: 1.5rem;
+}
+
+.main-content h2 {
+  font-size: 2rem;
+  color: #AD2A71;
+  margin-bottom: 0.5em;
+  margin-top: 1em;
+}
+
+.page-category {
+  font-size: 2rem;
+  margin-bottom: 0;
+  color: #828282;
+}
+
+h1, .page-title {
+  font-size: 3rem;
+  margin-bottom: 0.15em;
+  margin-top: 0.2rem;
+}
+
+.page-description {
+  font-size: 1.5rem;
+  color: #AD2A71;
+}
+
+body {
+  font-family: "Spectral", serif;
+  text-align: left;
+}
+
 .page-content {
   font-size: 1.25rem;
 }
