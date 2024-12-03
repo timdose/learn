@@ -3,39 +3,8 @@
 
 @import "workshops-imports";
 
-:root {
-    font-size: 24px;
-    @media (max-width: $layout-breakpoint-large) { font-size: 20px; }
-    @media (max-width: $layout-breakpoint-medium) { font-size: 18px; }
-    @media (max-width: $layout-breakpoint-small)  { font-size: 18px; }
-}
-
-html { 
-    font-weight: 400; 
-   
-}
-
-h1, h2, h3, h4, h5, h6 {
-    font-family: 'Spectral', serif;
-    line-height: 1;
-    margin-bottom: 0.5em
-}
-
-p                   { line-height: 1.2em; }
-
-h3                  { font-size: 2rem; }
-h4                  { font-size: 1.5rem; }
-.main-content h2    { font-size: 2rem; color: #AD2A71; margin-bottom: .5em; margin-top: 1em;}
-
-#page-category      { font-size: 2.0rem; margin-bottom: 0; color: $grey-color; }
-#page-title         { font-size: 3.0rem; margin-bottom: 0.15em; margin-top: 0.2rem; }
-#page-description   { font-size: 1.5rem; }
 
 
-body {
-    font-family: 'Spectral', serif;
-    text-align: left;
-}
 
 
 /*------------------------------------*\
@@ -103,12 +72,6 @@ body:before                 { width: calc(100vw - $main-width); }
         --spacing: 0.75rem;
         max-width: 100%;
     }
-}
-
-
-
-#page-description {
-    color: $brand-color;
 }
 
 

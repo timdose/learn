@@ -3,9 +3,11 @@ layout: home
 permalink: /workshops/accuracy/thank-you/
 ---
 
-# Accuracy workshop ✅
+<h3 class="page-category">Online workshop</h3>
 
-## Thanks for signing up!
+# Accurate Drawing Skills 
+
+## Thanks for signing up! ✅
 
 I’m looking forward to working with you 😊
 

@@ -3,9 +3,11 @@ layout: home
 permalink: /workshops/shading/thank-you/
 ---
 
-# Shading workshop ✅
+<h3 class="page-category">Online workshop</h3>
 
-## Thanks for signing up!
+# Intro to Shading
+
+## Thanks for signing up! ✅
 
 I’m looking forward to working with you 😊
 

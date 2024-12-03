@@ -112,10 +112,10 @@
 		<div id="main">
 			<div class="inner">
 				{% if page.category %}
-					<h3 id="page-category">{{page.category}}</h3>
+					<h3 class="page-category">{{page.category}}</h3>
 				{% endif %}
-				<h2 id="page-title">{{page.title}}</h2>
-				<p id="page-description">{{page.description}}</p>
+				<h2 class="page-title">{{page.title}}</h2>
+				<p class="page-description">{{page.description}}</p>
 				{% if page.prereqs %}
 					{% include prereqs.html %}
 				{% endif %}
