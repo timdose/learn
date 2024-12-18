@@ -2,7 +2,7 @@ describe('Sliding Scale Popup', () => {
   beforeEach(() => {
     // Assuming your page is served at localhost:3000
     // Adjust this URL to match your development environment
-    cy.visit('http://localhost:4000/workshops/shading/')
+    cy.visit('http://localhost:4000/shading/')
   })
 
   it('opens and closes popup when trigger button is clicked', () => {
