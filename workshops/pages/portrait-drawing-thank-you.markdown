@@ -1,6 +1,6 @@
 ---
 layout: home
-permalink: /workshops/portrait-drawing/thank-you/
+permalink: /portrait-drawing/thank-you/
 --- 
 
 # Portrait drawing workshop ✅

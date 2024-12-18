@@ -1,6 +1,6 @@
 ---
 layout: home
-permalink: /workshops/accuracy/supplies/
+permalink: /accuracy/supplies/
 ---
 
 <h3 class="page-category">Online workshop</h3>

@@ -1,19 +1,19 @@
 classes:
   open-studies:
     title: Open Studies
-    url: /workshops/open-studies
+    url: /open-studies/
   shading:
     title: Intro to Shading
-    url: /workshops/shading
+    url: /shading/
   accuracy:
     title: Accurate Drawing
-    url: /workshops/accuracy
+    url: /accuracy/
   color:
     title: Color Theory & Mixing
-    url: /workshops/color
+    url: /color/
   portrait:
     title: Portrait Drawing
-    url: /workshops/portrait
+    url: /portrait/
 
 times:
   - id: Mon-Evening

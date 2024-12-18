@@ -2,7 +2,7 @@ describe('Waitlist Popup', () => {
     beforeEach(() => {
       // Assuming your page is served at localhost:3000
       // Adjust this URL to match your development environment
-      cy.visit('http://localhost:4000/workshops/shading/')
+      cy.visit('http://localhost:4000/shading/')
     })
   
     it('opens and closes popup when trigger button is clicked', () => {
@@ -193,7 +193,7 @@ describe('Waitlist Popup', () => {
 
 // describe('Waitlist Form', () => {
 //   beforeEach(() => {
-//     cy.visit('/workshops/shading/') // Adjust this path to match your actual page URL
+//     cy.visit('/shading/') // Adjust this path to match your actual page URL
 //   })
 
 //   it('should generate a properly formatted request ID and pass it to time preference popup', () => {

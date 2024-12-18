@@ -1,6 +1,6 @@
 ---
 layout: home
-permalink: /workshops/open-studies/thank-you/
+permalink: /open-studies/thank-you/
 ---
 
 # Open studies workshop ✅

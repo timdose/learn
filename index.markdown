@@ -9,13 +9,13 @@ layout: home
 
 ## Online workshops
 
-[Intro to shading](/workshops/shading/)
+[Intro to shading](/shading/)
 
-[Accurate drawing skills](/workshops/accuracy/)
+[Accurate drawing skills](/accuracy/)
 
-[Portrait drawing](/workshops/portrait-drawing/)
+[Portrait drawing](/portrait-drawing/)
 
-[Color theory & mixing](/workshops/color/)
+[Color theory & mixing](/color/)
 
 
 ## Resources

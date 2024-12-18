@@ -1,6 +1,6 @@
 ---
 layout: workshop
-permalink: /workshops/open-studies/
+permalink: /open-studies/
 prices:
   live-plus-1-1: 300
 discount1: 20
@@ -9,7 +9,7 @@ title: "Open studies"
 description: "Only for Tim's previous students! Work on your own projects & get live critiques and demos from Tim."
 background-image: "images/bg-open-studies@1000h.jpg"
 opengraph-preview-image: "images/card-open-studies.jpg"
-prereqs: "Before you take this workshop, please take one of Tim's intro workshops ([Accurate Drawing](/workshops/accuracy/) or [Intro to Shading](/workshops/shading/)), or get permission from Tim."
+prereqs: "Before you take this workshop, please take one of Tim's intro workshops ([Accurate Drawing](/accuracy/) or [Intro to Shading](/shading/)), or get permission from Tim."
 category: "✨Secret class✨"
 
 showPossibleTimes: false
@@ -21,7 +21,7 @@ possibleTimes:
 showDetailedCalendar: false
 classID: open-studies
 registration-open: true
-purchase_return_url: "/workshops/open-studies/thank-you/"
+purchase_return_url: "/open-studies/thank-you/"
 ---
 
 ## Next class

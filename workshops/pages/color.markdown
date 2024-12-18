@@ -1,6 +1,6 @@
 ---
 layout: workshop
-permalink: /workshops/color/
+permalink: /color/
 prices:
   live: 250
   recordings-only: 120
@@ -15,7 +15,7 @@ category: "Online workshop"
 showDetailedCalendar: false
 classID: color
 showPossibleTimes: false
-purchase_return_url: "/workshops/color/thank-you/"
+purchase_return_url: "/color/thank-you/"
 ---
 
 ## Dates & times

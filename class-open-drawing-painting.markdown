@@ -10,7 +10,7 @@ discount2: 50
 title: "Portrait drawing"
 description: "Go in-depth on the portrait block-in and modeling process"
 background-image: "images/bg-portrait@1000h.jpg"
-prereqs: "To take this workshop, you must have completed the [accuracy workshop](/workshops/accuracy/) and the [shading workshop](/workshops/shading/)."
+prereqs: "To take this workshop, you must have completed the [accuracy workshop](/accuracy/) and the [shading workshop](/shading/)."
 ---
 
 

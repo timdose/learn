@@ -1,6 +1,6 @@
 ---
 layout: workshop
-permalink: /workshops/shading/
+permalink: /shading/
 prices:
   live: 250
   recordings-only: 120
@@ -23,7 +23,7 @@ classID: shading
 showDetailedCalendar: false
 
 registration-open: true
-purchase_return_url: "/workshops/shading/thank-you/"
+purchase_return_url: "/shading/thank-you/"
 ---
 
 ## Next class

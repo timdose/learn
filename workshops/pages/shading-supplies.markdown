@@ -1,6 +1,6 @@
 ---
 layout: home
-permalink: /workshops/shading/supplies/
+permalink: /shading/supplies/
 ---
 
 <h3 class="page-category">Online workshop</h3>

@@ -1,6 +1,6 @@
 ---
 layout: workshop
-permalink: /workshops/accuracy/
+permalink: /accuracy/
 prices:
   live: 250
   recordings-only: 120
@@ -16,7 +16,7 @@ showDetailedCalendar: false
 classID: accuracy
 showPossibleTimes: false
 registration-open: true
-purchase_return_url: "/workshops/accuracy/thank-you/"
+purchase_return_url: "/accuracy/thank-you/"
 ---
 
 ## Dates & times

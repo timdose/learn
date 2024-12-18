@@ -1,6 +1,6 @@
 ---
 layout: home
-permalink: /workshops/color/thank-you/
+permalink: /color/thank-you/
 ---
 
 # Color workshop ✅

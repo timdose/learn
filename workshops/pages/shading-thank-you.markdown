@@ -1,6 +1,6 @@
 ---
 layout: home
-permalink: /workshops/shading/thank-you/
+permalink: /shading/thank-you/
 ---
 
 <h3 class="page-category">Online workshop</h3>
@@ -11,9 +11,9 @@ permalink: /workshops/shading/thank-you/
 
 I’m looking forward to working with you 😊
 
-I’ll send you a link for Zoom a few days before the class starts. In the meantime, please check out the [supply list]({{site.url}}/workshops/shading/supplies/).
+I’ll send you a link for Zoom a few days before the class starts. In the meantime, please check out the [supply list]({{site.url}}/shading/supplies/).
 
 If you have any questions, please don’t hesitate to reach out!
 
 
-<button class="button large" onclick="window.location.href='{{site.url}}/workshops/shading/supplies/'">Supply list</button>
+<button class="button large" onclick="window.location.href='{{site.url}}/shading/supplies/'">Supply list</button>
