@@ -15,7 +15,7 @@ category: "Online workshop"
 showDetailedCalendar: false
 classID: accuracy
 showPossibleTimes: false
-registration-open: true
+registration-open: false
 purchase_return_url: "/accuracy/thank-you/"
 ---
 

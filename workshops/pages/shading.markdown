@@ -22,7 +22,7 @@ category: "Online workshop"
 classID: shading
 showDetailedCalendar: false
 
-registration-open: true
+registration-open: false
 purchase_return_url: "/shading/thank-you/"
 ---
 
