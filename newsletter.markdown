@@ -1,14 +1,13 @@
 ---
-layout: home
+layout: page
 permalink: /newsletter/
+show_in_nav: true
+title: Newsletter
 ---
 
 # Email newsletter
 
 Get notified of new workshops, classes, and resources
-
-
-
 
 <div class="signup-form-container">
     <div id="mc_embed_shell">  

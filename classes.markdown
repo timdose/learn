@@ -5,6 +5,8 @@ show_in_nav: true
 permalink: /classes/
 ---
 
+# Classes
+
 ## Online Workshops
 
 [Intro to shading](/shading/)
