@@ -28,9 +28,8 @@ purchase_return_url: "/shading/thank-you/"
 
 ## Next class
 
-- December 2024
-- Wednesdays 12-2pm EST 
-- Dec 4, 11, 18 + Jan 8
+- Starting January 2025
+- Exact dates & times TBD
 
 ---
 

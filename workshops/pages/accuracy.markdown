@@ -21,9 +21,7 @@ purchase_return_url: "/accuracy/thank-you/"
 
 ## Dates & times
 
-- December 2024
-- Thursdays 8-10pm EST
-- Dec 5, 12, 19, 26
+- Next class: TBD
 
 ---
 
