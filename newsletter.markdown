@@ -5,7 +5,10 @@ show_in_nav: true
 title: Newsletter
 ---
 
-# Email newsletter
+![Hero image](/workshops/assets/images/hero.jpg)
+
+
+## Email newsletter
 
 Get notified of new workshops, classes, and resources
 
