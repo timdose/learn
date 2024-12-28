@@ -2,7 +2,7 @@
 button, .button { font-size: 0.9rem; font-family: 'Spectral', serif; }
 
 
-button, .button {
+button, .button, .button:visited {
     background-color: #AD2A71;
     color: #fff;
     padding: 6.4px 12.8px; /* .4em .8em */
@@ -17,6 +17,7 @@ button:active, .button:active{
 
 button:hover, .button:hover {
     background-color: #801E56;
+    text-decoration: none;
 }
 
 button.outline, .button.outline {
