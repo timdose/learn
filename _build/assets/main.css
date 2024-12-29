@@ -793,6 +793,43 @@ input[type=email], input[type=text] {
   margin-top: 1rem;
 }
 
+/* Typography */
+.callout p {
+  font-size: 1.2rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+.callout h2 {
+  margin: 0;
+}
+
+/* Styles */
+.callout {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px; /* 1em 1.5em */
+  background-color: #f6e8f2;
+  margin-bottom: 4px; /* 0.4em */
+  color: #AD2A71;
+}
+@media (max-width: 980px) {
+  .callout {
+    flex-direction: column;
+    gap: 12px;
+    padding-top: 24px;
+    align-items: flex-start;
+  }
+}
+.callout a {
+  text-decoration: underline;
+}
+.callout a:hover {
+  text-decoration: none;
+}
+
 .page-content {
   font-size: 1.25rem;
 }
