@@ -1,6 +1,5 @@
 /* Typography */
 
-.discount-section p { font-size: 1.2rem; font-weight: 500; }
 #discountPopup      { font-size: 1rem; margin-bottom: .5em;  line-height: 1.5; }
 
 
@@ -44,12 +43,6 @@
         width: 100%;
     }
 
-    #main div.discount-section {
-        flex-direction: column;
-        gap: 12px; /* 0.75em */
-        padding-top: 24px; /* 1.5em */
-        align-items: flex-start;
-    }
 
 }
 
@@ -58,29 +51,7 @@
     margin-bottom: 4px;
 }
 
-#main .discount-section {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px 24px; /* 1em 1.5em */
-    background-color: #f6e8f2;
-    margin-bottom: 4px; /* 0.4em */
-}
-
-.discount-section {
-    color: $brand-color;
-}
 
 
-
-@media (max-width: 980px) {
-    #main div.discount-section {
-        flex-direction: column;
-        gap: 12px;
-        padding-top: 24px;
-        align-items: flex-start;
-    }
-}
 
 
