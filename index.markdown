@@ -7,6 +7,14 @@ layout: home
 
 ![Hero image](/workshops/assets/images/hero.jpg)
 
+<div class="callout">
+    <div class="callout-content">
+        <h2>Free video lesson</h2>
+        <p><a href="{{site.url}}/newsletter">Sign up for my newsletter now</a> and get a free video lesson.</p>
+    </div>
+    <button class="button">Get your free lesson</button>
+</div>
+
 ## Online workshops
 
 [Intro to shading](/shading/)
