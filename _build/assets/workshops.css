@@ -473,9 +473,11 @@ button, .button, .button:visited {
   border-radius: 4px; /* .25em */
   border: none;
   cursor: pointer;
+  text-decoration: none;
 }
 
 button:active, .button:active {
+  text-decoration: none;
   background-color: #53183a;
 }
 
@@ -1214,10 +1216,10 @@ input[type=email], input[type=text] {
     align-items: flex-start;
   }
 }
-.callout a {
+.callout a:not(.button) {
   text-decoration: underline;
 }
-.callout a:hover {
+.callout a:not(.button):hover {
   text-decoration: none;
 }
 
