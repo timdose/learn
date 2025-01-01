@@ -9,9 +9,11 @@ button, .button, .button:visited {
     border-radius: 4px; /* .25em */
     border: none;
     cursor: pointer;
+    text-decoration: none;
 }
 
 button:active, .button:active{
+    text-decoration: none;
     background-color: #53183a;
 }
 
