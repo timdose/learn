@@ -12,7 +12,7 @@ layout: home
         <h2>Free video lesson</h2>
         <p><a href="{{site.url}}/newsletter">Sign up for my newsletter now</a> and get a free video lesson.</p>
     </div>
-    <button class="button">Get your free lesson</button>
+    <a href="{{site.url}}/newsletter" class="button">Get your free lesson</a>
 </div>
 
 ## Online workshops
