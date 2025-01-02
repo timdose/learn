@@ -633,12 +633,16 @@
         <form id="waitlistForm">
             <p>Registration is currently closed. We'll notify you when registration opens.</p>
             <div class="pricing-info">
-                <p id="waitlistItemName"></p>
-                <p>
-                    <span id="waitlistOriginalPrice"></span>
-                    <span id="waitlistPrice"></span> 
-                    <span id="waitlistDiscount"></span>
-                </p>
+                
+                    <div class="hidden">
+                        <p id="waitlistItemName"></p>
+                        <p>
+                            <span id="waitlistOriginalPrice"></span>
+                            <span id="waitlistPrice"></span> 
+                            <span id="waitlistDiscount"></span>
+                        </p>
+                    </div>
+                
             </div>
             <input type="email" id="waitlistEmail" name="email" placeholder="Enter your email" required>
             <input type="hidden" name="courseName" id="hiddenCourseName" value="Accurate drawing skills">
