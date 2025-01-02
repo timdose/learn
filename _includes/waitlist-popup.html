@@ -6,12 +6,23 @@
         <form id="waitlistForm">
             <p>Registration is currently closed. We'll notify you when registration opens.</p>
             <div class="pricing-info">
+                {% if page.registration-open %}
                 <p id="waitlistItemName"></p>
                 <p>
                     <span id="waitlistOriginalPrice"></span>
                     <span id="waitlistPrice"></span> 
                     <span id="waitlistDiscount"></span>
                 </p>
+                {% else %}
+                    <div class="hidden">
+                        <p id="waitlistItemName"></p>
+                        <p>
+                            <span id="waitlistOriginalPrice"></span>
+                            <span id="waitlistPrice"></span> 
+                            <span id="waitlistDiscount"></span>
+                        </p>
+                    </div>
+                {% endif %}
             </div>
             <input type="email" id="waitlistEmail" name="email" placeholder="Enter your email" required>
             <input type="hidden" name="courseName" id="hiddenCourseName" value="{{page.title}}">
