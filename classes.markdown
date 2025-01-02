@@ -9,10 +9,10 @@ permalink: /classes/
 
 ## Online Workshops
 
-[Intro to shading](/shading/)
+[Intro to shading]({% link workshops/pages/shading.markdown %})
 
-[Accurate drawing skills](/accuracy/)
+[Accurate drawing skills]({% link workshops/pages/accuracy.markdown %})
 
-[Portrait drawing](/portrait-drawing/)
+[Portrait drawing]({% link workshops/pages/portrait-drawing.markdown %})
 
-[Color theory & mixing](/color/)
+[Color theory & mixing]({% link workshops/pages/color.markdown %})

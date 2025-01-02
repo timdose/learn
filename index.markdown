@@ -10,20 +10,20 @@ layout: home
 <div class="callout">
     <div class="callout-content">
         <h2>Free video lesson</h2>
-        <p><a href="{{site.url}}/newsletter">Sign up for my newsletter now</a> and get a free video lesson.</p>
+        <p><a href="{{site.url}}{% link newsletter.markdown %}">Sign up for my newsletter now</a> and get a free video lesson.</p>
     </div>
-    <a href="{{site.url}}/newsletter" class="button">Get your free lesson</a>
+    <a href="{{site.url}}{% link newsletter.markdown %}" class="button">Get your free lesson</a>
 </div>
 
 ## Online workshops
 
-[Intro to shading](/shading/)
+[Intro to shading]({% link workshops/pages/shading.markdown %})
 
-[Accurate drawing skills](/accuracy/)
+[Accurate drawing skills]({% link workshops/pages/accuracy.markdown %})
 
-[Portrait drawing](/portrait-drawing/)
+[Portrait drawing]({% link workshops/pages/portrait-drawing.markdown %})
 
-[Color theory & mixing](/color/)
+[Color theory & mixing]({% link workshops/pages/color.markdown %})
 
 
 ## Resources
