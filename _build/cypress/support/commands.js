@@ -1,3 +1,0 @@
-// Add any custom commands here
-// Example:
-// Cypress.Commands.add('login', (email, password) => { ... })
