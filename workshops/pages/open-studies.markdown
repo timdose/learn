@@ -9,7 +9,7 @@ title: "Open studies"
 description: "Only for Tim's previous students! Work on your own projects & get live critiques and demos from Tim."
 background-image: "images/bg-open-studies@1000h.jpg"
 opengraph-preview-image: "images/card-open-studies.jpg"
-prereqs: "Before you take this workshop, please take one of Tim's intro workshops ([Accurate Drawing](/accuracy/) or [Intro to Shading](/shading/)), or get permission from Tim."
+# prereqs: "Before you take this workshop, please take one of Tim's intro workshops ([Accurate Drawing](/accuracy/) or [Intro to Shading](/shading/)), or get permission from Tim."
 category: "✨Secret class✨"
 
 showPossibleTimes: false
@@ -26,18 +26,8 @@ purchase_return_url: "/open-studies/thank-you/"
 
 ## Next class
 
-- December 2024
-- Fridays 10am-12pm EST
-- Dec 6, 13, 20, 27
-
----
-
-## Details
-
-- 4 weekly sessions
-- 2 hours each session
-- Work on your own project
-- Set goals for the month 1-1 with Tim
+- Starting January 2025 (exact dates TBD)
+- Thursdays 8-10pm (Eastern Time)
 
 ---
 
