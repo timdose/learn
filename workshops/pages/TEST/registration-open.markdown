@@ -1,13 +1,13 @@
 ---
 layout: workshop
-permalink: /TEST/
+permalink: /TEST-REGISTRATION-OPEN/
 prices:
   live: 250
   recordings-only: 120
   addon: 100
 discount1: 20
 discount2: 40
-title: "TEST"
+title: "TEST: Registration open"
 description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
 background-image: "images/bg.jpg"
 opengraph-preview-image: "images/card-shading.jpg"
