@@ -42,7 +42,7 @@ workshop-asset-folder: "/workshops/assets/"
 #
 exclude:
   - minima-2.5.2
-  - /workshops/TEST/
+  - workshops/pages/TEST/
 #   - .sass-cache/
 #   - .jekyll-cache/
 #   - gemfiles/
