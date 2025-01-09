@@ -5,6 +5,10 @@ describe('Sliding Scale Popup', () => {
     cy.visit('http://localhost:4000/TEST-REGISTRATION-OPEN/')
   })
 
+  afterEach(() => {
+    // cy.get('#discountPopup').should('have.class', 'hidden')
+  })
+
   it('opens and closes popup when trigger button is clicked', () => {
     // Get popup trigger button and click it
     cy.get('.openPopup').first().click()
@@ -44,5 +48,9 @@ describe('Sliding Scale Popup', () => {
     cy.get('#discountPopup').should('have.class', 'hidden')
   })
 
-  // Add more test cases here as needed
+  it.only('Only shows one section at a time', () => {
+    cy.get('.openPopup').first().click()
+    cy.get('button[data-variant="discount1"]').first().click()
+    cy.get('.show-if-full').should('not.be.visible')
+  })
 })
