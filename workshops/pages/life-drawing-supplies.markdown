@@ -1,7 +1,7 @@
 ---
 title: Life Drawing Supplies
 permalink: /life-drawing-supplies
-layout: page
+layout: text
 ---
 
 ## Life drawing supplies
