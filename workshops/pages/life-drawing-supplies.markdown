@@ -1,6 +1,6 @@
 ---
 title: Life Drawing Supplies
-permalink: /life-drawing-supplies
+permalink: /life-drawing-supplies/
 layout: text
 ---
 
