@@ -28,7 +28,14 @@ layout: home
 
 ## Resources
 
-[Form direction training](/form-direction/) (experimental)
+
+[Drawing skills training](https://www.figma.com/proto/vpFviLK1RTaZGMcrB9DXfC/Drawing-skills?page-id=0%3A1&node-id=8-419&p=f&viewport=-3652%2C193%2C0.2&t=vvTCMq1mX0hHHs27-1&scaling=contain&content-scaling=fixed&starting-point-node-id=121%3A451&hide-ui=1) (experimental)
+
+A training tool to help you get more accurate with drawing skills.
+
+<br>
+
+[Form direction training](/form-direction) (experimental)
 
 A training tool to help improve your ability to identify the direction a form faces at different points.
 
