@@ -28,8 +28,7 @@ purchase_return_url: "/shading/thank-you/"
 
 ## Next class
 
-- Starting January 2025
-- Exact dates & times TBD
+- TBD
 
 ---
 

@@ -26,8 +26,7 @@ purchase_return_url: "/open-studies/thank-you/"
 
 ## Next class
 
-- Starting January 2025 (exact dates TBD)
-- Thursdays 8-10pm (Eastern Time)
+- TBD
 
 ---
 
