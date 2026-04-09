@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "start": "bundle exec jekyll serve --livereload --host 0.0.0.0",
+    "dev": "bundle exec jekyll serve --livereload --host 0.0.0.0",
     "build": "JEKYLL_ENV=production bundle exec jekyll build --destination _build",
     "deploy": "npm run build && rsync -avz --delete _build/ dh_uasa28@vps61088.dreamhostps.com:/home/dh_uasa28/learn.timdoseart.com/",
     "test": "npx cypress open",
