@@ -6,4 +6,5 @@ vendor
 .vscode
 node_modules
 _site
+_build
 minima-2.5.2
