@@ -45,6 +45,8 @@ exclude:
   - workshops/pages/TEST/
   - cypress/
   - bin/
+  - _build/
+  - CLAUDE.md
 #   - .sass-cache/
 #   - .jekyll-cache/
 #   - gemfiles/
