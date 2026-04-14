@@ -1,6 +1,0 @@
-Options -MultiViews
-RewriteEngine On
-RewriteBase /skills/
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^ index.html [L]
