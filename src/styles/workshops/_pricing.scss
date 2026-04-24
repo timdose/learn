@@ -1,0 +1,175 @@
+
+.pricing-matrix {
+	margin-bottom: 2rem;
+}
+
+.pricing-option {
+	--alignment: left;
+	--flex-alignment: flex-start;
+	--indent-left: 1;
+	--indent-right: 0;
+	--margin-left: 0;
+	--margin-right: auto;
+	gap: 4px;
+}
+
+.pricing-option:not(:last-child) {
+	margin-bottom: .5rem;
+}
+
+.pricing-option>.wrapper {
+	display: inline-block;
+	width: 100%;
+	background-color: $grey-color-light;
+}
+
+.pricing-option>.wrapper>.inner {
+	--gutters: 2rem;
+	--padding-horizontal: 1.5rem;
+	--padding-vertical: 1.5rem;
+	padding: var(--padding-vertical) var(--padding-horizontal);
+}
+
+.pricing-option.default>.wrapper>.inner>* {
+	margin-bottom: var(--spacing);
+	margin-top: var(--spacing);
+}
+
+.pricing-option.default>.wrapper>.inner>*:first-child {
+	margin-top: 0 !important;
+}
+
+.pricing-option.default>.wrapper>.inner>*:last-child {
+	margin-bottom: 0 !important;
+}
+
+.pricing-option.columns>.wrapper>.inner {
+	// flex-wrap: wrap;
+	display: flex;
+	flex-direction: row;
+
+	@media (max-width: $layout-breakpoint-medium) {
+		flex-direction: column;
+	}
+}
+
+.pricing-option.columns>.wrapper>.inner>* {
+	flex-grow: 0;
+	flex-shrink: 0;
+	max-width: 100%;
+	text-align: var(--alignment);
+	// padding: 0 0 0 2rem;
+
+	@media (max-width: $layout-breakpoint-medium) {
+		padding: 0;
+	}
+}
+
+.pricing-option.columns>.wrapper>.inner>*>* {
+	margin-bottom: var(--spacing);
+	margin-top: var(--spacing);
+}
+
+.pricing-option.columns>.wrapper>.inner>*>*:first-child {
+	margin-top: 0 !important;
+	padding: 0 2rem 0 0;
+}
+
+.pricing-option.columns>.wrapper>.inner>*>*:last-child {
+	margin-bottom: 0 !important;
+}
+
+
+.pricing-option.default>.wrapper>.inner>.full {
+	margin-left: calc(var(--padding-horizontal) * -1);
+	max-width: none !important;
+	width: calc(100% + (var(--padding-horizontal) * 2) + 0.4725px);
+}
+
+.pricing-option.default>.wrapper>.inner>.full:first-child {
+	margin-top: calc(var(--padding-vertical) * -1) !important;
+	border-top-left-radius: inherit;
+	border-top-right-radius: inherit;
+}
+
+.pricing-option.default>.wrapper>.inner>.full:last-child {
+	margin-bottom: calc(var(--padding-vertical) * -1) !important;
+	border-bottom-left-radius: inherit;
+	border-bottom-right-radius: inherit;
+}
+
+.pricing-option.columns>.wrapper>.inner>div>.full {
+	margin-left: calc(var(--gutters) * -0.5);
+	max-width: none !important;
+	width: calc(100% + var(--gutters) + 0.4725px);
+}
+
+.pricing-option.columns>.wrapper>.inner>div:first-child>.full {
+	margin-left: calc(var(--padding-horizontal) * -1);
+	width: calc(100% + var(--padding-horizontal) + calc(var(--gutters) * 0.5) + 0.4725px);
+}
+
+.pricing-option.columns>.wrapper>.inner>div:last-child>.full {
+	width: calc(100% + var(--padding-horizontal) + calc(var(--gutters) * 0.5) + 0.4725px);
+}
+
+.pricing-option.columns>.wrapper>.inner>div>.full:first-child {
+	margin-top: calc(var(--padding-vertical) * -1) !important;
+}
+
+.pricing-option.columns>.wrapper>.inner>div>.full:last-child {
+	margin-bottom: calc(var(--padding-vertical) * -1) !important;
+}
+
+.pricing-option.columns>.wrapper>.inner>.full {
+	align-self: stretch;
+}
+
+.pricing-option.columns>.wrapper>.inner>.full:first-child {
+	border-bottom-left-radius: inherit;
+	border-top-left-radius: inherit;
+}
+
+.pricing-option.columns>.wrapper>.inner>.full:last-child {
+	border-bottom-right-radius: inherit;
+	border-top-right-radius: inherit;
+}
+
+.pricing-option.columns>.wrapper>.inner>.full>.full:first-child:last-child {
+	border-radius: inherit;
+	height: calc(100% + (var(--padding-vertical) * 2));
+}
+
+.pricing-option.columns>.wrapper>.inner>.full>.full:first-child:last-child>* {
+	border-radius: inherit;
+	height: 100%;
+	position: absolute;
+	width: 100%;
+}
+
+.pricing-option>.wrapper>.inner> :nth-child(1) {
+	width: calc(75% + (var(--gutters) / 2));
+	padding-right: 1rem;
+	@media (max-width: $layout-breakpoint-small) {
+		width: 100%;
+		padding-right: 0;
+	}
+}
+
+.pricing-option>.wrapper>.inner> :nth-child(2) {
+	width: calc(25% + (var(--gutters) / 2));
+	--alignment: left;
+	--flex-alignment: flex-start;
+	--indent-left: 1;
+	--indent-right: 0;
+	--margin-left: 0;
+	--margin-right: auto;
+	@media (max-width: $layout-breakpoint-small) {
+		width: 100%;
+	}
+}
+
+.original-price {
+	text-decoration: line-through;
+	color: $grey-color;
+}

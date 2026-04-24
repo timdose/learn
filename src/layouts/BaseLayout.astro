@@ -1,0 +1,46 @@
+---
+import SiteHeader from '../components/SiteHeader.astro';
+import Fullstory from '../components/Fullstory.astro';
+import '../styles/main.scss';
+
+interface Props {
+  title?: string;
+  description?: string;
+  mainClass?: string;
+}
+
+const fm = (Astro.props.frontmatter ?? Astro.props) as typeof Astro.props;
+const {
+  title,
+  description,
+  mainClass = 'page-content',
+} = fm;
+
+const siteTitle = 'Learn Art With Tim';
+const pageTitle = title ? `${title} | ${siteTitle}` : siteTitle;
+---
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    {description && <meta name="description" content={description} />}
+    <link rel="icon" href="/favicon.ico" />
+    <Fullstory />
+  </head>
+  <body>
+    <SiteHeader />
+    <main class={mainClass} aria-label="Content">
+      <div class="wrapper">
+        <slot />
+      </div>
+    </main>
+    <footer class="site-footer h-card">
+      <div class="wrapper">
+        <p class="copyright">&copy; {new Date().getFullYear()} Tim Dose</p>
+      </div>
+    </footer>
+  </body>
+</html>

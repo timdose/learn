@@ -1,0 +1,22 @@
+
+.site-header {
+    font-size: 1rem;
+    padding-left: 3rem;
+    padding-right: 3rem;
+    z-index: 39;
+    background-color: #fff;
+    @media (max-width: $layout-breakpoint-small) {
+        position: absolute;
+        width: 100%;
+        font-size: 1rem;
+        padding-left: 21.3333px;
+        padding-right: 21.3333px;
+    }
+}
+
+.site-title, .site-title:visited {
+    text-decoration: none;
+    @media (max-width: $layout-breakpoint-small) {
+        font-size: 1rem;
+    }
+}

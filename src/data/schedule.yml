@@ -1,0 +1,122 @@
+classes:
+  open-studies:
+    title: Open Studies
+    url: /open-studies/
+  shading:
+    title: Intro to Shading
+    url: /shading/
+  accuracy:
+    title: Accurate Drawing
+    url: /accuracy/
+  color:
+    title: Color Theory & Mixing
+    url: /color/
+  portrait:
+    title: Portrait Drawing
+    url: /portrait/
+
+times:
+  - id: Mon-Evening
+    reference_time:
+      day: Monday
+      start: "17:00"  # 5:00 PM
+      end: "19:00"    # 7:00 PM
+      timezone: "America/New_York"
+  - id: Tue-Afternoon
+    reference_time:
+      day: Tuesday
+      start: "13:00"  # 1:00 PM
+      end: "15:00"    # 3:00 PM
+      timezone: "America/New_York"
+  - id: Thu-Morning
+    reference_time:
+      day: Thursday
+      start: "10:00"  # 10:00 AM
+      end: "12:00"    # 12:00 PM
+      timezone: "America/New_York"
+  - id: Thu-Evening
+    reference_time:
+      day: Thursday
+      start: "17:00"  # 5:00 PM
+      end: "19:00"    # 7:00 PM
+      timezone: "America/New_York"
+  - id: Fri-Morning
+    reference_time:
+      day: Friday
+      start: "10:00"  # 10:00 AM
+      end: "12:00"    # 12:00 PM
+      timezone: "America/New_York"
+  - id: Sun-Morning
+    reference_time:
+      day: Sunday
+      start: "10:00"  # 10:00 AM
+      end: "12:00"    # 12:00 PM
+      timezone: "America/New_York"
+
+months:
+  - year: 2024
+    months:
+      - month: December
+        sessions:
+          - Mon-Evening: open-studies
+          - Tue-Afternoon: shading
+          - Thu-Morning: accuracy
+          - Thu-Evening: color
+          - Fri-Morning: open-studies
+          - Sun-Morning: portrait
+
+  - year: 2025
+    months:
+      - month: January
+        sessions:
+          - Mon-Evening: open-studies
+          - Tue-Afternoon: portrait
+          - Thu-Morning: shading
+          - Thu-Evening: accuracy
+          - Fri-Morning: open-studies
+          - Sun-Morning: color
+
+      - month: February
+        sessions:
+          - Mon-Evening: open-studies
+          - Tue-Afternoon: color
+          - Thu-Morning: portrait
+          - Thu-Evening: shading
+          - Fri-Morning: open-studies
+          - Sun-Morning: accuracy
+
+      - month: March
+        sessions:
+          - Mon-Evening: open-studies
+          - Tue-Afternoon: color
+          - Thu-Morning: portrait
+          - Thu-Evening: shading
+          - Fri-Morning: open-studies
+          - Sun-Morning: accuracy
+
+      - month: April
+        sessions:
+          - Mon-Evening: open-studies
+          - Tue-Afternoon: accuracy
+          - Thu-Morning: color
+          - Thu-Evening: portrait
+          - Fri-Morning: open-studies
+          - Sun-Morning: shading
+
+      - month: May
+        sessions:
+          - Mon-Evening: open-studies
+          - Tue-Afternoon: shading
+          - Thu-Morning: accuracy
+          - Thu-Evening: color
+          - Fri-Morning: open-studies
+          - Sun-Morning: portrait
+
+      - month: June
+        sessions:
+          - Mon-Evening: open-studies
+          - Tue-Afternoon: portrait
+          - Thu-Morning: shading
+          - Thu-Evening: accuracy
+          - Fri-Morning: open-studies
+          - Sun-Morning: color

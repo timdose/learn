@@ -1,0 +1,30 @@
+---
+interface Props {
+  price: number;
+  itemName: string;
+  pageTitle: string;
+  purchaseReturnUrl: string;
+  pageUrl: string;
+}
+const { price, itemName, pageTitle, purchaseReturnUrl, pageUrl } = Astro.props;
+const siteUrl = 'https://learn.timdoseart.com';
+---
+<div class="paypal-button-container">
+  <form action="https://www.paypal.com/cgi-bin/webscr" method="post">
+    <input type="hidden" name="cmd" value="_xclick" />
+    <input type="hidden" name="business" value="9KKTZB5CU77W6" />
+    <input type="hidden" name="item_name" value={`${pageTitle} - ${itemName}`} />
+    <input type="hidden" name="currency_code" value="USD" />
+    <input type="hidden" name="amount" value={price} />
+    <input type="hidden" name="shipping" value="0" />
+    <input type="hidden" name="tax" value="0" />
+    <input type="hidden" name="quantity" value="1" />
+    <input type="hidden" name="return" value={`${siteUrl}${purchaseReturnUrl}`} />
+    <input type="hidden" name="cancel_return" value={`${siteUrl}${pageUrl}`} />
+    <input type="hidden" name="bn" value="PP-BuyNowBF:btn_buynow_LG.gif:NonHosted" />
+    <button type="submit" class="paypal-submit-button large">Buy Now</button>
+    <div class="paypal-powered-by">
+      Powered by <img src="https://www.paypalobjects.com/paypal-ui/logos/svg/paypal-wordmark-color.svg" alt="paypal" style="height:14px;vertical-align:middle;" />
+    </div>
+  </form>
+</div>

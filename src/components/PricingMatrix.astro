@@ -1,0 +1,37 @@
+---
+import Discount from './Discount.astro';
+import ProductGrid from './ProductGrid.astro';
+
+interface Props {
+  prices: {
+    live?: number;
+    'live-plus-1-1'?: number;
+    'recordings-only'?: number;
+  };
+  discount1?: number;
+  discount2?: number;
+  registrationOpen?: boolean;
+  purchaseReturnUrl?: string;
+  pageTitle: string;
+  pageUrl: string;
+  showPossibleTimes?: boolean;
+}
+const props = Astro.props;
+const gridProps = {
+  prices: props.prices,
+  registrationOpen: props.registrationOpen,
+  purchaseReturnUrl: props.purchaseReturnUrl,
+  pageTitle: props.pageTitle,
+  pageUrl: props.pageUrl,
+  showPossibleTimes: props.showPossibleTimes,
+};
+---
+{props.registrationOpen ? <h3>Sign up now</h3> : <h3>Join waitlist</h3>}
+
+<Discount registrationOpen={props.registrationOpen} discount1={props.discount1} discount2={props.discount2} />
+
+<div class="pricing-matrix">
+  <ProductGrid priceVariant="full" visible={true} {...gridProps} />
+  <ProductGrid priceVariant="discount1" visible={false} discount={props.discount1} {...gridProps} />
+  <ProductGrid priceVariant="discount2" visible={false} discount={props.discount2} {...gridProps} />
+</div>

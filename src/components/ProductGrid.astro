@@ -1,0 +1,36 @@
+---
+import LiveOnlineWorkshop from './products/LiveOnlineWorkshop.astro';
+import LivePlus11 from './products/LivePlus11.astro';
+import RecordingsOnly from './products/RecordingsOnly.astro';
+
+interface Props {
+  priceVariant: 'full' | 'discount1' | 'discount2';
+  visible?: boolean;
+  discount?: number;
+  prices: {
+    live?: number;
+    'live-plus-1-1'?: number;
+    'recordings-only'?: number;
+  };
+  registrationOpen?: boolean;
+  purchaseReturnUrl?: string;
+  pageTitle: string;
+  pageUrl: string;
+  showPossibleTimes?: boolean;
+}
+const { priceVariant, visible = false, discount, prices, registrationOpen, purchaseReturnUrl, pageTitle, pageUrl, showPossibleTimes } = Astro.props;
+const sharedProps = { discount, registrationOpen, purchaseReturnUrl, pageTitle, pageUrl };
+---
+<div class={`container-pricing show-if-${priceVariant}${visible ? '' : ' hidden'}`}>
+  <div class="pricing-option">
+    {prices.live && (
+      <LiveOnlineWorkshop price={prices.live} askTimes={showPossibleTimes} {...sharedProps} />
+    )}
+    {prices['live-plus-1-1'] && (
+      <LivePlus11 price={prices['live-plus-1-1']} askTimes={showPossibleTimes} {...sharedProps} />
+    )}
+    {prices['recordings-only'] && registrationOpen && (
+      <RecordingsOnly price={prices['recordings-only']} {...sharedProps} />
+    )}
+  </div>
+</div>
