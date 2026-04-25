@@ -1,0 +1,32 @@
+@import "minima";
+
+
+.page-content {
+    font-size: 1.25rem;
+
+}
+
+.page-content-text {
+    font-size: 1rem;
+
+}
+
+.wrapper {
+    max-width: $layout-breakpoint-large;
+
+
+    @media (max-width: $layout-breakpoint-large) {
+        max-width: $layout-breakpoint-medium;
+    }   
+    @media (max-width: $layout-breakpoint-medium) {
+        max-width: $layout-breakpoint-small;
+    }
+}
+
+
+@media screen and (max-width: 800px) {
+    .wrapper {
+        padding-right: 21.3333px;
+        padding-left: 21.3333px;
+    }
+}

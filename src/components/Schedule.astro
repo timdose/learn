@@ -1,0 +1,104 @@
+---
+import scheduleData from '../data/schedule.yml';
+
+interface Props {
+  classID?: string;
+  showDetailedCalendar?: boolean;
+}
+const { classID, showDetailedCalendar } = Astro.props;
+
+type Session = Record<string, string>;
+type MonthEntry = { month: string; sessions: Session[] };
+type YearGroup = { year: number; months: MonthEntry[] };
+
+interface MatchingSession {
+  year: number;
+  month: string;
+  timeSlot: typeof scheduleData.times[0];
+}
+
+const matchingSessions: MatchingSession[] = [];
+if (classID && showDetailedCalendar) {
+  for (const yearGroup of scheduleData.months as YearGroup[]) {
+    for (const month of yearGroup.months) {
+      for (const session of month.sessions) {
+        const timeId = Object.keys(session).find(k => session[k] === classID);
+        if (timeId) {
+          const timeSlot = scheduleData.times.find((t: any) => t.id === timeId);
+          if (timeSlot) {
+            matchingSessions.push({ year: yearGroup.year, month: month.month, timeSlot });
+          }
+        }
+      }
+    }
+  }
+}
+---
+{showDetailedCalendar && matchingSessions.length > 0 && (
+  <div class="schedule">
+    <h3>Schedule</h3>
+    <script is:inline src="https://moment.github.io/luxon/global/luxon.min.js"></script>
+    <script is:inline>
+      function formatTimeRange(day, startTime, endTime, referenceZone) {
+        const DateTime = luxon.DateTime;
+        const now = DateTime.now();
+        const nextOccurrence = now.setZone(referenceZone)
+          .set({ hour: parseInt(startTime.split(':')[0]), minute: parseInt(startTime.split(':')[1]) })
+          .set({ weekday: ({ Sunday: 7, Monday: 1, Tuesday: 2, Wednesday: 3, Thursday: 4, Friday: 5, Saturday: 6 })[day] });
+        const localStart = nextOccurrence.toLocal();
+        const localEnd = nextOccurrence.set({ hour: parseInt(endTime.split(':')[0]), minute: parseInt(endTime.split(':')[1]) }).toLocal();
+        const fmt = { hour: 'numeric', minute: '2-digit', hour12: true };
+        const days = { 1: 'Mon', 2: 'Tue', 3: 'Wed', 4: 'Thu', 5: 'Fri', 6: 'Sat', 7: 'Sun' };
+        const tz = localStart.toFormat('ZZZZ');
+        if (localStart.weekday !== localEnd.weekday) {
+          return `${days[localStart.weekday]} ${localStart.toLocaleString(fmt)} - ${days[localEnd.weekday]} ${localEnd.toLocaleString(fmt)} ${tz}`;
+        }
+        return `${days[localStart.weekday]} ${localStart.toLocaleString(fmt)} - ${localEnd.toLocaleString(fmt)} ${tz}`;
+      }
+    </script>
+    <div class="schedule-visible">
+      {matchingSessions.map((s, i) => (
+        <div class={`schedule-row${i >= 3 ? ' schedule-hidden' : ''}`}>
+          <div class="schedule-month">{s.month} {s.year}</div>
+          <div
+            class="schedule-time"
+            data-day={s.timeSlot.reference_time.day}
+            data-start={s.timeSlot.reference_time.start}
+            data-end={s.timeSlot.reference_time.end}
+            data-zone={s.timeSlot.reference_time.timezone}
+          >
+            <script is:inline>
+              (function() {
+                var el = document.currentScript.parentElement;
+                el.innerHTML = formatTimeRange(el.dataset.day, el.dataset.start, el.dataset.end, el.dataset.zone);
+              })();
+            </script>
+          </div>
+        </div>
+      ))}
+    </div>
+    {matchingSessions.length > 3 && <a href="#" class="show-more-btn">Show All</a>}
+    <style>
+      .schedule-row { display: flex; gap: 2rem; height: 3rem; align-items: center; border-bottom: 1px solid #ccc; }
+      .schedule-month { width: 12em; margin: 0; }
+      .schedule-time { margin: 0; }
+      .schedule-hidden { display: none; }
+      .show-more-btn { display: inline-block; margin-top: 1rem; }
+      @media (max-width: 600px) {
+        .schedule-row { flex-direction: column; gap: 0.5rem; align-items: flex-start; height: auto; padding: 1rem 0; }
+        .schedule-month { width: auto; }
+      }
+    </style>
+    <script is:inline>
+      document.addEventListener('DOMContentLoaded', function() {
+        var btn = document.querySelector('.show-more-btn');
+        if (!btn) return;
+        btn.addEventListener('click', function(e) {
+          e.preventDefault();
+          document.querySelectorAll('.schedule-hidden').forEach(function(el) { el.classList.remove('schedule-hidden'); });
+          btn.style.display = 'none';
+        });
+      });
+    </script>
+  </div>
+)}

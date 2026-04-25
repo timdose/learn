@@ -1,0 +1,100 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import scheduleData from '../data/schedule.yml';
+
+type Session = Record<string, string>;
+type MonthEntry = { month: string; sessions: Session[] };
+type YearGroup = { year: number; months: MonthEntry[] };
+
+const { classes, times, months } = scheduleData as {
+  classes: Record<string, { title: string; url: string }>;
+  times: Array<{ id: string; reference_time: { day: string; start: string; end: string; timezone: string } }>;
+  months: YearGroup[];
+};
+
+// Pre-build session maps for all months so no TypeScript needed in the template
+const processedYears = months.map(yearGroup => ({
+  year: yearGroup.year,
+  months: yearGroup.months.map(month => {
+    const sessionMap: Record<string, string> = {};
+    for (const session of month.sessions) {
+      const [timeId, classId] = Object.entries(session as Record<string, string>)[0];
+      sessionMap[timeId] = classId;
+    }
+    return { month: month.month, sessionMap };
+  }),
+}));
+---
+<BaseLayout title="Calendar">
+  <div class="home">
+    <script is:inline src="https://moment.github.io/luxon/global/luxon.min.js"></script>
+    <script is:inline>
+      function formatTimeRange(day, startTime, endTime, referenceZone) {
+        const DateTime = luxon.DateTime;
+        const dayNums = { Sunday: 7, Monday: 1, Tuesday: 2, Wednesday: 3, Thursday: 4, Friday: 5, Saturday: 6 };
+        const now = DateTime.now();
+        const nextOccurrence = now.setZone(referenceZone)
+          .set({ hour: parseInt(startTime.split(':')[0]), minute: parseInt(startTime.split(':')[1]) })
+          .set({ weekday: dayNums[day] });
+        const localStart = nextOccurrence.toLocal();
+        const localEnd = nextOccurrence.set({ hour: parseInt(endTime.split(':')[0]), minute: parseInt(endTime.split(':')[1]) }).toLocal();
+        const fmt = { hour: 'numeric', minute: '2-digit', hour12: true };
+        const days = { 1: 'Mon', 2: 'Tue', 3: 'Wed', 4: 'Thu', 5: 'Fri', 6: 'Sat', 7: 'Sun' };
+        const tz = localStart.toFormat('ZZZZ');
+        if (localStart.weekday !== localEnd.weekday) {
+          return `${days[localStart.weekday]} ${localStart.toLocaleString(fmt)} - ${days[localEnd.weekday]} ${localEnd.toLocaleString(fmt)} ${tz}`;
+        }
+        return `${days[localStart.weekday]} ${localStart.toLocaleString(fmt)} - ${localEnd.toLocaleString(fmt)} ${tz}`;
+      }
+    </script>
+
+    {processedYears.map(yearGroup => (
+      <div>
+        <h1>{yearGroup.year}</h1>
+        <table>
+          <tr>
+            <th></th>
+            {times.map(time => (
+              <th
+                class="local-time-header"
+                data-day={time.reference_time.day}
+                data-start={time.reference_time.start}
+                data-end={time.reference_time.end}
+                data-zone={time.reference_time.timezone}
+              >
+                {time.id}
+              </th>
+            ))}
+          </tr>
+          {yearGroup.months.map(({ month, sessionMap }) => (
+            <tr>
+              <td>{month}</td>
+              {times.map(time => (
+                <td>
+                  {sessionMap[time.id] && classes[sessionMap[time.id]] && (
+                    <a href={classes[sessionMap[time.id]].url}>
+                      {classes[sessionMap[time.id]].title}
+                    </a>
+                  )}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </table>
+      </div>
+    ))}
+
+    <script is:inline>
+      document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.local-time-header').forEach(function (th) {
+          th.innerHTML = formatTimeRange(th.dataset.day, th.dataset.start, th.dataset.end, th.dataset.zone);
+        });
+      });
+    </script>
+
+    <style>
+      h3 { margin-top: 2rem; margin-bottom: 1rem; }
+      table { margin-bottom: 2rem; }
+    </style>
+  </div>
+</BaseLayout>

@@ -1,0 +1,22 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const demos: Array<{ title: string; href: string; description: string }> = [
+  // Add new demos here
+];
+---
+<BaseLayout title="Demos">
+  <article class="post">
+    <h1>Demos</h1>
+    <p>Interactive diagrams illustrating concepts in art and drawing.</p>
+    {demos.length === 0 ? (
+      <p><em>Coming soon.</em></p>
+    ) : (
+      <ul>
+        {demos.map(d => (
+          <li><a href={d.href}>{d.title}</a> — {d.description}</li>
+        ))}
+      </ul>
+    )}
+  </article>
+</BaseLayout>

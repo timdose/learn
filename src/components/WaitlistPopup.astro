@@ -1,0 +1,41 @@
+---
+interface Props {
+  pageTitle: string;
+  registrationOpen?: boolean;
+}
+const { pageTitle, registrationOpen } = Astro.props;
+---
+<div id="waitlistPopup" class="modal">
+  <div class="modal-content">
+    <span class="close" data-test-id="close-waitlist-popup">&times;</span>
+    <h2>Join the waitlist</h2>
+    <form id="waitlistForm">
+      <p>Registration is currently closed. We'll notify you when registration opens.</p>
+      <div class={`pricing-info${registrationOpen ? '' : ' hidden'}`}>
+        <p id="waitlistItemName"></p>
+        <p>
+          <span id="waitlistOriginalPrice"></span>
+          <span id="waitlistPrice"></span>
+          <span id="waitlistDiscount"></span>
+        </p>
+      </div>
+      <input type="email" id="waitlistEmail" name="email" placeholder="Enter your email" required />
+      <input type="hidden" name="courseName" id="hiddenCourseName" value={pageTitle} />
+      <input type="hidden" name="itemName" id="hiddenItemName" value="Workshop Name" />
+      <input type="hidden" name="price" id="hiddenPrice" value="99.99" />
+      <input type="hidden" name="originalPrice" id="hiddenOriginalPrice" value="149.99" />
+      <input type="hidden" name="discount" id="hiddenDiscount" value="33" />
+      <input type="hidden" name="requestId" id="hiddenRequestId" />
+      <button type="submit" id="submitWaitlistButton" class="button large" data-test-id="submit-waitlist-popup">Join waitlist</button>
+    </form>
+  </div>
+</div>
+
+<div id="thankYouPopup" class="modal hidden">
+  <div class="modal-content">
+    <span class="close" data-test-id="close-thank-you-popup">&times;</span>
+    <h2>Thank you!</h2>
+    <p>Your email has been added to the waitlist.</p>
+    <p>We'll notify you when registration opens.</p>
+  </div>
+</div>

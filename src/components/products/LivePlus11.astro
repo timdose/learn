@@ -1,0 +1,44 @@
+---
+import PriceButton from '../PriceButton.astro';
+
+interface Props {
+  price: number;
+  discount?: number;
+  registrationOpen?: boolean;
+  purchaseReturnUrl?: string;
+  pageTitle: string;
+  pageUrl: string;
+  askTimes?: boolean;
+}
+const props = Astro.props;
+---
+<div class="pricing-option container columns">
+  <div class="wrapper">
+    <div class="inner">
+      <div>
+        <h1 class="style6">Live online class + 1-1 goal-setting session</h1>
+        <div class="list">
+          <ul>
+            <li>Take the class live over Zoom</li>
+            <li>30 minute, 1-1 session to discuss your goals for the month</li>
+            <li>Work on your own project with guidance from Tim</li>
+            <li>Meet with the group once a week over Zoom for work time, critiques, and demos</li>
+            <li>Access to video recordings ✨<em>forever</em>✨</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <PriceButton
+          price={props.price}
+          discount={props.discount}
+          itemName="Live Online Workshop + 1-1 goal-setting session"
+          registrationOpen={props.registrationOpen}
+          purchaseReturnUrl={props.purchaseReturnUrl}
+          pageTitle={props.pageTitle}
+          pageUrl={props.pageUrl}
+          askTimes={props.askTimes}
+        />
+      </div>
+    </div>
+  </div>
+</div>

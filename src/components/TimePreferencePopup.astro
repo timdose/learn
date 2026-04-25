@@ -1,0 +1,50 @@
+---
+interface Props {
+  pageTitle: string;
+  possibleTimes?: string[];
+}
+const { pageTitle, possibleTimes = [] } = Astro.props;
+const hasTimes = possibleTimes.length > 0;
+---
+<div id="timePreferencePopup" class="modal hidden">
+  <div class="modal-content">
+    <span class="close" data-test-id="close-time-preference-popup">&times;</span>
+    <h2>You've been added to the waitlist!</h2>
+    <form id="timePreferenceForm">
+      {hasTimes && (
+        <>
+          <p>Which times work for you?</p>
+          <p class="subtext">Please check all that apply.</p>
+          <div class="time-options-container">
+            {possibleTimes.map(time => (
+              <div>
+                <input type="checkbox" name="timePreference" value={time} />
+                <label>
+                  {time}
+                  <span class="local-time" data-original-time={time}></span>
+                </label>
+              </div>
+            ))}
+          </div>
+          <a href="#" id="noTimesLink" class="no-times-link">None of these times work for me</a>
+          <div id="otherTimesContainer" class="hidden">
+            <label for="otherTimes">What days &amp; times would work for you?</label>
+            <textarea id="otherTimes" name="otherTimes" rows="3"></textarea>
+          </div>
+        </>
+      )}
+      {!hasTimes && (
+        <div id="otherTimesContainer">
+          <label for="otherTimes">What days &amp; times would work for you?</label>
+          <textarea id="otherTimes" name="otherTimes" rows="3"></textarea>
+        </div>
+      )}
+      <input type="hidden" name="waitlistEmail" id="submittedWaitlistEmail" value="" />
+      <input type="hidden" name="requestId" id="submittedRequestId" />
+      <input type="hidden" name="courseName" id="submittedCourseName" value={pageTitle} />
+      <div class="button-container">
+        <button type="submit" id="submitTimePreferenceButton" class="button" data-test-id="submit-time-preference-button">Submit</button>
+      </div>
+    </form>
+  </div>
+</div>

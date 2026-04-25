@@ -1,0 +1,39 @@
+---
+import PriceButton from '../PriceButton.astro';
+
+interface Props {
+  price: number;
+  discount?: number;
+  registrationOpen?: boolean;
+  purchaseReturnUrl?: string;
+  pageTitle: string;
+  pageUrl: string;
+}
+const props = Astro.props;
+---
+<div class="pricing-option container columns">
+  <div class="wrapper">
+    <div class="inner">
+      <div>
+        <h1 class="style6">Recordings Only</h1>
+        <div class="list">
+          <ul>
+            <li><p>Access to video recordings until 1 week after the last class</p></li>
+            <li><p>Connect with other students on Tim's private Discord server</p></li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <PriceButton
+          price={props.price}
+          discount={props.discount}
+          itemName="Recordings Only"
+          registrationOpen={props.registrationOpen}
+          purchaseReturnUrl={props.purchaseReturnUrl}
+          pageTitle={props.pageTitle}
+          pageUrl={props.pageUrl}
+        />
+      </div>
+    </div>
+  </div>
+</div>

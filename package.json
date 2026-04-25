@@ -1,5 +1,19 @@
 {
+  "scripts": {
+    "start": "astro dev --port 4000",
+    "dev": "astro dev --port 4000",
+    "build": "astro build",
+    "preview": "astro preview --port 4000",
+    "deploy": "npm run build && rsync -avz --delete _build/ dh_uasa28@vps61088.dreamhostps.com:/home/dh_uasa28/learn.timdoseart.com/",
+    "test": "npx cypress open"
+  },
   "devDependencies": {
-    "cypress": "^13.15.1"
+    "@rollup/plugin-yaml": "^4.1.2",
+    "cypress": "^13.15.1",
+    "sass": "^1.99.0"
+  },
+  "dependencies": {
+    "@astrojs/mdx": "^4.3.14",
+    "astro": "^5.18.1"
   }
 }

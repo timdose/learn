@@ -1,0 +1,10 @@
+---
+interface Props {
+  prereqs: string;
+}
+const { prereqs } = Astro.props;
+---
+<div class="prereqs">
+  <h3>Prerequisites</h3>
+  <p set:html={prereqs} />
+</div>
