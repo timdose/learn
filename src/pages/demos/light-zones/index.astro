@@ -88,6 +88,8 @@
     const rayLine = new Line2(rayGeom, rayMat);
     scene.add(rayLine);
 
+    let currentHit: THREE.Vector3 | null = null;
+
     function updateRay(dir: THREE.Vector3) {
       raycaster.set(lightPos, dir);
       const hits = raycaster.intersectObject(sphere);
@@ -99,7 +101,18 @@
         end.x, end.y, end.z,
       ]);
       rayMat.color.setHex(hits.length > 0 ? 0xffffff : 0x555555);
+      currentHit = hits.length > 0 ? hits[0].point.clone() : null;
     }
+
+    const dotMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    const dotGeo = new THREE.SphereGeometry(0.05, 16, 16);
+
+    window.addEventListener('click', () => {
+      if (!currentHit) return;
+      const dot = new THREE.Mesh(dotGeo, dotMat);
+      dot.position.copy(currentHit);
+      scene.add(dot);
+    });
 
     // Default: straight down toward sphere
     updateRay(new THREE.Vector3(0, -1, 0));
