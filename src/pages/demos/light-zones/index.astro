@@ -8,31 +8,96 @@
   <title>Light Zones</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: #000; overflow: hidden; }
+    body { background: #000; overflow: hidden; font-family: sans-serif; }
     canvas { display: block; width: 100vw; height: 100vh; }
+
     #back {
-      position: fixed;
-      top: 1rem;
-      left: 1rem;
-      color: #888;
-      font: 13px/1 sans-serif;
-      text-decoration: none;
-      z-index: 10;
+      position: fixed; top: 1rem; left: 1rem;
+      color: #666; font: 13px/1 sans-serif; text-decoration: none; z-index: 10;
     }
     #back:hover { color: #fff; }
+
+    /* ── Controls panel ── */
+    #panel {
+      position: fixed; bottom: 1rem; right: 1rem;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      color: #ccc;
+      font-size: 12px;
+      line-height: 1.9;
+      min-width: 210px;
+      z-index: 10;
+    }
+    #panel h3 { color: #fff; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.4rem; }
+    #panel hr { border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 0.5rem 0; }
+    .row { display: flex; align-items: center; gap: 0.5rem; }
+    .row label { flex: 1; }
+    kbd {
+      display: inline-block; padding: 1px 5px;
+      border: 1px solid #555; border-radius: 3px;
+      font: 11px monospace; color: #bbb; background: rgba(255,255,255,0.06);
+    }
+    .val { min-width: 2ch; text-align: center; color: #fff; }
+    button.adj {
+      width: 22px; height: 22px; border: 1px solid #555; border-radius: 4px;
+      background: rgba(255,255,255,0.08); color: #ccc; cursor: pointer; font-size: 14px;
+      line-height: 1; display: flex; align-items: center; justify-content: center;
+    }
+    button.adj:hover { background: rgba(255,255,255,0.18); color: #fff; }
+    #terminator-btn {
+      width: 100%; margin-top: 0.25rem; padding: 4px 0;
+      border: 1px solid #555; border-radius: 4px;
+      background: rgba(255,255,255,0.06); color: #ccc; cursor: pointer; font-size: 12px;
+    }
+    #terminator-btn:hover { background: rgba(255,255,255,0.14); color: #fff; }
+    #terminator-btn.active { border-color: #ff8c42; color: #ff8c42; background: rgba(255,140,66,0.1); }
+    #clear-btn {
+      width: 100%; margin-top: 0.25rem; padding: 4px 0;
+      border: 1px solid #555; border-radius: 4px;
+      background: rgba(255,255,255,0.06); color: #ccc; cursor: pointer; font-size: 12px;
+    }
+    #clear-btn:hover { background: rgba(255,60,60,0.15); color: #f88; border-color: #f66; }
+
+    /* ── Axes legend ── */
     #axes-legend {
-      position: fixed;
-      bottom: 0.5rem;
-      left: 0.5rem;
-      font: 11px/1.8 monospace;
-      pointer-events: none;
+      position: fixed; bottom: 0.5rem; left: 0.5rem;
+      font: 11px/1.8 monospace; pointer-events: none;
     }
     #axes-legend span { font-weight: bold; }
   </style>
 </head>
 <body>
   <a id="back" href="/demos/">← Demos</a>
+
   <canvas id="demo-canvas"></canvas>
+
+  <div id="panel">
+    <h3>Controls</h3>
+    <div><kbd>Mouse</kbd> Aim ray &nbsp;<kbd>Shift</kbd> Fine</div>
+    <div><kbd>↑↓←→</kbd> Nudge &nbsp;<kbd>Shift+↑↓←→</kbd> Fine nudge</div>
+    <div><kbd>Click</kbd> / <kbd>Space</kbd> Place dot(s)</div>
+    <div><kbd>[</kbd> <kbd>]</kbd> Spray count &nbsp;<kbd>,</kbd> <kbd>.</kbd> Spread</div>
+    <div><kbd>Right-drag</kbd> Orbit camera</div>
+    <hr />
+    <div class="row">
+      <label>Spray count</label>
+      <button class="adj" id="spray-dec">−</button>
+      <span class="val" id="spray-val">1</span>
+      <button class="adj" id="spray-inc">+</button>
+    </div>
+    <div class="row">
+      <label>Spray spread</label>
+      <button class="adj" id="spread-dec">−</button>
+      <span class="val" id="spread-val">5°</span>
+      <button class="adj" id="spread-inc">+</button>
+    </div>
+    <hr />
+    <button id="terminator-btn">T — Show terminator</button>
+    <button id="clear-btn">C — Clear dots</button>
+  </div>
+
   <div id="axes-legend">
     <span style="color:#ff4444">X</span>
     <span style="color:#44ff44">Y</span>
@@ -46,27 +111,25 @@
     import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry.js';
     import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js';
 
+    // ── Renderer ──────────────────────────────────────────────────────────────
     const canvas = document.getElementById('demo-canvas') as HTMLCanvasElement;
-
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
     renderer.setPixelRatio(window.devicePixelRatio);
 
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x000000);
 
-    // Sphere at origin, light directly above at y=10
-    // Camera pulled back on Z, shifted up so both are in frame
     const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 200);
     camera.position.set(0, 6, 22);
 
-    // Sphere — flat, no shading
+    // ── Scene objects ─────────────────────────────────────────────────────────
+    const SPHERE_RADIUS = 1.5;
     const sphere = new THREE.Mesh(
-      new THREE.SphereGeometry(1.5, 64, 64),
+      new THREE.SphereGeometry(SPHERE_RADIUS, 64, 64),
       new THREE.MeshBasicMaterial({ color: 0x333333 })
     );
     scene.add(sphere);
 
-    // Light position and visible marker
     const lightPos = new THREE.Vector3(0, 10, 0);
     const lightMarker = new THREE.Mesh(
       new THREE.SphereGeometry(0.12, 16, 16),
@@ -75,106 +138,231 @@
     lightMarker.position.copy(lightPos);
     scene.add(lightMarker);
 
-    // Single interactive ray (Line2 for variable linewidth)
+    // ── Ray ───────────────────────────────────────────────────────────────────
     const raycaster = new THREE.Raycaster();
-
     const rayGeom = new LineGeometry();
-    rayGeom.setPositions([0, 10, 0, 0, 10, 0]); // placeholder
+    rayGeom.setPositions([0, 10, 0, 0, 10, 0]);
     const rayMat = new LineMaterial({
-      color: 0x555555,
-      linewidth: 2,
+      color: 0x555555, linewidth: 2,
       resolution: new THREE.Vector2(window.innerWidth, window.innerHeight),
     });
-    const rayLine = new Line2(rayGeom, rayMat);
-    scene.add(rayLine);
-
-    let currentHit: THREE.Vector3 | null = null;
+    scene.add(new Line2(rayGeom, rayMat));
 
     function updateRay(dir: THREE.Vector3) {
-      raycaster.set(lightPos, dir);
+      raycaster.set(lightPos, dir.normalize());
       const hits = raycaster.intersectObject(sphere);
       const end = hits.length > 0
         ? hits[0].point
         : lightPos.clone().addScaledVector(dir, 15);
-      rayGeom.setPositions([
-        lightPos.x, lightPos.y, lightPos.z,
-        end.x, end.y, end.z,
-      ]);
+      rayGeom.setPositions([lightPos.x, lightPos.y, lightPos.z, end.x, end.y, end.z]);
       rayMat.color.setHex(hits.length > 0 ? 0xffffff : 0x555555);
-      currentHit = hits.length > 0 ? hits[0].point.clone() : null;
     }
 
-    const dotMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
-    const dotGeo = new THREE.SphereGeometry(0.05, 16, 16);
+    // ── Aim state ─────────────────────────────────────────────────────────────
+    let azimuth = 0;   // rotation around Y
+    let polar    = 0;  // tilt from straight-down (0 = down, π/2 = horizontal)
 
-    window.addEventListener('click', () => {
-      if (!currentHit) return;
-      const dot = new THREE.Mesh(dotGeo, dotMat);
-      dot.position.copy(currentHit);
-      scene.add(dot);
-    });
+    function dirFromAngles(az: number, pol: number): THREE.Vector3 {
+      const s = Math.sin(pol);
+      return new THREE.Vector3(s * Math.sin(az), -Math.cos(pol), s * Math.cos(az));
+    }
 
-    // Default: straight down toward sphere
-    updateRay(new THREE.Vector3(0, -1, 0));
+    function applyDir() { updateRay(dirFromAngles(azimuth, polar)); }
+    applyDir();
+
+    // Absolute screen position → ray direction.
+    // Shift: fine mode — delta from where Shift was pressed, keeping the
+    // ray anchored at its current direction instead of snapping to center.
+    let lastMouseX = window.innerWidth / 2;
+    let lastMouseY = window.innerHeight / 2;
+    let shiftAnchorAz  = 0, shiftAnchorPol  = 0;
+    let shiftOriginX   = 0, shiftOriginY    = 0;
+    const FINE_RANGE   = 0.5; // radians reachable by moving across the full screen in fine mode
 
     window.addEventListener('mousemove', (e) => {
-      // Joystick mapping: distance from screen center → polar angle,
-      // direction on screen → azimuth.
-      // X offset tilts in world X; Y offset tilts in world Z (depth).
-      const ndcX =  (e.clientX / window.innerWidth)  * 2 - 1;
-      const ndcY = -(e.clientY / window.innerHeight) * 2 + 1;
-
-      const scale = 1.5;
-      const tx = ndcX * scale;  // tilt toward ±X
-      const tz = -ndcY * scale; // tilt toward ±Z (inverted: up on screen = away from viewer)
-
-      const polar   = Math.min(Math.sqrt(tx * tx + tz * tz), Math.PI * 0.85);
-      const azimuth = polar > 0.001 ? Math.atan2(tx, tz) : 0;
-      const sinP    = Math.sin(polar);
-
-      updateRay(new THREE.Vector3(
-        sinP * Math.sin(azimuth),
-        -Math.cos(polar),
-        sinP * Math.cos(azimuth),
-      ));
+      if (e.buttons === 2) return;
+      lastMouseX = e.clientX;
+      lastMouseY = e.clientY;
+      if (e.shiftKey) {
+        azimuth = shiftAnchorAz + (e.clientX - shiftOriginX) / window.innerWidth  * FINE_RANGE;
+        polar   = Math.max(0, Math.min(Math.PI * 0.85,
+                    shiftAnchorPol - (e.clientY - shiftOriginY) / window.innerHeight * FINE_RANGE));
+      } else {
+        const scale = 1.5;
+        const tx =  (e.clientX / window.innerWidth  * 2 - 1) * scale;
+        const tz = -(e.clientY / window.innerHeight * 2 - 1) * scale;
+        polar   = Math.min(Math.sqrt(tx * tx + tz * tz), Math.PI * 0.85);
+        azimuth = polar > 0.001 ? Math.atan2(tx, tz) : 0;
+      }
+      applyDir();
     });
 
-    // OrbitControls — target the midpoint of sphere + light
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Shift' && !e.repeat) {
+        shiftAnchorAz = azimuth;
+        shiftAnchorPol = polar;
+        shiftOriginX  = lastMouseX;
+        shiftOriginY  = lastMouseY;
+      }
+      const step = e.shiftKey ? 0.003 : 0.025;
+      switch (e.key) {
+        case 'ArrowLeft':  azimuth -= step; break;
+        case 'ArrowRight': azimuth += step; break;
+        case 'ArrowUp':    polar = Math.max(0, polar - step); break;
+        case 'ArrowDown':  polar = Math.min(Math.PI * 0.9, polar + step); break;
+        case ' ': e.preventDefault(); canvas.dispatchEvent(new MouseEvent('click')); return;
+        case '[': adjustCount(-1); return;
+        case ']': adjustCount(1);  return;
+        case ',': adjustSpread(-1); return;
+        case '.': adjustSpread(1);  return;
+        case 't': case 'T': toggleTerminator(); return;
+        case 'c': case 'C': clearDots(); return;
+        default: return;
+      }
+      e.preventDefault();
+      applyDir();
+    });
+
+    // ── Dots ─────────────────────────────────────────────────────────────────
+    const dotGeo = new THREE.SphereGeometry(0.05, 16, 16);
+    const dotMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    const dots: THREE.Mesh[] = [];
+
+    let sprayCount  = 1;
+    let spraySpread = 5 * (Math.PI / 180); // degrees → radians
+
+    function placeDot(pos: THREE.Vector3) {
+      const dot = new THREE.Mesh(dotGeo, dotMat);
+      dot.position.copy(pos);
+      scene.add(dot);
+      dots.push(dot);
+    }
+
+    function clearDots() {
+      dots.forEach(d => scene.remove(d));
+      dots.length = 0;
+    }
+
+    // Sample a random direction uniformly within a cone around `dir`.
+    function sampleCone(dir: THREE.Vector3, halfAngle: number): THREE.Vector3 {
+      const phi      = 2 * Math.PI * Math.random();
+      const cosTheta = 1 - Math.random() * (1 - Math.cos(halfAngle));
+      const sinTheta = Math.sqrt(1 - cosTheta * cosTheta);
+      const local    = new THREE.Vector3(sinTheta * Math.cos(phi), sinTheta * Math.sin(phi), cosTheta);
+      const q        = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), dir.clone().normalize());
+      return local.applyQuaternion(q);
+    }
+
+    canvas.addEventListener('click', () => {
+      const primaryDir = dirFromAngles(azimuth, polar);
+      const dirs: THREE.Vector3[] = [primaryDir];
+      for (let i = 1; i < sprayCount; i++) dirs.push(sampleCone(primaryDir, spraySpread));
+
+      dirs.forEach(dir => {
+        raycaster.set(lightPos, dir.normalize());
+        const hits = raycaster.intersectObject(sphere);
+        if (hits.length > 0) placeDot(hits[0].point.clone());
+      });
+    });
+
+    // Suppress context menu so right-click drag works cleanly
+    canvas.addEventListener('contextmenu', e => e.preventDefault());
+
+    // ── Terminator ring ───────────────────────────────────────────────────────
+    // The terminator is where a ray from the light is tangent to the sphere.
+    // Mathematically: the intersection of the sphere with the plane L·P = r².
+    const lightDir = lightPos.clone().normalize();
+    const planeDist = (SPHERE_RADIUS * SPHERE_RADIUS) / lightPos.length();
+    const ringCenter = lightDir.clone().multiplyScalar(planeDist);
+    const ringRadius = Math.sqrt(SPHERE_RADIUS * SPHERE_RADIUS - planeDist * planeDist);
+
+    // Two vectors perpendicular to lightDir=(0,1,0): use X and Z axes
+    const termU = new THREE.Vector3(1, 0, 0);
+    const termV = new THREE.Vector3(0, 0, 1);
+
+    const TERM_SEGMENTS = 128;
+    const termPts: number[] = [];
+    for (let i = 0; i <= TERM_SEGMENTS; i++) {
+      const a = (i / TERM_SEGMENTS) * Math.PI * 2;
+      const p = ringCenter.clone()
+        .addScaledVector(termU, Math.cos(a) * ringRadius)
+        .addScaledVector(termV, Math.sin(a) * ringRadius);
+      termPts.push(p.x, p.y, p.z);
+    }
+
+    const termGeom = new LineGeometry();
+    termGeom.setPositions(termPts);
+    const termMat = new LineMaterial({
+      color: 0xff8c42, linewidth: 2,
+      resolution: new THREE.Vector2(window.innerWidth, window.innerHeight),
+    });
+    const termLine = new Line2(termGeom, termMat);
+    termLine.visible = false;
+    scene.add(termLine);
+
+    function toggleTerminator() {
+      termLine.visible = !termLine.visible;
+      const btn = document.getElementById('terminator-btn')!;
+      btn.textContent = termLine.visible ? 'T — Hide terminator' : 'T — Show terminator';
+      btn.classList.toggle('active', termLine.visible);
+    }
+
+    // ── Orbit (right-click only) ──────────────────────────────────────────────
     const controls = new OrbitControls(camera, canvas);
+    controls.mouseButtons = { LEFT: null as any, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.ROTATE };
     controls.target.set(0, 5, 0);
     controls.enableDamping = true;
     controls.update();
 
+    // ── Resize ────────────────────────────────────────────────────────────────
     function setSize() {
-      const w = window.innerWidth;
-      const h = window.innerHeight;
+      const w = window.innerWidth, h = window.innerHeight;
       renderer.setSize(w, h, false);
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
       rayMat.resolution.set(w, h);
+      termMat.resolution.set(w, h);
     }
-
     setSize();
     window.addEventListener('resize', setSize);
 
-    // Corner axes gizmo
+    // ── Axes gizmo ────────────────────────────────────────────────────────────
     const axesScene = new THREE.Scene();
     axesScene.add(new THREE.AxesHelper(1));
     const axesCamera = new THREE.PerspectiveCamera(50, 1, 0.1, 10);
     axesCamera.position.set(0, 0, 3);
+    const GIZMO = 100;
 
-    const GIZMO = 100; // px
+    // ── UI wiring ─────────────────────────────────────────────────────────────
+    const sprayVal  = document.getElementById('spray-val')!;
+    const spreadVal = document.getElementById('spread-val')!;
 
+    function adjustCount(delta: number) {
+      sprayCount = Math.max(1, Math.min(64, sprayCount + delta));
+      sprayVal.textContent = String(sprayCount);
+    }
+    function adjustSpread(delta: number) {
+      const deg = Math.max(1, Math.min(90, Math.round(spraySpread * 180 / Math.PI) + delta));
+      spraySpread = deg * Math.PI / 180;
+      spreadVal.textContent = deg + '°';
+    }
+
+    document.getElementById('spray-dec')!.addEventListener('click', () => adjustCount(-1));
+    document.getElementById('spray-inc')!.addEventListener('click', () => adjustCount(1));
+    document.getElementById('spread-dec')!.addEventListener('click', () => adjustSpread(-1));
+    document.getElementById('spread-inc')!.addEventListener('click', () => adjustSpread(1));
+    document.getElementById('terminator-btn')!.addEventListener('click', toggleTerminator);
+    document.getElementById('clear-btn')!.addEventListener('click', clearDots);
+
+    // ── Render loop ───────────────────────────────────────────────────────────
     function animate() {
       requestAnimationFrame(animate);
       controls.update();
 
-      // Main scene — full viewport
       renderer.setScissorTest(false);
       renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
       renderer.render(scene, camera);
 
-      // Axes inset — bottom-left corner
       axesCamera.quaternion.copy(camera.quaternion);
       renderer.setScissorTest(true);
       renderer.setScissor(0, 0, GIZMO, GIZMO);
