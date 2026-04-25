@@ -125,7 +125,7 @@
     // ── Scene objects ─────────────────────────────────────────────────────────
     const SPHERE_RADIUS = 1.5;
     const sphere = new THREE.Mesh(
-      new THREE.SphereGeometry(SPHERE_RADIUS, 64, 64),
+      new THREE.SphereGeometry(SPHERE_RADIUS, 128, 128),
       new THREE.MeshBasicMaterial({ color: 0x333333 })
     );
     scene.add(sphere);
@@ -204,12 +204,13 @@
         shiftOriginX  = lastMouseX;
         shiftOriginY  = lastMouseY;
       }
-      const step = e.shiftKey ? 0.003 : 0.025;
+      const step    = e.shiftKey ? 0.003 : 0.025;
+      const polStep = e.shiftKey ? 0.00005 : 0.0025;
       switch (e.key) {
         case 'ArrowLeft':  azimuth -= step; break;
         case 'ArrowRight': azimuth += step; break;
-        case 'ArrowUp':    polar = Math.max(0, polar - step); break;
-        case 'ArrowDown':  polar = Math.min(Math.PI * 0.9, polar + step); break;
+        case 'ArrowUp':    polar = Math.max(0,             polar - polStep); break;
+        case 'ArrowDown':  polar = Math.min(Math.PI * 0.9, polar + polStep); break;
         case ' ': e.preventDefault(); canvas.dispatchEvent(new MouseEvent('click')); return;
         case '[': adjustCount(-1); return;
         case ']': adjustCount(1);  return;
