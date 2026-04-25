@@ -75,7 +75,7 @@
 
   <div id="panel">
     <h3>Controls</h3>
-    <div><kbd>Mouse</kbd> Aim ray &nbsp;<kbd>Shift</kbd> Fine</div>
+    <div><kbd>Mouse</kbd> Aim ray</div>
     <div><kbd>↑↓←→</kbd> Nudge &nbsp;<kbd>Shift+↑↓←→</kbd> Fine nudge</div>
     <div><kbd>Click</kbd> / <kbd>Space</kbd> Place dot(s)</div>
     <div><kbd>[</kbd> <kbd>]</kbd> Spray count &nbsp;<kbd>,</kbd> <kbd>.</kbd> Spread</div>
@@ -140,6 +140,8 @@
 
     // ── Ray ───────────────────────────────────────────────────────────────────
     const raycaster = new THREE.Raycaster();
+    const picker    = new THREE.Raycaster();
+    const mouse     = new THREE.Vector2();
     const rayGeom = new LineGeometry();
     rayGeom.setPositions([0, 10, 0, 0, 10, 0]);
     const rayMat = new LineMaterial({
@@ -151,11 +153,10 @@
     function updateRay(dir: THREE.Vector3) {
       raycaster.set(lightPos, dir.normalize());
       const hits = raycaster.intersectObject(sphere);
-      const end = hits.length > 0
-        ? hits[0].point
-        : lightPos.clone().addScaledVector(dir, 15);
+      const hit = hits.length > 0;
+      const end = hit ? hits[0].point : lightPos.clone().addScaledVector(dir, 15);
       rayGeom.setPositions([lightPos.x, lightPos.y, lightPos.z, end.x, end.y, end.z]);
-      rayMat.color.setHex(hits.length > 0 ? 0xffffff : 0x555555);
+      rayMat.color.setHex(hit ? 0xffffff : 0x555555);
     }
 
     // ── Aim state ─────────────────────────────────────────────────────────────
@@ -167,43 +168,43 @@
       return new THREE.Vector3(s * Math.sin(az), -Math.cos(pol), s * Math.cos(az));
     }
 
+    function anglesFromDir(dir: THREE.Vector3): { az: number; pol: number } {
+      const d = dir.clone().normalize();
+      const pol = Math.acos(Math.max(-1, Math.min(1, -d.y)));
+      const az  = pol > 0.001 ? Math.atan2(d.x, d.z) : azimuth;
+      return { az, pol };
+    }
+
     function applyDir() { updateRay(dirFromAngles(azimuth, polar)); }
     applyDir();
 
-    // Absolute screen position → ray direction.
-    // Shift: fine mode — delta from where Shift was pressed, keeping the
-    // ray anchored at its current direction instead of snapping to center.
-    let lastMouseX = window.innerWidth / 2;
-    let lastMouseY = window.innerHeight / 2;
-    let shiftAnchorAz  = 0, shiftAnchorPol  = 0;
-    let shiftOriginX   = 0, shiftOriginY    = 0;
-    const FINE_RANGE   = 0.5; // radians reachable by moving across the full screen in fine mode
-
     window.addEventListener('mousemove', (e) => {
       if (e.buttons === 2) return;
-      lastMouseX = e.clientX;
-      lastMouseY = e.clientY;
-      if (e.shiftKey) {
-        azimuth = shiftAnchorAz + (e.clientX - shiftOriginX) / window.innerWidth  * FINE_RANGE;
-        polar   = Math.max(0, Math.min(Math.PI * 0.85,
-                    shiftAnchorPol - (e.clientY - shiftOriginY) / window.innerHeight * FINE_RANGE));
+      mouse.set(
+        (e.clientX / window.innerWidth)  * 2 - 1,
+       -(e.clientY / window.innerHeight) * 2 + 1
+      );
+      picker.setFromCamera(mouse, camera);
+
+      const sphereHits = picker.intersectObject(sphere);
+      let target: THREE.Vector3;
+      if (sphereHits.length > 0) {
+        target = sphereHits[0].point;
       } else {
-        const scale = 1.5;
-        const tx =  (e.clientX / window.innerWidth  * 2 - 1) * scale;
-        const tz = -(e.clientY / window.innerHeight * 2 - 1) * scale;
-        polar   = Math.min(Math.sqrt(tx * tx + tz * tz), Math.PI * 0.85);
-        azimuth = polar > 0.001 ? Math.atan2(tx, tz) : 0;
+        const camForward = new THREE.Vector3();
+        camera.getWorldDirection(camForward);
+        const plane = new THREE.Plane().setFromNormalAndCoplanarPoint(camForward, sphere.position);
+        target = new THREE.Vector3();
+        if (!picker.ray.intersectPlane(plane, target)) return;
       }
+
+      const { az, pol } = anglesFromDir(target.clone().sub(lightPos));
+      azimuth = az;
+      polar   = pol;
       applyDir();
     });
 
     window.addEventListener('keydown', (e) => {
-      if (e.key === 'Shift' && !e.repeat) {
-        shiftAnchorAz = azimuth;
-        shiftAnchorPol = polar;
-        shiftOriginX  = lastMouseX;
-        shiftOriginY  = lastMouseY;
-      }
       const step    = e.shiftKey ? 0.003 : 0.025;
       const polStep = e.shiftKey ? 0.00005 : 0.0025;
       switch (e.key) {
