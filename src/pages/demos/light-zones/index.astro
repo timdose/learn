@@ -60,12 +60,6 @@
     }
     #clear-btn:hover { background: rgba(255,60,60,0.15); color: #f88; border-color: #f66; }
 
-    /* ── Axes legend ── */
-    #axes-legend {
-      position: fixed; bottom: 0.5rem; left: 0.5rem;
-      font: 11px/1.8 monospace; pointer-events: none;
-    }
-    #axes-legend span { font-weight: bold; }
   </style>
 </head>
 <body>
@@ -96,12 +90,6 @@
     <hr />
     <button id="terminator-btn">T — Show terminator</button>
     <button id="clear-btn">C — Clear dots</button>
-  </div>
-
-  <div id="axes-legend">
-    <span style="color:#ff4444">X</span>
-    <span style="color:#44ff44">Y</span>
-    <span style="color:#4488ff">Z</span>
   </div>
 
   <script>
@@ -255,7 +243,33 @@
       return local.applyQuaternion(q);
     }
 
-    canvas.addEventListener('click', () => {
+    canvas.addEventListener('click', (e) => {
+      // Intercept clicks on the gizmo area (top-right corner)
+      if (e.clientX >= window.innerWidth - GIZMO && e.clientY < GIZMO) {
+        const localX = e.clientX - (window.innerWidth - GIZMO);
+        const ndcX   = (localX / GIZMO) * 2 - 1;
+        const ndcY   = -((e.clientY / GIZMO) * 2 - 1);
+        const gizmoPick = new THREE.Raycaster();
+        gizmoPick.setFromCamera(new THREE.Vector2(ndcX, ndcY), axesCamera);
+        const hits = gizmoPick.intersectObject(gizmoSphere, true); // recursive = picks caps too
+        if (hits.length > 0) {
+          let face: string;
+          if (hits[0].object === topCap) {
+            face = 'top';
+          } else if (hits[0].object === bottomCap) {
+            face = 'bottom';
+          } else if (hits[0].face) {
+            const n = hits[0].face.normal;
+            const ax = Math.abs(n.x), ay = Math.abs(n.y), az = Math.abs(n.z);
+            if (ax >= ay && ax >= az)      face = n.x > 0 ? 'right' : 'left';
+            else if (ay >= ax && ay >= az) face = n.y > 0 ? 'top'   : 'bottom';
+            else                           face = n.z > 0 ? 'front' : 'back';
+          } else { return; }
+          snapToView(face);
+        }
+        return;
+      }
+
       const primaryDir = dirFromAngles(azimuth, polar);
       const dirs: THREE.Vector3[] = [primaryDir];
       for (let i = 1; i < sprayCount; i++) dirs.push(sampleCone(primaryDir, spraySpread));
@@ -328,12 +342,123 @@
     setSize();
     window.addEventListener('resize', setSize);
 
-    // ── Axes gizmo ────────────────────────────────────────────────────────────
+    // ── View orientation sphere ───────────────────────────────────────────────
+    const GIZMO = 110;
     const axesScene = new THREE.Scene();
-    axesScene.add(new THREE.AxesHelper(1));
+    axesScene.add(new THREE.AmbientLight(0xffffff, 0.55));
+    const gizmoLight = new THREE.DirectionalLight(0xffffff, 0.6);
+    gizmoLight.position.set(0, 0, 3);
+    axesScene.add(gizmoLight);
+
+    // Bake face colors + labels into a canvas texture (1024×512 = 2:1 for sphere UV)
+    const TEX_W = 1024, TEX_H = 512;
+    const texCanvas = document.createElement('canvas');
+    texCanvas.width = TEX_W; texCanvas.height = TEX_H;
+    const texCtx = texCanvas.getContext('2d')!;
+    const imgData = texCtx.createImageData(TEX_W, TEX_H);
+    const buf = imgData.data;
+
+    for (let row = 0; row < TEX_H; row++) {
+      const theta = (row / TEX_H) * Math.PI;  // 0 = north pole, π = south pole
+      const sinT  = Math.sin(theta);
+      const y     = Math.cos(theta);
+      for (let col = 0; col < TEX_W; col++) {
+        const phi = (col / TEX_W) * Math.PI * 2;
+        const x   = -Math.cos(phi) * sinT;
+        const z   =  Math.sin(phi) * sinT;
+        const ax  = Math.abs(x), ay = Math.abs(y), az = Math.abs(z);
+        let r: number, g: number, b: number;
+        if (ax >= ay && ax >= az)
+          [r,g,b] = x > 0 ? [191,51,51] : [38,142,142];
+        else if (ay >= ax && ay >= az)
+          [r,g,b] = y > 0 ? [51,174,51] : [128,46,153];
+        else
+          [r,g,b] = z > 0 ? [56,85,191] : [140,46,46];
+        const idx = (row * TEX_W + col) * 4;
+        buf[idx] = r; buf[idx+1] = g; buf[idx+2] = b; buf[idx+3] = 255;
+      }
+    }
+    texCtx.putImageData(imgData, 0, 0);
+
+    texCtx.textAlign = 'center';
+    texCtx.textBaseline = 'middle';
+    texCtx.fillStyle = 'white';
+    texCtx.shadowColor = 'rgba(0,0,0,0.7)';
+    texCtx.shadowBlur = 10;
+    texCtx.font = 'bold 58px sans-serif';
+    // Equatorial faces only — Top/Bottom handled by flat cap discs below
+    [
+      ['Front',  0.25 * TEX_W, 0.50 * TEX_H],
+      ['Right',  0.50 * TEX_W, 0.50 * TEX_H],
+      ['Back',   0.75 * TEX_W, 0.50 * TEX_H],
+    ].forEach(([t, lx, ly]) => texCtx.fillText(t as string, lx as number, ly as number));
+    // Left face straddles the seam at u=0/1 — draw at both edges so it wraps
+    texCtx.fillText('Left', 0,      0.50 * TEX_H);
+    texCtx.fillText('Left', TEX_W,  0.50 * TEX_H);
+
+    const gizmoTexture = new THREE.CanvasTexture(texCanvas);
+    const gizmoSphere = new THREE.Mesh(
+      new THREE.SphereGeometry(0.8, 64, 64),
+      new THREE.MeshLambertMaterial({ map: gizmoTexture })
+    );
+    axesScene.add(gizmoSphere);
+
+    // Flat cap discs for Top/Bottom — no UV distortion
+    function makeCapDisc(label: string, yPos: number, flipY: boolean) {
+      const S = 256;
+      const cc = document.createElement('canvas');
+      cc.width = S; cc.height = S;
+      const cx = cc.getContext('2d')!;
+      cx.textAlign = 'center';
+      cx.textBaseline = 'middle';
+      cx.fillStyle = 'white';
+      cx.shadowColor = 'rgba(0,0,0,0.6)';
+      cx.shadowBlur = 8;
+      cx.font = 'bold 64px sans-serif';
+      cx.fillText(label, S / 2, S / 2);
+      const disc = new THREE.Mesh(
+        new THREE.CircleGeometry(0.42, 48),
+        new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(cc), transparent: true, depthWrite: false })
+      );
+      disc.position.y = yPos;
+      disc.rotation.x = flipY ? Math.PI / 2 : -Math.PI / 2;
+      return disc;
+    }
+    const topCap    = makeCapDisc('Top',    0.802,  false);
+    const bottomCap = makeCapDisc('Bottom', -0.802, true);
+    gizmoSphere.add(topCap);
+    gizmoSphere.add(bottomCap);
+
     const axesCamera = new THREE.PerspectiveCamera(50, 1, 0.1, 10);
     axesCamera.position.set(0, 0, 3);
-    const GIZMO = 100;
+
+    let snapAnim: {
+      from: THREE.Vector3; to: THREE.Vector3;
+      fromUp: THREE.Vector3; toUp: THREE.Vector3;
+      start: number;
+    } | null = null;
+
+    function snapToView(face: string) {
+      const dist = camera.position.distanceTo(controls.target);
+      const t = controls.target;
+      const up0 = new THREE.Vector3(0, 1, 0);
+      const snaps: Record<string, { pos: THREE.Vector3; up: THREE.Vector3 }> = {
+        front:  { pos: new THREE.Vector3(t.x,        t.y,        t.z + dist), up: up0.clone() },
+        back:   { pos: new THREE.Vector3(t.x,        t.y,        t.z - dist), up: up0.clone() },
+        right:  { pos: new THREE.Vector3(t.x + dist, t.y,        t.z       ), up: up0.clone() },
+        left:   { pos: new THREE.Vector3(t.x - dist, t.y,        t.z       ), up: up0.clone() },
+        top:    { pos: new THREE.Vector3(t.x,        t.y + dist, t.z       ), up: new THREE.Vector3(0, 0, -1) },
+        bottom: { pos: new THREE.Vector3(t.x,        t.y - dist, t.z       ), up: new THREE.Vector3(0, 0,  1) },
+      };
+      const s = snaps[face];
+      if (!s) return;
+      snapAnim = {
+        from: camera.position.clone(), to: s.pos,
+        fromUp: camera.up.clone(), toUp: s.up,
+        start: performance.now(),
+      };
+      controls.enabled = false;
+    }
 
     // ── UI wiring ─────────────────────────────────────────────────────────────
     const sprayVal  = document.getElementById('spray-val')!;
@@ -359,16 +484,33 @@
     // ── Render loop ───────────────────────────────────────────────────────────
     function animate() {
       requestAnimationFrame(animate);
+
+      // Snap animation
+      if (snapAnim) {
+        const t = Math.min((performance.now() - snapAnim.start) / 300, 1);
+        const ease = 1 - Math.pow(1 - t, 3);
+        camera.position.lerpVectors(snapAnim.from, snapAnim.to, ease);
+        camera.up.lerpVectors(snapAnim.fromUp, snapAnim.toUp, ease).normalize();
+        camera.lookAt(controls.target);
+        if (t >= 1) {
+          controls.update();
+          controls.enabled = true;
+          snapAnim = null;
+        }
+      }
+
       controls.update();
 
       renderer.setScissorTest(false);
       renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
       renderer.render(scene, camera);
 
-      axesCamera.quaternion.copy(camera.quaternion);
+      // View sphere (top-right) — sphere rotates, camera stays fixed
+      gizmoSphere.quaternion.copy(camera.quaternion).invert();
+
       renderer.setScissorTest(true);
-      renderer.setScissor(0, 0, GIZMO, GIZMO);
-      renderer.setViewport(0, 0, GIZMO, GIZMO);
+      renderer.setScissor(window.innerWidth - GIZMO, window.innerHeight - GIZMO, GIZMO, GIZMO);
+      renderer.setViewport(window.innerWidth - GIZMO, window.innerHeight - GIZMO, GIZMO, GIZMO);
       renderer.render(axesScene, axesCamera);
       renderer.setScissorTest(false);
     }
