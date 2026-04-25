@@ -20,15 +20,31 @@
       z-index: 10;
     }
     #back:hover { color: #fff; }
+    #axes-legend {
+      position: fixed;
+      bottom: 0.5rem;
+      left: 0.5rem;
+      font: 11px/1.8 monospace;
+      pointer-events: none;
+    }
+    #axes-legend span { font-weight: bold; }
   </style>
 </head>
 <body>
   <a id="back" href="/demos/">← Demos</a>
   <canvas id="demo-canvas"></canvas>
+  <div id="axes-legend">
+    <span style="color:#ff4444">X</span>
+    <span style="color:#44ff44">Y</span>
+    <span style="color:#4488ff">Z</span>
+  </div>
 
   <script>
     import * as THREE from 'three';
     import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+    import { Line2 } from 'three/examples/jsm/lines/Line2.js';
+    import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry.js';
+    import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js';
 
     const canvas = document.getElementById('demo-canvas') as HTMLCanvasElement;
 
@@ -54,38 +70,61 @@
     const lightPos = new THREE.Vector3(0, 10, 0);
     const lightMarker = new THREE.Mesh(
       new THREE.SphereGeometry(0.12, 16, 16),
-      new THREE.MeshBasicMaterial({ color: 0xffe566 })
+      new THREE.MeshBasicMaterial({ color: 0xffffff })
     );
     lightMarker.position.copy(lightPos);
     scene.add(lightMarker);
 
-    // Rays — fanned in the XY plane (light is directly above sphere,
-    // so toSphere = (0,-1,0) which is parallel to Y; use X as the fan axis)
+    // Single interactive ray (Line2 for variable linewidth)
     const raycaster = new THREE.Raycaster();
-    const numRays = 20;
-    const spreadAngle = Math.PI * 0.75;
-    const fanAxis = new THREE.Vector3(1, 0, 0);
-    const toSphere = new THREE.Vector3().subVectors(sphere.position, lightPos).normalize();
 
-    for (let i = 0; i < numRays; i++) {
-      const angle = (i / (numRays - 1) - 0.5) * spreadAngle;
-      const dir = toSphere.clone().applyAxisAngle(fanAxis, angle);
+    const rayGeom = new LineGeometry();
+    rayGeom.setPositions([0, 10, 0, 0, 10, 0]); // placeholder
+    const rayMat = new LineMaterial({
+      color: 0x555555,
+      linewidth: 2,
+      resolution: new THREE.Vector2(window.innerWidth, window.innerHeight),
+    });
+    const rayLine = new Line2(rayGeom, rayMat);
+    scene.add(rayLine);
 
+    function updateRay(dir: THREE.Vector3) {
       raycaster.set(lightPos, dir);
       const hits = raycaster.intersectObject(sphere);
-
       const end = hits.length > 0
-        ? hits[0].point.clone()
-        : lightPos.clone().addScaledVector(dir, 12);
-
-      const geom = new THREE.BufferGeometry().setFromPoints([lightPos.clone(), end]);
-      const mat = new THREE.LineBasicMaterial({
-        color: hits.length > 0 ? 0xffe566 : 0x334,
-        transparent: true,
-        opacity: 0.7,
-      });
-      scene.add(new THREE.Line(geom, mat));
+        ? hits[0].point
+        : lightPos.clone().addScaledVector(dir, 15);
+      rayGeom.setPositions([
+        lightPos.x, lightPos.y, lightPos.z,
+        end.x, end.y, end.z,
+      ]);
+      rayMat.color.setHex(hits.length > 0 ? 0xffffff : 0x555555);
     }
+
+    // Default: straight down toward sphere
+    updateRay(new THREE.Vector3(0, -1, 0));
+
+    window.addEventListener('mousemove', (e) => {
+      // Joystick mapping: distance from screen center → polar angle,
+      // direction on screen → azimuth.
+      // X offset tilts in world X; Y offset tilts in world Z (depth).
+      const ndcX =  (e.clientX / window.innerWidth)  * 2 - 1;
+      const ndcY = -(e.clientY / window.innerHeight) * 2 + 1;
+
+      const scale = 1.5;
+      const tx = ndcX * scale;  // tilt toward ±X
+      const tz = -ndcY * scale; // tilt toward ±Z (inverted: up on screen = away from viewer)
+
+      const polar   = Math.min(Math.sqrt(tx * tx + tz * tz), Math.PI * 0.85);
+      const azimuth = polar > 0.001 ? Math.atan2(tx, tz) : 0;
+      const sinP    = Math.sin(polar);
+
+      updateRay(new THREE.Vector3(
+        sinP * Math.sin(azimuth),
+        -Math.cos(polar),
+        sinP * Math.cos(azimuth),
+      ));
+    });
 
     // OrbitControls — target the midpoint of sphere + light
     const controls = new OrbitControls(camera, canvas);
@@ -99,15 +138,36 @@
       renderer.setSize(w, h, false);
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
+      rayMat.resolution.set(w, h);
     }
 
     setSize();
     window.addEventListener('resize', setSize);
 
+    // Corner axes gizmo
+    const axesScene = new THREE.Scene();
+    axesScene.add(new THREE.AxesHelper(1));
+    const axesCamera = new THREE.PerspectiveCamera(50, 1, 0.1, 10);
+    axesCamera.position.set(0, 0, 3);
+
+    const GIZMO = 100; // px
+
     function animate() {
       requestAnimationFrame(animate);
       controls.update();
+
+      // Main scene — full viewport
+      renderer.setScissorTest(false);
+      renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
       renderer.render(scene, camera);
+
+      // Axes inset — bottom-left corner
+      axesCamera.quaternion.copy(camera.quaternion);
+      renderer.setScissorTest(true);
+      renderer.setScissor(0, 0, GIZMO, GIZMO);
+      renderer.setViewport(0, 0, GIZMO, GIZMO);
+      renderer.render(axesScene, axesCamera);
+      renderer.setScissorTest(false);
     }
     animate();
   </script>
