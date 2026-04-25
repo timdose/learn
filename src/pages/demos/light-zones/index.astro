@@ -1,0 +1,115 @@
+---
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Light Zones</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #000; overflow: hidden; }
+    canvas { display: block; width: 100vw; height: 100vh; }
+    #back {
+      position: fixed;
+      top: 1rem;
+      left: 1rem;
+      color: #888;
+      font: 13px/1 sans-serif;
+      text-decoration: none;
+      z-index: 10;
+    }
+    #back:hover { color: #fff; }
+  </style>
+</head>
+<body>
+  <a id="back" href="/demos/">← Demos</a>
+  <canvas id="demo-canvas"></canvas>
+
+  <script>
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+
+    const canvas = document.getElementById('demo-canvas') as HTMLCanvasElement;
+
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    renderer.setPixelRatio(window.devicePixelRatio);
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x000000);
+
+    // Sphere at origin, light directly above at y=10
+    // Camera pulled back on Z, shifted up so both are in frame
+    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 200);
+    camera.position.set(0, 6, 22);
+
+    // Sphere — flat, no shading
+    const sphere = new THREE.Mesh(
+      new THREE.SphereGeometry(1.5, 64, 64),
+      new THREE.MeshBasicMaterial({ color: 0x333333 })
+    );
+    scene.add(sphere);
+
+    // Light position and visible marker
+    const lightPos = new THREE.Vector3(0, 10, 0);
+    const lightMarker = new THREE.Mesh(
+      new THREE.SphereGeometry(0.12, 16, 16),
+      new THREE.MeshBasicMaterial({ color: 0xffe566 })
+    );
+    lightMarker.position.copy(lightPos);
+    scene.add(lightMarker);
+
+    // Rays — fanned in the XY plane (light is directly above sphere,
+    // so toSphere = (0,-1,0) which is parallel to Y; use X as the fan axis)
+    const raycaster = new THREE.Raycaster();
+    const numRays = 20;
+    const spreadAngle = Math.PI * 0.75;
+    const fanAxis = new THREE.Vector3(1, 0, 0);
+    const toSphere = new THREE.Vector3().subVectors(sphere.position, lightPos).normalize();
+
+    for (let i = 0; i < numRays; i++) {
+      const angle = (i / (numRays - 1) - 0.5) * spreadAngle;
+      const dir = toSphere.clone().applyAxisAngle(fanAxis, angle);
+
+      raycaster.set(lightPos, dir);
+      const hits = raycaster.intersectObject(sphere);
+
+      const end = hits.length > 0
+        ? hits[0].point.clone()
+        : lightPos.clone().addScaledVector(dir, 12);
+
+      const geom = new THREE.BufferGeometry().setFromPoints([lightPos.clone(), end]);
+      const mat = new THREE.LineBasicMaterial({
+        color: hits.length > 0 ? 0xffe566 : 0x334,
+        transparent: true,
+        opacity: 0.7,
+      });
+      scene.add(new THREE.Line(geom, mat));
+    }
+
+    // OrbitControls — target the midpoint of sphere + light
+    const controls = new OrbitControls(camera, canvas);
+    controls.target.set(0, 5, 0);
+    controls.enableDamping = true;
+    controls.update();
+
+    function setSize() {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    }
+
+    setSize();
+    window.addEventListener('resize', setSize);
+
+    function animate() {
+      requestAnimationFrame(animate);
+      controls.update();
+      renderer.render(scene, camera);
+    }
+    animate();
+  </script>
+</body>
+</html>
