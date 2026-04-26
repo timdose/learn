@@ -30,7 +30,12 @@
       min-width: 210px;
       z-index: 10;
     }
-    #panel h3 { color: #fff; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.4rem; }
+    #panel h3 { color: #fff; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.4rem; display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; }
+    #panel h3:hover { color: #ddd; }
+    #panel-toggle { color: #888; font-size: 13px; pointer-events: none; }
+    #panel.collapsed { min-width: 0; padding-bottom: 0.75rem; }
+    #panel.collapsed > *:not(h3) { display: none; }
+    #panel.collapsed h3{ margin-bottom: 0; }
     #panel hr { border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 0.5rem 0; }
     .row { display: flex; align-items: center; gap: 0.5rem; }
     .row label { flex: 1; }
@@ -74,8 +79,8 @@
 
   <canvas id="demo-canvas"></canvas>
 
-  <div id="panel">
-    <h3>Controls</h3>
+  <div id="panel" class="collapsed">
+    <h3>Controls &nbsp;<span id="panel-toggle">▴</span></h3>
     <div><kbd>Mouse</kbd> Aim ray</div>
     <div><kbd>↑↓←→</kbd> Nudge &nbsp;<kbd>Shift+↑↓←→</kbd> Fine nudge</div>
     <div><kbd>Click</kbd> / <kbd>Space</kbd> Place dot(s)</div>
@@ -217,6 +222,7 @@
         case '.': adjustSpread(1);  return;
         case 't': case 'T': toggleTerminator(); return;
         case 'r': case 'R': startTrace(); return;
+        case 'h': case 'H': togglePanel(); return;
         case 'c': case 'C': clearDots(); return;
         case 'Escape': stopTrace(); return;
         default: return;
@@ -542,6 +548,14 @@
     document.getElementById('spray-inc')!.addEventListener('click', () => adjustCount(1));
     document.getElementById('spread-dec')!.addEventListener('click', () => adjustSpread(-1));
     document.getElementById('spread-inc')!.addEventListener('click', () => adjustSpread(1));
+    const panel       = document.getElementById('panel')!;
+    const panelToggle = document.getElementById('panel-toggle')!;
+    function togglePanel() {
+      const collapsed = panel.classList.toggle('collapsed');
+      panelToggle.textContent = collapsed ? '▴' : '▾';
+    }
+    panel.querySelector('h3')!.addEventListener('click', togglePanel);
+
     document.getElementById('terminator-btn')!.addEventListener('click', toggleTerminator);
     traceBtn.addEventListener('click', startTrace);
     document.getElementById('clear-btn')!.addEventListener('click', clearDots);
