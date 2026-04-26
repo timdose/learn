@@ -225,6 +225,17 @@
       let target: THREE.Vector3;
       if (sphereHits.length > 0) {
         target = sphereHits[0].point;
+      } else if (groundVisible) {
+        const gHits = picker.intersectObject(groundMesh);
+        if (gHits.length > 0) {
+          target = gHits[0].point;
+        } else {
+          const camForward = new THREE.Vector3();
+          camera.getWorldDirection(camForward);
+          const plane = new THREE.Plane().setFromNormalAndCoplanarPoint(camForward, sphere.position);
+          target = new THREE.Vector3();
+          if (!picker.ray.intersectPlane(plane, target)) return;
+        }
       } else {
         const camForward = new THREE.Vector3();
         camera.getWorldDirection(camForward);
