@@ -324,17 +324,21 @@
     termGeom.setPositions(termPts);
     const termMat = new LineMaterial({
       color: 0xff8c42, linewidth: 2,
+      transparent: true, opacity: 0,
       resolution: new THREE.Vector2(window.innerWidth, window.innerHeight),
     });
     const termLine = new Line2(termGeom, termMat);
     termLine.visible = false;
     scene.add(termLine);
 
+    let termFadeTarget = 0; // 0 = hidden, 1 = visible
+
     function toggleTerminator() {
-      termLine.visible = !termLine.visible;
+      termFadeTarget = termFadeTarget === 0 ? 1 : 0;
+      if (termFadeTarget === 1) termLine.visible = true; // show immediately so fade-in renders
       const btn = document.getElementById('terminator-btn')!;
-      btn.textContent = termLine.visible ? 'T — Hide terminator' : 'T — Show terminator';
-      btn.classList.toggle('active', termLine.visible);
+      btn.textContent = termFadeTarget === 1 ? 'T — Hide terminator' : 'T — Show terminator';
+      btn.classList.toggle('active', termFadeTarget === 1);
     }
 
     // ── Ring trace animation ──────────────────────────────────────────────────
@@ -561,6 +565,13 @@
       }
 
       controls.update();
+
+      // Terminator fade
+      const termDiff = termFadeTarget - termMat.opacity;
+      if (Math.abs(termDiff) > 0.001) {
+        termMat.opacity = THREE.MathUtils.clamp(termMat.opacity + Math.sign(termDiff) * 0.07, 0, 1);
+        if (termMat.opacity <= 0) termLine.visible = false;
+      }
 
       renderer.setScissorTest(false);
       renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
