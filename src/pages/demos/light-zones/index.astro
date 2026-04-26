@@ -92,7 +92,8 @@
     .zone-label {
       position: absolute; transform: translate(-50%, -50%);
       color: #fff; font: 11px/1 sans-serif; letter-spacing: 0.06em; text-transform: uppercase;
-      white-space: nowrap; text-shadow: 0 0 8px #000;
+      white-space: nowrap;
+      background: rgba(0,0,0,0.55); padding: 2px 7px; border-radius: 3px;
       opacity: 0; transition: opacity 0.3s;
     }
     .zone-label.visible { opacity: 1; }
@@ -495,6 +496,11 @@
       azimuth = az; polar = pol;
       applyDir();
       placeDot(p);
+      if (groundVisible) {
+        raycaster.set(lightPos, p.clone().sub(lightPos).normalize());
+        const gHits = raycaster.intersectObject(groundMesh);
+        if (gHits.length > 0) placeDot(gHits[0].point.clone());
+      }
 
       traceAnim.step++;
       traceAnim.timerId = window.setTimeout(traceStep, TRACE_DELAY);
@@ -534,10 +540,10 @@
 
     const termAnchor = ringCenter.clone().addScaledVector(termU, ringRadius);
     const LABEL_DEFS = [
-      { el: document.getElementById('lbl-light')!,  anchor: new THREE.Vector3(0, SPHERE_RADIUS, 0),                    pos: new THREE.Vector3(2.4,  2.2, 0),       color: 0xffffff },
+      { el: document.getElementById('lbl-light')!,  anchor: new THREE.Vector3(0, SPHERE_RADIUS, 0),                    pos: new THREE.Vector3(2.4,  2.2, 0),       color: 0xff8c42 },
       { el: document.getElementById('lbl-term')!,   anchor: termAnchor,                                                pos: new THREE.Vector3(2.9,  ringCenter.y, 0), color: 0xff8c42 },
-      { el: document.getElementById('lbl-shadow')!, anchor: new THREE.Vector3(0, -SPHERE_RADIUS, 0),                   pos: new THREE.Vector3(2.4, -1.9, 0),       color: 0x888888 },
-      { el: document.getElementById('lbl-cast')!,   anchor: new THREE.Vector3(-castShadowRadius, GROUND_Y + 0.003, 0), pos: new THREE.Vector3(-3.2, GROUND_Y + 0.4, 0), color: 0x999999 },
+      { el: document.getElementById('lbl-shadow')!, anchor: new THREE.Vector3(0, -SPHERE_RADIUS, 0),                   pos: new THREE.Vector3(2.4, -1.9, 0),       color: 0xff8c42 },
+      { el: document.getElementById('lbl-cast')!,   anchor: new THREE.Vector3(-castShadowRadius, GROUND_Y + 0.003, 0), pos: new THREE.Vector3(-3.2, GROUND_Y + 0.4, 0), color: 0xff8c42 },
     ];
 
     const labelLineMats: LineMaterial[] = [];
