@@ -59,6 +59,13 @@
       background: rgba(255,255,255,0.06); color: #ccc; cursor: pointer; font-size: 12px;
     }
     #clear-btn:hover { background: rgba(255,60,60,0.15); color: #f88; border-color: #f66; }
+    #trace-btn {
+      width: 100%; margin-top: 0.25rem; padding: 4px 0;
+      border: 1px solid #555; border-radius: 4px;
+      background: rgba(255,255,255,0.06); color: #ccc; cursor: pointer; font-size: 12px;
+    }
+    #trace-btn:hover { background: rgba(255,255,255,0.14); color: #fff; }
+    #trace-btn.active { border-color: #ff8c42; color: #ff8c42; background: rgba(255,140,66,0.1); }
 
   </style>
 </head>
@@ -73,6 +80,7 @@
     <div><kbd>↑↓←→</kbd> Nudge &nbsp;<kbd>Shift+↑↓←→</kbd> Fine nudge</div>
     <div><kbd>Click</kbd> / <kbd>Space</kbd> Place dot(s)</div>
     <div><kbd>[</kbd> <kbd>]</kbd> Spray count &nbsp;<kbd>,</kbd> <kbd>.</kbd> Spread</div>
+    <div><kbd>R</kbd> Trace terminator &nbsp;<kbd>Esc</kbd> Stop</div>
     <div><kbd>Right-drag</kbd> Orbit camera</div>
     <hr />
     <div class="row">
@@ -89,6 +97,7 @@
     </div>
     <hr />
     <button id="terminator-btn">T — Show terminator</button>
+    <button id="trace-btn">R — Trace terminator</button>
     <button id="clear-btn">C — Clear dots</button>
   </div>
 
@@ -168,6 +177,7 @@
 
     window.addEventListener('mousemove', (e) => {
       if (e.buttons === 2) return;
+      if (traceAnim) return;
       mouse.set(
         (e.clientX / window.innerWidth)  * 2 - 1,
        -(e.clientY / window.innerHeight) * 2 + 1
@@ -206,7 +216,9 @@
         case ',': adjustSpread(-1); return;
         case '.': adjustSpread(1);  return;
         case 't': case 'T': toggleTerminator(); return;
+        case 'r': case 'R': startTrace(); return;
         case 'c': case 'C': clearDots(); return;
+        case 'Escape': stopTrace(); return;
         default: return;
       }
       e.preventDefault();
@@ -270,6 +282,8 @@
         return;
       }
 
+      if (traceAnim) return;
+
       const primaryDir = dirFromAngles(azimuth, polar);
       const dirs: THREE.Vector3[] = [primaryDir];
       for (let i = 1; i < sprayCount; i++) dirs.push(sampleCone(primaryDir, spraySpread));
@@ -323,12 +337,58 @@
       btn.classList.toggle('active', termLine.visible);
     }
 
+    // ── Ring trace animation ──────────────────────────────────────────────────
+    const TRACE_STEPS = 36;  // one dot every 5°
+    const TRACE_DELAY = 40;  // ms per step (~2.9 s total)
+    let traceAnim: { step: number; timerId: number } | null = null;
+    const traceBtn = document.getElementById('trace-btn')!;
+
+    function traceStep() {
+      if (!traceAnim) return;
+      if (traceAnim.step >= TRACE_STEPS) { stopTrace(); return; }
+
+      const a = START_ANGLE + (traceAnim.step / TRACE_STEPS) * Math.PI * 2;
+      const p = ringCenter.clone()
+        .addScaledVector(termU, Math.cos(a) * ringRadius)
+        .addScaledVector(termV, Math.sin(a) * ringRadius);
+
+      const { az, pol } = anglesFromDir(p.clone().sub(lightPos));
+      azimuth = az; polar = pol;
+      applyDir();
+      placeDot(p);
+
+      traceAnim.step++;
+      traceAnim.timerId = window.setTimeout(traceStep, TRACE_DELAY);
+    }
+
+    function startTrace() {
+      if (traceAnim) { stopTrace(); return; }
+      traceAnim = { step: 0, timerId: 0 };
+      traceBtn.textContent = 'R — Stop trace';
+      traceBtn.classList.add('active');
+      traceStep();
+    }
+
+    function stopTrace() {
+      if (!traceAnim) return;
+      window.clearTimeout(traceAnim.timerId);
+      traceAnim = null;
+      traceBtn.textContent = 'R — Trace ring';
+      traceBtn.classList.remove('active');
+    }
+
     // ── Orbit (right-click only) ──────────────────────────────────────────────
     const controls = new OrbitControls(camera, canvas);
     controls.mouseButtons = { LEFT: null as any, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.ROTATE };
     controls.target.set(0, 5, 0);
     controls.enableDamping = true;
     controls.update();
+
+    // Start angle for ring trace: terminator point most toward the initial camera
+    const _toCam     = camera.position.clone().sub(controls.target).normalize();
+    const _lightN    = lightPos.clone().normalize();
+    const _proj      = _toCam.addScaledVector(_lightN, -_toCam.dot(_lightN));
+    const START_ANGLE = Math.atan2(_proj.dot(termV), _proj.dot(termU));
 
     // ── Resize ────────────────────────────────────────────────────────────────
     function setSize() {
@@ -479,6 +539,7 @@
     document.getElementById('spread-dec')!.addEventListener('click', () => adjustSpread(-1));
     document.getElementById('spread-inc')!.addEventListener('click', () => adjustSpread(1));
     document.getElementById('terminator-btn')!.addEventListener('click', toggleTerminator);
+    traceBtn.addEventListener('click', startTrace);
     document.getElementById('clear-btn')!.addEventListener('click', clearDots);
 
     // ── Render loop ───────────────────────────────────────────────────────────
