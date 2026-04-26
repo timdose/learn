@@ -106,7 +106,7 @@
     <div><kbd>↑↓←→</kbd> Nudge &nbsp;<kbd>Shift+↑↓←→</kbd> Fine nudge</div>
     <div><kbd>Click</kbd> / <kbd>Space</kbd> Place dot(s)</div>
     <div><kbd>[</kbd> <kbd>]</kbd> Spray count &nbsp;<kbd>,</kbd> <kbd>.</kbd> Spread</div>
-    <div><kbd>R</kbd> Trace terminator &nbsp;<kbd>Esc</kbd> Stop</div>
+    <div><kbd>T</kbd> Trace terminator &nbsp;<kbd>Esc</kbd> Stop</div>
     <div><kbd>L</kbd> Labels</div>
     <div><kbd>Right-drag</kbd> Orbit camera</div>
     <hr />
@@ -123,8 +123,7 @@
       <button class="adj" id="spread-inc">+</button>
     </div>
     <hr />
-    <button id="terminator-btn">T — Show terminator</button>
-    <button id="trace-btn">R — Trace terminator</button>
+    <button id="trace-btn">T — Trace terminator</button>
     <button id="labels-btn">L — Show labels</button>
     <button id="clear-btn">C — Clear dots</button>
   </div>
@@ -140,6 +139,7 @@
     const canvas = document.getElementById('demo-canvas') as HTMLCanvasElement;
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
     renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.localClippingEnabled = true;
 
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x000000);
@@ -243,8 +243,7 @@
         case ']': adjustCount(1);  return;
         case ',': adjustSpread(-1); return;
         case '.': adjustSpread(1);  return;
-        case 't': case 'T': toggleTerminator(); return;
-        case 'r': case 'R': startTrace(); return;
+        case 't': case 'T': startTrace(); return;
         case 'l': case 'L': toggleLabels(); return;
         case 'h': case 'H': togglePanel(); return;
         case 'c': case 'C': clearDots(); return;
@@ -363,13 +362,20 @@
 
     let termFadeTarget = 0; // 0 = hidden, 1 = visible
 
-    function toggleTerminator() {
-      termFadeTarget = termFadeTarget === 0 ? 1 : 0;
-      if (termFadeTarget === 1) termLine.visible = true; // show immediately so fade-in renders
-      const btn = document.getElementById('terminator-btn')!;
-      btn.textContent = termFadeTarget === 1 ? 'T — Hide terminator' : 'T — Show terminator';
-      btn.classList.toggle('active', termFadeTarget === 1);
-    }
+    // ── Zone highlights ───────────────────────────────────────────────────────
+    const zoneGeo = new THREE.SphereGeometry(SPHERE_RADIUS * 1.003, 64, 64);
+    const lightZone = new THREE.Mesh(zoneGeo, new THREE.MeshBasicMaterial({
+      color: 0xffdd44, transparent: true, opacity: 0.18, depthWrite: false,
+      clippingPlanes: [new THREE.Plane(new THREE.Vector3(0, 1, 0), -planeDist)],
+    }));
+    const shadowZone = new THREE.Mesh(zoneGeo, new THREE.MeshBasicMaterial({
+      color: 0x4488cc, transparent: true, opacity: 0.18, depthWrite: false,
+      clippingPlanes: [new THREE.Plane(new THREE.Vector3(0, -1, 0), planeDist)],
+    }));
+    lightZone.visible = false;
+    shadowZone.visible = false;
+    scene.add(lightZone);
+    scene.add(shadowZone);
 
     // ── Ring trace animation ──────────────────────────────────────────────────
     const TRACE_STEPS = 36;  // one dot every 5°
@@ -398,7 +404,7 @@
     function startTrace() {
       if (traceAnim) { stopTrace(); return; }
       traceAnim = { step: 0, timerId: 0 };
-      traceBtn.textContent = 'R — Stop trace';
+      traceBtn.textContent = 'T — Stop trace';
       traceBtn.classList.add('active');
       traceStep();
     }
@@ -407,7 +413,7 @@
       if (!traceAnim) return;
       window.clearTimeout(traceAnim.timerId);
       traceAnim = null;
-      traceBtn.textContent = 'R — Trace ring';
+      traceBtn.textContent = 'T — Trace terminator';
       traceBtn.classList.remove('active');
     }
 
@@ -448,6 +454,13 @@
 
     function toggleLabels() {
       labelsVisible = !labelsVisible;
+      // Terminator
+      termFadeTarget = labelsVisible ? 1 : 0;
+      if (labelsVisible) termLine.visible = true;
+      // Zone highlights
+      lightZone.visible  = labelsVisible;
+      shadowZone.visible = labelsVisible;
+      // Floating labels + connector lines
       LABEL_DEFS.forEach((d, i) => {
         d.el.classList.toggle('visible', labelsVisible);
         labelLines[i].visible = labelsVisible;
@@ -614,7 +627,6 @@
     }
     panel.querySelector('h3')!.addEventListener('click', togglePanel);
 
-    document.getElementById('terminator-btn')!.addEventListener('click', toggleTerminator);
     traceBtn.addEventListener('click', startTrace);
     document.getElementById('labels-btn')!.addEventListener('click', toggleLabels);
     document.getElementById('clear-btn')!.addEventListener('click', clearDots);
