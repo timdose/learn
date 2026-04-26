@@ -266,7 +266,7 @@
         case 'ArrowRight': virtualX = Math.min(window.innerWidth,    virtualX + px); break;
         case 'ArrowUp':    virtualY = Math.max(0,                    virtualY - px); break;
         case 'ArrowDown':  virtualY = Math.min(window.innerHeight,   virtualY + px); break;
-        case ' ': e.preventDefault(); canvas.dispatchEvent(new MouseEvent('click')); return;
+        case ' ': e.preventDefault(); if (!e.repeat) startHold(); return;
         case '[': case '{': adjustCount(e.shiftKey ? -10 : -1);  return;
         case ']': case '}': adjustCount(e.shiftKey ?  10 :  1);  return;
         case ',': case '<': adjustSpread(e.shiftKey ? -10 : -1); return;
@@ -285,7 +285,7 @@
 
     // ── Dots ─────────────────────────────────────────────────────────────────
     const dotGeo = new THREE.SphereGeometry(0.035, 16, 16);
-    const dotMat = new THREE.MeshBasicMaterial({ color: 0x555555, blending: THREE.AdditiveBlending });
+    const dotMat = new THREE.MeshBasicMaterial({ color: 0xffffff});
     const dots: THREE.Mesh[] = [];
 
     let sprayCount  = 1;
@@ -341,11 +341,16 @@
       }
 
       if (traceAnim) return;
+      if (autoFired) { autoFired = false; return; } // already fired via hold
+      fireDots();
+    });
 
+    // ── Hold-to-fire ─────────────────────────────────────────────────────────
+    function fireDots() {
+      if (traceAnim) return;
       const primaryDir = dirFromAngles(azimuth, polar);
       const dirs: THREE.Vector3[] = [primaryDir];
       for (let i = 1; i < sprayCount; i++) dirs.push(sampleCone(primaryDir, spraySpread));
-
       dirs.forEach(dir => {
         raycaster.set(lightPos, dir.normalize());
         const hits = raycaster.intersectObject(sphere);
@@ -356,7 +361,29 @@
           if (gHits.length > 0) placeDot(gHits[0].point.clone());
         }
       });
+    }
+
+    let holdTimer: number | null = null;
+    let autoFired = false;
+
+    function startHold() {
+      if (holdTimer !== null || traceAnim) return;
+      holdTimer = window.setInterval(() => { autoFired = true; fireDots(); }, 100);
+    }
+    function stopHold() {
+      if (holdTimer === null) return;
+      window.clearInterval(holdTimer);
+      holdTimer = null;
+    }
+
+    canvas.addEventListener('mousedown', (e) => {
+      if (e.button !== 0) return;
+      if (e.clientX >= window.innerWidth - GIZMO && e.clientY < GIZMO) return;
+      startHold();
     });
+    window.addEventListener('mouseup',   (e) => { if (e.button === 0) stopHold(); });
+    window.addEventListener('mouseleave', stopHold);
+    window.addEventListener('keyup', (e) => { if (e.key === ' ') stopHold(); });
 
     // Suppress context menu so right-click drag works cleanly
     canvas.addEventListener('contextmenu', e => e.preventDefault());
