@@ -103,6 +103,7 @@
     <div class="zone-label" id="lbl-light">Zone of Light</div>
     <div class="zone-label" id="lbl-term">Terminator</div>
     <div class="zone-label" id="lbl-shadow">Zone of Shadow</div>
+    <div class="zone-label" id="lbl-cast">Cast Shadow</div>
   </div>
 
   <canvas id="demo-canvas"></canvas>
@@ -283,7 +284,7 @@
 
     // ── Dots ─────────────────────────────────────────────────────────────────
     const dotGeo = new THREE.SphereGeometry(0.035, 16, 16);
-    const dotMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    const dotMat = new THREE.MeshBasicMaterial({ color: 0x555555, blending: THREE.AdditiveBlending });
     const dots: THREE.Mesh[] = [];
 
     let sprayCount  = 1;
@@ -397,11 +398,11 @@
     // ── Zone highlights ───────────────────────────────────────────────────────
     const zoneGeo = new THREE.SphereGeometry(SPHERE_RADIUS * 1.003, 64, 64);
     const lightZone = new THREE.Mesh(zoneGeo, new THREE.MeshBasicMaterial({
-      color: 0xffdd44, transparent: true, opacity: 0.18, depthWrite: false,
+      color: 0xdddddd, transparent: true, opacity: 0.25, depthWrite: false,
       clippingPlanes: [new THREE.Plane(new THREE.Vector3(0, 1, 0), -planeDist)],
     }));
     const shadowZone = new THREE.Mesh(zoneGeo, new THREE.MeshBasicMaterial({
-      color: 0x4488cc, transparent: true, opacity: 0.18, depthWrite: false,
+      color: 0x000000, transparent: true, opacity: 0.5, depthWrite: false,
       clippingPlanes: [new THREE.Plane(new THREE.Vector3(0, -1, 0), planeDist)],
     }));
     lightZone.visible = false;
@@ -437,8 +438,11 @@
     let groundVisible = false;
     function toggleGround() {
       groundVisible = !groundVisible;
-      groundMesh.visible     = groundVisible;
-      castShadowMesh.visible = groundVisible;
+      groundMesh.visible = groundVisible;
+      // Re-sync cast shadow label — only visible when both labels and ground are on
+      const castShow = labelsVisible && groundVisible;
+      LABEL_DEFS[LABEL_DEFS.length - 1].el.classList.toggle('visible', castShow);
+      labelLines[labelLines.length - 1].visible = castShow;
       const btn = document.getElementById('ground-btn')!;
       btn.textContent = groundVisible ? 'G — Hide ground' : 'G — Show ground';
       btn.classList.toggle('active', groundVisible);
@@ -502,9 +506,10 @@
 
     const termAnchor = ringCenter.clone().addScaledVector(termU, ringRadius);
     const LABEL_DEFS = [
-      { el: document.getElementById('lbl-light')!,  anchor: new THREE.Vector3(0, SPHERE_RADIUS, 0),   pos: new THREE.Vector3(2.4,  2.2, 0), color: 0xffffff },
-      { el: document.getElementById('lbl-term')!,   anchor: termAnchor,                               pos: new THREE.Vector3(2.9,  ringCenter.y, 0), color: 0xff8c42 },
-      { el: document.getElementById('lbl-shadow')!, anchor: new THREE.Vector3(0, -SPHERE_RADIUS, 0),  pos: new THREE.Vector3(2.4, -1.9, 0), color: 0x888888 },
+      { el: document.getElementById('lbl-light')!,  anchor: new THREE.Vector3(0, SPHERE_RADIUS, 0),                    pos: new THREE.Vector3(2.4,  2.2, 0),       color: 0xffffff },
+      { el: document.getElementById('lbl-term')!,   anchor: termAnchor,                                                pos: new THREE.Vector3(2.9,  ringCenter.y, 0), color: 0xff8c42 },
+      { el: document.getElementById('lbl-shadow')!, anchor: new THREE.Vector3(0, -SPHERE_RADIUS, 0),                   pos: new THREE.Vector3(2.4, -1.9, 0),       color: 0x888888 },
+      { el: document.getElementById('lbl-cast')!,   anchor: new THREE.Vector3(-castShadowRadius, GROUND_Y + 0.003, 0), pos: new THREE.Vector3(-3.2, GROUND_Y + 0.4, 0), color: 0x999999 },
     ];
 
     const labelLineMats: LineMaterial[] = [];
@@ -524,13 +529,16 @@
       // Terminator
       termFadeTarget = labelsVisible ? 1 : 0;
       if (labelsVisible) termLine.visible = true;
-      // Zone highlights
-      lightZone.visible  = labelsVisible;
-      shadowZone.visible = labelsVisible;
+      // Zone highlights + cast shadow
+      lightZone.visible      = labelsVisible;
+      shadowZone.visible     = labelsVisible;
+      castShadowMesh.visible = labelsVisible;
       // Floating labels + connector lines
       LABEL_DEFS.forEach((d, i) => {
-        d.el.classList.toggle('visible', labelsVisible);
-        labelLines[i].visible = labelsVisible;
+        const isCast = i === LABEL_DEFS.length - 1;
+        const show   = labelsVisible && (!isCast || groundVisible);
+        d.el.classList.toggle('visible', show);
+        labelLines[i].visible = show;
       });
       const btn = document.getElementById('labels-btn')!;
       btn.textContent = labelsVisible ? 'L — Hide labels' : 'L — Show labels';
