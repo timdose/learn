@@ -78,6 +78,13 @@
     }
     #labels-btn:hover { background: rgba(255,255,255,0.14); color: #fff; }
     #labels-btn.active { border-color: #aaa; color: #fff; background: rgba(255,255,255,0.1); }
+    #ground-btn {
+      width: 100%; margin-top: 0.25rem; padding: 4px 0;
+      border: 1px solid #555; border-radius: 4px;
+      background: rgba(255,255,255,0.06); color: #ccc; cursor: pointer; font-size: 12px;
+    }
+    #ground-btn:hover { background: rgba(255,255,255,0.14); color: #fff; }
+    #ground-btn.active { border-color: #aaa; color: #fff; background: rgba(255,255,255,0.1); }
     #zone-labels { position: fixed; inset: 0; pointer-events: none; }
     .zone-label {
       position: absolute; transform: translate(-50%, -50%);
@@ -107,7 +114,7 @@
     <div><kbd>Click</kbd> / <kbd>Space</kbd> Place dot(s)</div>
     <div><kbd>[</kbd> <kbd>]</kbd> Spray count &nbsp;<kbd>,</kbd> <kbd>.</kbd> Spread</div>
     <div><kbd>T</kbd> Trace terminator &nbsp;<kbd>Esc</kbd> Stop</div>
-    <div><kbd>L</kbd> Labels</div>
+    <div><kbd>L</kbd> Labels &nbsp;<kbd>G</kbd> Ground</div>
     <div><kbd>Right-drag</kbd> Orbit camera</div>
     <hr />
     <div class="row">
@@ -125,6 +132,7 @@
     <hr />
     <button id="trace-btn">T — Trace terminator</button>
     <button id="labels-btn">L — Show labels</button>
+    <button id="ground-btn">G — Show ground</button>
     <button id="clear-btn">C — Clear dots</button>
   </div>
 
@@ -252,6 +260,7 @@
         case '.': adjustSpread(1);  return;
         case 't': case 'T': startTrace(); return;
         case 'l': case 'L': toggleLabels(); return;
+        case 'g': case 'G': toggleGround(); return;
         case 'h': case 'H': togglePanel(); return;
         case 'c': case 'C': clearDots(); return;
         case 'Escape': stopTrace(); return;
@@ -383,6 +392,41 @@
     shadowZone.visible = false;
     scene.add(lightZone);
     scene.add(shadowZone);
+
+    // ── Ground plane + cast shadow ────────────────────────────────────────────
+    // Shadow radius: extend the terminator tangent rays to the ground plane.
+    // Tangent ray from lightPos through terminator ring point → hits plane at t below.
+    const GROUND_Y = -(SPHERE_RADIUS + 0.5);  // -2.0
+    const shadowT  = (GROUND_Y - lightPos.y) / (planeDist - lightPos.y);
+    const castShadowRadius = ringRadius * Math.abs(shadowT);
+
+    const groundMesh = new THREE.Mesh(
+      new THREE.PlaneGeometry(24, 24),
+      new THREE.MeshBasicMaterial({ color: 0x1e1e28, side: THREE.DoubleSide })
+    );
+    groundMesh.rotation.x = -Math.PI / 2;
+    groundMesh.position.y = GROUND_Y;
+    groundMesh.visible = false;
+    scene.add(groundMesh);
+
+    const castShadowMesh = new THREE.Mesh(
+      new THREE.CircleGeometry(castShadowRadius, 64),
+      new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.72, depthWrite: false })
+    );
+    castShadowMesh.rotation.x = -Math.PI / 2;
+    castShadowMesh.position.y = GROUND_Y + 0.003;
+    castShadowMesh.visible = false;
+    scene.add(castShadowMesh);
+
+    let groundVisible = false;
+    function toggleGround() {
+      groundVisible = !groundVisible;
+      groundMesh.visible     = groundVisible;
+      castShadowMesh.visible = groundVisible;
+      const btn = document.getElementById('ground-btn')!;
+      btn.textContent = groundVisible ? 'G — Hide ground' : 'G — Show ground';
+      btn.classList.toggle('active', groundVisible);
+    }
 
     // ── Ring trace animation ──────────────────────────────────────────────────
     const TRACE_STEPS = 36;  // one dot every 5°
@@ -636,6 +680,7 @@
 
     traceBtn.addEventListener('click', startTrace);
     document.getElementById('labels-btn')!.addEventListener('click', toggleLabels);
+    document.getElementById('ground-btn')!.addEventListener('click', toggleGround);
     document.getElementById('clear-btn')!.addEventListener('click', clearDots);
 
     // ── Render loop ───────────────────────────────────────────────────────────
