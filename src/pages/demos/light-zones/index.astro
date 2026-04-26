@@ -336,7 +336,12 @@
       dirs.forEach(dir => {
         raycaster.set(lightPos, dir.normalize());
         const hits = raycaster.intersectObject(sphere);
-        if (hits.length > 0) placeDot(hits[0].point.clone());
+        if (hits.length > 0) {
+          placeDot(hits[0].point.clone());
+        } else if (groundVisible) {
+          const gHits = raycaster.intersectObject(groundMesh);
+          if (gHits.length > 0) placeDot(gHits[0].point.clone());
+        }
       });
     });
 
@@ -402,7 +407,7 @@
 
     const groundMesh = new THREE.Mesh(
       new THREE.PlaneGeometry(24, 24),
-      new THREE.MeshBasicMaterial({ color: 0x1e1e28, side: THREE.DoubleSide })
+      new THREE.MeshBasicMaterial({ color: 0x222222, side: THREE.DoubleSide })
     );
     groundMesh.rotation.x = -Math.PI / 2;
     groundMesh.position.y = GROUND_Y;
