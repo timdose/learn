@@ -71,11 +71,32 @@
     }
     #trace-btn:hover { background: rgba(255,255,255,0.14); color: #fff; }
     #trace-btn.active { border-color: #ff8c42; color: #ff8c42; background: rgba(255,140,66,0.1); }
+    #labels-btn {
+      width: 100%; margin-top: 0.25rem; padding: 4px 0;
+      border: 1px solid #555; border-radius: 4px;
+      background: rgba(255,255,255,0.06); color: #ccc; cursor: pointer; font-size: 12px;
+    }
+    #labels-btn:hover { background: rgba(255,255,255,0.14); color: #fff; }
+    #labels-btn.active { border-color: #aaa; color: #fff; background: rgba(255,255,255,0.1); }
+    #zone-labels { position: fixed; inset: 0; pointer-events: none; }
+    .zone-label {
+      position: absolute; transform: translate(-50%, -50%);
+      color: #fff; font: 11px/1 sans-serif; letter-spacing: 0.06em; text-transform: uppercase;
+      white-space: nowrap; text-shadow: 0 0 8px #000;
+      opacity: 0; transition: opacity 0.3s;
+    }
+    .zone-label.visible { opacity: 1; }
 
   </style>
 </head>
 <body>
   <a id="back" href="/demos/">← Demos</a>
+
+  <div id="zone-labels">
+    <div class="zone-label" id="lbl-light">Zone of Light</div>
+    <div class="zone-label" id="lbl-term">Terminator</div>
+    <div class="zone-label" id="lbl-shadow">Zone of Shadow</div>
+  </div>
 
   <canvas id="demo-canvas"></canvas>
 
@@ -86,6 +107,7 @@
     <div><kbd>Click</kbd> / <kbd>Space</kbd> Place dot(s)</div>
     <div><kbd>[</kbd> <kbd>]</kbd> Spray count &nbsp;<kbd>,</kbd> <kbd>.</kbd> Spread</div>
     <div><kbd>R</kbd> Trace terminator &nbsp;<kbd>Esc</kbd> Stop</div>
+    <div><kbd>L</kbd> Labels</div>
     <div><kbd>Right-drag</kbd> Orbit camera</div>
     <hr />
     <div class="row">
@@ -103,6 +125,7 @@
     <hr />
     <button id="terminator-btn">T — Show terminator</button>
     <button id="trace-btn">R — Trace terminator</button>
+    <button id="labels-btn">L — Show labels</button>
     <button id="clear-btn">C — Clear dots</button>
   </div>
 
@@ -222,6 +245,7 @@
         case '.': adjustSpread(1);  return;
         case 't': case 'T': toggleTerminator(); return;
         case 'r': case 'R': startTrace(); return;
+        case 'l': case 'L': toggleLabels(); return;
         case 'h': case 'H': togglePanel(); return;
         case 'c': case 'C': clearDots(); return;
         case 'Escape': stopTrace(); return;
@@ -400,6 +424,39 @@
     const _proj      = _toCam.addScaledVector(_lightN, -_toCam.dot(_lightN));
     const START_ANGLE = Math.atan2(_proj.dot(termV), _proj.dot(termU));
 
+    // ── Zone labels ───────────────────────────────────────────────────────────
+    let labelsVisible = false;
+
+    const termAnchor = ringCenter.clone().addScaledVector(termU, ringRadius);
+    const LABEL_DEFS = [
+      { el: document.getElementById('lbl-light')!,  anchor: new THREE.Vector3(0, SPHERE_RADIUS, 0),   pos: new THREE.Vector3(2.4,  2.2, 0), color: 0xffffff },
+      { el: document.getElementById('lbl-term')!,   anchor: termAnchor,                               pos: new THREE.Vector3(2.9,  ringCenter.y, 0), color: 0xff8c42 },
+      { el: document.getElementById('lbl-shadow')!, anchor: new THREE.Vector3(0, -SPHERE_RADIUS, 0),  pos: new THREE.Vector3(2.4, -1.9, 0), color: 0x888888 },
+    ];
+
+    const labelLineMats: LineMaterial[] = [];
+    const labelLines = LABEL_DEFS.map(d => {
+      const geo = new LineGeometry();
+      geo.setPositions([d.anchor.x, d.anchor.y, d.anchor.z, d.pos.x, d.pos.y, d.pos.z]);
+      const mat = new LineMaterial({ color: d.color, transparent: true, opacity: 0.5, linewidth: 2, resolution: new THREE.Vector2(window.innerWidth, window.innerHeight) });
+      labelLineMats.push(mat);
+      const line = new Line2(geo, mat);
+      line.visible = false;
+      scene.add(line);
+      return line;
+    });
+
+    function toggleLabels() {
+      labelsVisible = !labelsVisible;
+      LABEL_DEFS.forEach((d, i) => {
+        d.el.classList.toggle('visible', labelsVisible);
+        labelLines[i].visible = labelsVisible;
+      });
+      const btn = document.getElementById('labels-btn')!;
+      btn.textContent = labelsVisible ? 'L — Hide labels' : 'L — Show labels';
+      btn.classList.toggle('active', labelsVisible);
+    }
+
     // ── Resize ────────────────────────────────────────────────────────────────
     function setSize() {
       const w = window.innerWidth, h = window.innerHeight;
@@ -408,6 +465,7 @@
       camera.updateProjectionMatrix();
       rayMat.resolution.set(w, h);
       termMat.resolution.set(w, h);
+      labelLineMats.forEach(m => m.resolution.set(w, h));
     }
     setSize();
     window.addEventListener('resize', setSize);
@@ -558,6 +616,7 @@
 
     document.getElementById('terminator-btn')!.addEventListener('click', toggleTerminator);
     traceBtn.addEventListener('click', startTrace);
+    document.getElementById('labels-btn')!.addEventListener('click', toggleLabels);
     document.getElementById('clear-btn')!.addEventListener('click', clearDots);
 
     // ── Render loop ───────────────────────────────────────────────────────────
@@ -590,6 +649,15 @@
       renderer.setScissorTest(false);
       renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
       renderer.render(scene, camera);
+
+      // Project zone label divs to screen space
+      if (labelsVisible) {
+        LABEL_DEFS.forEach(d => {
+          const proj = d.pos.clone().project(camera);
+          d.el.style.left = ((proj.x  + 1) / 2 * window.innerWidth)  + 'px';
+          d.el.style.top  = ((-proj.y + 1) / 2 * window.innerHeight) + 'px';
+        });
+      }
 
       // View sphere (top-right) — sphere rotates, camera stays fixed
       gizmoSphere.quaternion.copy(camera.quaternion).invert();
