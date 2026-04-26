@@ -44,13 +44,16 @@
       border: 1px solid #555; border-radius: 3px;
       font: 11px monospace; color: #bbb; background: rgba(255,255,255,0.06);
     }
-    .val { min-width: 2ch; text-align: center; color: #fff; }
-    button.adj {
-      width: 22px; height: 22px; border: 1px solid #555; border-radius: 4px;
-      background: rgba(255,255,255,0.08); color: #ccc; cursor: pointer; font-size: 14px;
-      line-height: 1; display: flex; align-items: center; justify-content: center;
+    .val-input {
+      width: 50px; background: rgba(255,255,255,0.08); border: 1px solid #555;
+      border-radius: 4px; color: #fff; font-size: 12px; text-align: center;
+      padding: 1px 4px; -moz-appearance: textfield;
     }
-    button.adj:hover { background: rgba(255,255,255,0.18); color: #fff; }
+    .val-input::-webkit-outer-spin-button,
+    .val-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+    .val-input:focus { outline: none; border-color: #888; }
+    .val-unit { color: #777; font-size: 11px; }
+    .val-slider { width: 100%; margin: 2px 0 6px; accent-color: #777; cursor: pointer; }
     #terminator-btn {
       width: 100%; margin-top: 0.25rem; padding: 4px 0;
       border: 1px solid #555; border-radius: 4px;
@@ -120,16 +123,14 @@
     <hr />
     <div class="row">
       <label>Spray count</label>
-      <button class="adj" id="spray-dec">−</button>
-      <span class="val" id="spray-val">1</span>
-      <button class="adj" id="spray-inc">+</button>
+      <input type="number" class="val-input" id="spray-val" value="1" min="1" max="1000">
     </div>
+    <input type="range" class="val-slider" id="spray-slider" min="1" max="100" step="1" value="1">
     <div class="row">
       <label>Spray spread</label>
-      <button class="adj" id="spread-dec">−</button>
-      <span class="val" id="spread-val">5°</span>
-      <button class="adj" id="spread-inc">+</button>
+      <input type="number" class="val-input" id="spread-val" value="5" min="1" max="90"><span class="val-unit">°</span>
     </div>
+    <input type="range" class="val-slider" id="spread-slider" min="1" max="90" step="1" value="5">
     <hr />
     <button id="trace-btn">T — Trace terminator</button>
     <button id="labels-btn">L — Show labels</button>
@@ -266,10 +267,10 @@
         case 'ArrowUp':    virtualY = Math.max(0,                    virtualY - px); break;
         case 'ArrowDown':  virtualY = Math.min(window.innerHeight,   virtualY + px); break;
         case ' ': e.preventDefault(); canvas.dispatchEvent(new MouseEvent('click')); return;
-        case '[': adjustCount(-1); return;
-        case ']': adjustCount(1);  return;
-        case ',': adjustSpread(-1); return;
-        case '.': adjustSpread(1);  return;
+        case '[': case '{': adjustCount(e.shiftKey ? -10 : -1);  return;
+        case ']': case '}': adjustCount(e.shiftKey ?  10 :  1);  return;
+        case ',': case '<': adjustSpread(e.shiftKey ? -10 : -1); return;
+        case '.': case '>': adjustSpread(e.shiftKey ?  10 :  1); return;
         case 't': case 'T': startTrace(); return;
         case 'l': case 'L': toggleLabels(); return;
         case 'g': case 'G': toggleGround(); return;
@@ -677,23 +678,41 @@
     }
 
     // ── UI wiring ─────────────────────────────────────────────────────────────
-    const sprayVal  = document.getElementById('spray-val')!;
-    const spreadVal = document.getElementById('spread-val')!;
+    const sprayValInput  = document.getElementById('spray-val')!    as HTMLInputElement;
+    const spraySlider    = document.getElementById('spray-slider')! as HTMLInputElement;
+    const spreadValInput = document.getElementById('spread-val')!   as HTMLInputElement;
+    const spreadSlider   = document.getElementById('spread-slider')! as HTMLInputElement;
 
     function adjustCount(delta: number) {
-      sprayCount = Math.max(1, Math.min(64, sprayCount + delta));
-      sprayVal.textContent = String(sprayCount);
+      sprayCount = Math.max(1, Math.min(1000, sprayCount + delta));
+      sprayValInput.value = String(sprayCount);
+      spraySlider.value   = String(Math.min(sprayCount, 100));
     }
     function adjustSpread(delta: number) {
       const deg = Math.max(1, Math.min(90, Math.round(spraySpread * 180 / Math.PI) + delta));
       spraySpread = deg * Math.PI / 180;
-      spreadVal.textContent = deg + '°';
+      spreadValInput.value = String(deg);
+      spreadSlider.value   = String(deg);
     }
 
-    document.getElementById('spray-dec')!.addEventListener('click', () => adjustCount(-1));
-    document.getElementById('spray-inc')!.addEventListener('click', () => adjustCount(1));
-    document.getElementById('spread-dec')!.addEventListener('click', () => adjustSpread(-1));
-    document.getElementById('spread-inc')!.addEventListener('click', () => adjustSpread(1));
+    sprayValInput.addEventListener('input', () => {
+      sprayCount = Math.max(1, parseInt(sprayValInput.value) || 1);
+      spraySlider.value = String(Math.min(sprayCount, 100));
+    });
+    spraySlider.addEventListener('input', () => {
+      sprayCount = parseInt(spraySlider.value);
+      sprayValInput.value = String(sprayCount);
+    });
+    spreadValInput.addEventListener('input', () => {
+      const deg = Math.max(1, Math.min(90, parseInt(spreadValInput.value) || 1));
+      spraySpread = deg * Math.PI / 180;
+      spreadSlider.value = String(deg);
+    });
+    spreadSlider.addEventListener('input', () => {
+      const deg = parseInt(spreadSlider.value);
+      spraySpread = deg * Math.PI / 180;
+      spreadValInput.value = String(deg);
+    });
     const panel       = document.getElementById('panel')!;
     const panelToggle = document.getElementById('panel-toggle')!;
     function togglePanel() {
