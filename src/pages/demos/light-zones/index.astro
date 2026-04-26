@@ -203,15 +203,16 @@
     function applyDir() { updateRay(dirFromAngles(azimuth, polar)); }
     applyDir();
 
-    window.addEventListener('mousemove', (e) => {
-      if (e.buttons === 2) return;
-      if (traceAnim) return;
+    // Shared picking logic — used by both mouse and arrow keys
+    let virtualX = window.innerWidth  / 2;
+    let virtualY = window.innerHeight / 2;
+
+    function aimFromScreen(cx: number, cy: number) {
       mouse.set(
-        (e.clientX / window.innerWidth)  * 2 - 1,
-       -(e.clientY / window.innerHeight) * 2 + 1
+        (cx / window.innerWidth)  * 2 - 1,
+       -(cy / window.innerHeight) * 2 + 1
       );
       picker.setFromCamera(mouse, camera);
-
       const sphereHits = picker.intersectObject(sphere);
       let target: THREE.Vector3;
       if (sphereHits.length > 0) {
@@ -223,21 +224,27 @@
         target = new THREE.Vector3();
         if (!picker.ray.intersectPlane(plane, target)) return;
       }
-
       const { az, pol } = anglesFromDir(target.clone().sub(lightPos));
       azimuth = az;
       polar   = pol;
       applyDir();
+    }
+
+    window.addEventListener('mousemove', (e) => {
+      if (e.buttons === 2) return;
+      if (traceAnim) return;
+      virtualX = e.clientX;
+      virtualY = e.clientY;
+      aimFromScreen(virtualX, virtualY);
     });
 
     window.addEventListener('keydown', (e) => {
-      const step    = e.shiftKey ? 0.003 : 0.025;
-      const polStep = e.shiftKey ? 0.00005 : 0.0025;
+      const px = e.shiftKey ? 1 : 8;
       switch (e.key) {
-        case 'ArrowLeft':  azimuth -= step; break;
-        case 'ArrowRight': azimuth += step; break;
-        case 'ArrowUp':    polar = Math.max(0,             polar - polStep); break;
-        case 'ArrowDown':  polar = Math.min(Math.PI * 0.9, polar + polStep); break;
+        case 'ArrowLeft':  virtualX = Math.max(0,                    virtualX - px); break;
+        case 'ArrowRight': virtualX = Math.min(window.innerWidth,    virtualX + px); break;
+        case 'ArrowUp':    virtualY = Math.max(0,                    virtualY - px); break;
+        case 'ArrowDown':  virtualY = Math.min(window.innerHeight,   virtualY + px); break;
         case ' ': e.preventDefault(); canvas.dispatchEvent(new MouseEvent('click')); return;
         case '[': adjustCount(-1); return;
         case ']': adjustCount(1);  return;
@@ -251,7 +258,7 @@
         default: return;
       }
       e.preventDefault();
-      applyDir();
+      aimFromScreen(virtualX, virtualY);
     });
 
     // ── Dots ─────────────────────────────────────────────────────────────────
