@@ -146,6 +146,31 @@
     import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry.js';
     import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js';
 
+    // ── Colours — edit here to restyle the demo ────────────────────────────────
+    const COLOR = {
+      bg:          0x000000,  // scene background
+      sphere:      0x333333,  // sphere body
+      light:       0xffffff,  // light source marker
+      rayMiss:     0x555555,  // ray when it misses the sphere
+      rayHit:      0xffffff,  // ray when it hits the sphere
+      dot:         0xffffff,  // placed dots
+      terminator:  0xff8c42,  // terminator ring + all label connector lines
+      zoneLight:   0xeeeeee,  // zone-of-light hemisphere tint
+      zoneShadow:  0x222222,  // zone-of-shadow hemisphere tint
+      ground:      0x222233,  // ground plane
+      castShadow:  0x111122,
+      groundLight: 0x333388,  // cast shadow disc
+      gizmoRight:  0xbf3333,  // view-sphere face — Right
+      gizmoLeft:   0x268e8e,  //                    Left
+      gizmoTop:    0x33ae33,  //                    Top
+      gizmoBottom: 0x802e99,  //                    Bottom
+      gizmoFront:  0x3855bf,  //                    Front
+      gizmoBack:   0x8c2e2e,  //                    Back
+    };
+    // Convert a hex colour to an [R, G, B] byte triple (for canvas pixel loops)
+    const toRGB = (c: number): [number, number, number] =>
+      [(c >> 16) & 0xff, (c >> 8) & 0xff, c & 0xff];
+
     // ── Renderer ──────────────────────────────────────────────────────────────
     const canvas = document.getElementById('demo-canvas') as HTMLCanvasElement;
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
@@ -153,7 +178,7 @@
     renderer.localClippingEnabled = true;
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x000000);
+    scene.background = new THREE.Color(COLOR.bg);
 
     const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 200);
     camera.position.set(0, 6, 22);
@@ -162,14 +187,14 @@
     const SPHERE_RADIUS = 1.5;
     const sphere = new THREE.Mesh(
       new THREE.SphereGeometry(SPHERE_RADIUS, 128, 128),
-      new THREE.MeshBasicMaterial({ color: 0x333333 })
+      new THREE.MeshBasicMaterial({ color: COLOR.sphere })
     );
     scene.add(sphere);
 
     const lightPos = new THREE.Vector3(0, 10, 0);
     const lightMarker = new THREE.Mesh(
       new THREE.SphereGeometry(0.12, 16, 16),
-      new THREE.MeshBasicMaterial({ color: 0xffffff })
+      new THREE.MeshBasicMaterial({ color: COLOR.light })
     );
     lightMarker.position.copy(lightPos);
     scene.add(lightMarker);
@@ -181,7 +206,7 @@
     const rayGeom = new LineGeometry();
     rayGeom.setPositions([0, 10, 0, 0, 10, 0]);
     const rayMat = new LineMaterial({
-      color: 0x555555, linewidth: 2,
+      color: COLOR.rayMiss, linewidth: 2,
       resolution: new THREE.Vector2(window.innerWidth, window.innerHeight),
     });
     scene.add(new Line2(rayGeom, rayMat));
@@ -192,7 +217,7 @@
       const hit = hits.length > 0;
       const end = hit ? hits[0].point : lightPos.clone().addScaledVector(dir, 15);
       rayGeom.setPositions([lightPos.x, lightPos.y, lightPos.z, end.x, end.y, end.z]);
-      rayMat.color.setHex(hit ? 0xffffff : 0x555555);
+      rayMat.color.setHex(hit ? COLOR.rayHit : COLOR.rayMiss);
     }
 
     // ── Aim state ─────────────────────────────────────────────────────────────
@@ -286,7 +311,7 @@
 
     // ── Dots ─────────────────────────────────────────────────────────────────
     const dotGeo = new THREE.SphereGeometry(0.035, 16, 16);
-    const dotMat = new THREE.MeshBasicMaterial({ color: 0xffffff});
+    const dotMat = new THREE.MeshBasicMaterial({ color: COLOR.dot });
     const dots: THREE.Mesh[] = [];
 
     let sprayCount  = 1;
@@ -414,7 +439,7 @@
     const termGeom = new LineGeometry();
     termGeom.setPositions(termPts);
     const termMat = new LineMaterial({
-      color: 0xff8c42, linewidth: 2,
+      color: COLOR.terminator, linewidth: 2,
       transparent: true, opacity: 0,
       resolution: new THREE.Vector2(window.innerWidth, window.innerHeight),
     });
@@ -427,11 +452,11 @@
     // ── Zone highlights ───────────────────────────────────────────────────────
     const zoneGeo = new THREE.SphereGeometry(SPHERE_RADIUS * 1.003, 64, 64);
     const lightZone = new THREE.Mesh(zoneGeo, new THREE.MeshBasicMaterial({
-      color: 0xdddddd, transparent: true, opacity: 0.25, depthWrite: false,
+      color: COLOR.zoneLight, transparent: true, opacity: 0.25, depthWrite: false, depthTest: false,
       clippingPlanes: [new THREE.Plane(new THREE.Vector3(0, 1, 0), -planeDist)],
     }));
     const shadowZone = new THREE.Mesh(zoneGeo, new THREE.MeshBasicMaterial({
-      color: 0x000000, transparent: true, opacity: 0.5, depthWrite: false,
+      color: COLOR.zoneShadow, transparent: true, opacity: 0.95, depthWrite: false, depthTest: false,
       clippingPlanes: [new THREE.Plane(new THREE.Vector3(0, -1, 0), planeDist)],
     }));
     lightZone.visible = false;
@@ -448,7 +473,7 @@
 
     const groundMesh = new THREE.Mesh(
       new THREE.PlaneGeometry(24, 24),
-      new THREE.MeshBasicMaterial({ color: 0x222222, side: THREE.DoubleSide })
+      new THREE.MeshBasicMaterial({ color: COLOR.ground, side: THREE.DoubleSide })
     );
     groundMesh.rotation.x = -Math.PI / 2;
     groundMesh.position.y = GROUND_Y;
@@ -457,17 +482,49 @@
 
     const castShadowMesh = new THREE.Mesh(
       new THREE.CircleGeometry(castShadowRadius, 64),
-      new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.72, depthWrite: false })
+      new THREE.MeshBasicMaterial({                                                                                                                                                                                                                                                                
+        color: COLOR.castShadow,                                                                                                                                                                                                                                                                   
+        transparent: true,
+        depthWrite: false,      
+        opacity: 0.95,                                                                                                                                                                                                                                                                   
+      })     
     );
     castShadowMesh.rotation.x = -Math.PI / 2;
     castShadowMesh.position.y = GROUND_Y + 0.003;
     castShadowMesh.visible = false;
     scene.add(castShadowMesh);
 
+    // Zone of Light on ground: full plane minus the shadow circle
+    const groundLightShape = new THREE.Shape();
+    const GLS = 12; // matches half the PlaneGeometry size
+    groundLightShape.moveTo(-GLS, -GLS);
+    groundLightShape.lineTo( GLS, -GLS);
+    groundLightShape.lineTo( GLS,  GLS);
+    groundLightShape.lineTo(-GLS,  GLS);
+    groundLightShape.closePath();
+    const shadowHole = new THREE.Path();
+    for (let i = 0; i <= 64; i++) {
+      const a = (i / 64) * Math.PI * 2;
+      if (i === 0) shadowHole.moveTo(Math.cos(a) * castShadowRadius, Math.sin(a) * castShadowRadius);
+      else         shadowHole.lineTo(Math.cos(a) * castShadowRadius, Math.sin(a) * castShadowRadius);
+    }
+    shadowHole.closePath();
+    groundLightShape.holes.push(shadowHole);
+
+    const groundLightMesh = new THREE.Mesh(
+      new THREE.ShapeGeometry(groundLightShape),
+      new THREE.MeshBasicMaterial({ color: COLOR.groundLight, transparent: true, opacity: 0.58, depthWrite: false })
+    );
+    groundLightMesh.rotation.x = -Math.PI / 2;
+    groundLightMesh.position.y = GROUND_Y + 0.005;
+    groundLightMesh.visible = false;
+    scene.add(groundLightMesh);
+
     let groundVisible = false;
     function toggleGround() {
       groundVisible = !groundVisible;
       groundMesh.visible = groundVisible;
+      groundLightMesh.visible = labelsVisible && groundVisible;
       // Re-sync cast shadow label — only visible when both labels and ground are on
       const castShow = labelsVisible && groundVisible;
       LABEL_DEFS[LABEL_DEFS.length - 1].el.classList.toggle('visible', castShow);
@@ -540,10 +597,10 @@
 
     const termAnchor = ringCenter.clone().addScaledVector(termU, ringRadius);
     const LABEL_DEFS = [
-      { el: document.getElementById('lbl-light')!,  anchor: new THREE.Vector3(0, SPHERE_RADIUS, 0),                    pos: new THREE.Vector3(2.4,  2.2, 0),       color: 0xff8c42 },
-      { el: document.getElementById('lbl-term')!,   anchor: termAnchor,                                                pos: new THREE.Vector3(2.9,  ringCenter.y, 0), color: 0xff8c42 },
-      { el: document.getElementById('lbl-shadow')!, anchor: new THREE.Vector3(0, -SPHERE_RADIUS, 0),                   pos: new THREE.Vector3(2.4, -1.9, 0),       color: 0xff8c42 },
-      { el: document.getElementById('lbl-cast')!,   anchor: new THREE.Vector3(-castShadowRadius, GROUND_Y + 0.003, 0), pos: new THREE.Vector3(-3.2, GROUND_Y + 0.4, 0), color: 0xff8c42 },
+      { el: document.getElementById('lbl-light')!,  anchor: new THREE.Vector3(0, SPHERE_RADIUS, 0),                    pos: new THREE.Vector3(2.4,  2.2, 0),            color: COLOR.terminator },
+      { el: document.getElementById('lbl-term')!,   anchor: termAnchor,                                                pos: new THREE.Vector3(2.9,  ringCenter.y, 0),    color: COLOR.terminator },
+      { el: document.getElementById('lbl-shadow')!, anchor: new THREE.Vector3(0, -SPHERE_RADIUS, 0),                   pos: new THREE.Vector3(2.4, -1.9, 0),            color: COLOR.terminator },
+      { el: document.getElementById('lbl-cast')!,   anchor: new THREE.Vector3(-castShadowRadius, GROUND_Y + 0.003, 0), pos: new THREE.Vector3(-3.2, GROUND_Y + 0.4, 0), color: COLOR.terminator },
     ];
 
     const labelLineMats: LineMaterial[] = [];
@@ -564,9 +621,10 @@
       termFadeTarget = labelsVisible ? 1 : 0;
       if (labelsVisible) termLine.visible = true;
       // Zone highlights + cast shadow
-      lightZone.visible      = labelsVisible;
-      shadowZone.visible     = labelsVisible;
-      castShadowMesh.visible = labelsVisible;
+      lightZone.visible           = labelsVisible;
+      shadowZone.visible          = labelsVisible;
+      castShadowMesh.visible      = labelsVisible;
+      groundLightMesh.visible     = labelsVisible && groundVisible;
       // Floating labels + connector lines
       LABEL_DEFS.forEach((d, i) => {
         const isCast = i === LABEL_DEFS.length - 1;
@@ -619,11 +677,11 @@
         const ax  = Math.abs(x), ay = Math.abs(y), az = Math.abs(z);
         let r: number, g: number, b: number;
         if (ax >= ay && ax >= az)
-          [r,g,b] = x > 0 ? [191,51,51] : [38,142,142];
+          [r,g,b] = x > 0 ? toRGB(COLOR.gizmoRight) : toRGB(COLOR.gizmoLeft);
         else if (ay >= ax && ay >= az)
-          [r,g,b] = y > 0 ? [51,174,51] : [128,46,153];
+          [r,g,b] = y > 0 ? toRGB(COLOR.gizmoTop)   : toRGB(COLOR.gizmoBottom);
         else
-          [r,g,b] = z > 0 ? [56,85,191] : [140,46,46];
+          [r,g,b] = z > 0 ? toRGB(COLOR.gizmoFront) : toRGB(COLOR.gizmoBack);
         const idx = (row * TEX_W + col) * 4;
         buf[idx] = r; buf[idx+1] = g; buf[idx+2] = b; buf[idx+3] = 255;
       }
