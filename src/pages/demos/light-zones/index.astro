@@ -195,7 +195,7 @@
       zoneLight:   0xeeeeee,  // zone-of-light hemisphere tint
       zoneShadow:  0x222222,  // zone-of-shadow hemisphere tint
       ground:      0x222233,  // ground plane
-      castShadow:  0x111122,
+      castShadow:  0x101020,
       groundLight: 0x333388,  // cast shadow disc
       gizmoRight:  0xbf3333,  // view-sphere face — Right
       gizmoLeft:   0x268e8e,  //                    Left
@@ -699,7 +699,7 @@
       // Zone highlights + cast shadow
       lightZone.visible           = labelsVisible;
       shadowZone.visible          = labelsVisible;
-      castShadowMesh.visible      = labelsVisible;
+      castShadowMesh.visible      = labelsVisible && groundVisible;
       groundLightMesh.visible     = labelsVisible && groundVisible;
       // Floating labels + connector lines
       LABEL_DEFS.forEach((d, i) => {
