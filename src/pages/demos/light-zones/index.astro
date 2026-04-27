@@ -98,6 +98,33 @@
     }
     .zone-label.visible { opacity: 1; }
 
+    /* ── Help button & panel ── */
+    #help-btn {
+      position: fixed; bottom: 1rem; left: 1rem;
+      width: 26px; height: 26px; border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.25);
+      background: rgba(255,255,255,0.07);
+      color: #999; font-size: 13px; font-weight: bold;
+      cursor: pointer; z-index: 10;
+      display: flex; align-items: center; justify-content: center;
+      user-select: none; transition: background 0.15s, color 0.15s;
+    }
+    #help-btn:hover { background: rgba(255,255,255,0.14); color: #fff; }
+    #help-btn.active { border-color: #aaa; color: #fff; background: rgba(255,255,255,0.12); }
+    #help-panel {
+      position: fixed; bottom: 3.25rem; left: 1rem;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 8px; padding: 0.75rem 1rem;
+      color: #ccc; font-size: 12px; line-height: 1.9;
+      z-index: 10; display: none; white-space: nowrap;
+    }
+    #help-panel.open { display: block; }
+    #help-panel h3 { color: #fff; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.3rem; }
+    .help-row { display: flex; gap: 0.6rem; align-items: baseline; }
+    .help-keys { flex-shrink: 0; min-width: 9rem; }
+    .help-desc { color: #999; }
+
   </style>
 </head>
 <body>
@@ -114,14 +141,6 @@
 
   <div id="panel" class="collapsed">
     <h3>Controls &nbsp;<span id="panel-toggle">▴</span></h3>
-    <div><kbd>Mouse</kbd> Aim ray</div>
-    <div><kbd>↑↓←→</kbd> Nudge &nbsp;<kbd>Shift+↑↓←→</kbd> Fine nudge</div>
-    <div><kbd>Click</kbd> / <kbd>Space</kbd> Place dot(s)</div>
-    <div><kbd>[</kbd> <kbd>]</kbd> Spray count &nbsp;<kbd>,</kbd> <kbd>.</kbd> Spread</div>
-    <div><kbd>T</kbd> Trace terminator &nbsp;<kbd>Esc</kbd> Stop</div>
-    <div><kbd>L</kbd> Labels &nbsp;<kbd>G</kbd> Ground</div>
-    <div><kbd>Right-drag</kbd> Orbit camera</div>
-    <hr />
     <div class="row">
       <label>Spray count</label>
       <input type="number" class="val-input" id="spray-val" value="1" min="1" max="1000">
@@ -133,10 +152,28 @@
     </div>
     <input type="range" class="val-slider" id="spread-slider" min="1" max="90" step="1" value="5">
     <hr />
-    <button id="trace-btn">T — Trace terminator</button>
-    <button id="labels-btn">L — Show labels</button>
-    <button id="ground-btn">G — Show ground</button>
-    <button id="clear-btn">C — Clear dots</button>
+    <button id="trace-btn">Trace terminator</button>
+    <button id="labels-btn">Show labels</button>
+    <button id="ground-btn">Show ground</button>
+    <button id="clear-btn">Clear dots</button>
+  </div>
+
+  <button id="help-btn" title="Keyboard shortcuts">?</button>
+
+  <div id="help-panel">
+    <h3>Keyboard Shortcuts</h3>
+    <div class="help-row"><span class="help-keys"><kbd>Mouse</kbd></span><span class="help-desc">Aim ray</span></div>
+    <div class="help-row"><span class="help-keys"><kbd>Click</kbd> / <kbd>Space</kbd></span><span class="help-desc">Place dot(s)</span></div>
+    <div class="help-row"><span class="help-keys"><kbd>↑↓←→</kbd></span><span class="help-desc">Nudge aim</span></div>
+    <div class="help-row"><span class="help-keys"><kbd>Shift</kbd>+<kbd>↑↓←→</kbd></span><span class="help-desc">Fine nudge</span></div>
+    <div class="help-row"><span class="help-keys"><kbd>[</kbd> <kbd>]</kbd></span><span class="help-desc">Spray count &nbsp;(<kbd>Shift</kbd> ±10)</span></div>
+    <div class="help-row"><span class="help-keys"><kbd>,</kbd> <kbd>.</kbd></span><span class="help-desc">Spray spread &nbsp;(<kbd>Shift</kbd> ±10°)</span></div>
+    <div class="help-row"><span class="help-keys"><kbd>T</kbd> / <kbd>Esc</kbd></span><span class="help-desc">Trace terminator / stop</span></div>
+    <div class="help-row"><span class="help-keys"><kbd>L</kbd></span><span class="help-desc">Toggle labels</span></div>
+    <div class="help-row"><span class="help-keys"><kbd>G</kbd></span><span class="help-desc">Toggle ground</span></div>
+    <div class="help-row"><span class="help-keys"><kbd>C</kbd></span><span class="help-desc">Clear dots</span></div>
+    <div class="help-row"><span class="help-keys"><kbd>H</kbd></span><span class="help-desc">Toggle controls panel</span></div>
+    <div class="help-row"><span class="help-keys"><kbd>Right-drag</kbd></span><span class="help-desc">Orbit camera</span></div>
   </div>
 
   <script>
@@ -855,6 +892,13 @@
     document.getElementById('labels-btn')!.addEventListener('click', toggleLabels);
     document.getElementById('ground-btn')!.addEventListener('click', toggleGround);
     document.getElementById('clear-btn')!.addEventListener('click', clearDots);
+
+    const helpBtn   = document.getElementById('help-btn')!;
+    const helpPanel = document.getElementById('help-panel')!;
+    helpBtn.addEventListener('click', () => {
+      const open = helpPanel.classList.toggle('open');
+      helpBtn.classList.toggle('active', open);
+    });
 
     // ── Render loop ───────────────────────────────────────────────────────────
     function animate() {
