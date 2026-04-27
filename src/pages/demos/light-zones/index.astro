@@ -278,6 +278,29 @@
     }
 
     window.addEventListener('mousemove', (e) => {
+      if (gizmoDragActive) {
+        const dx = e.clientX - gizmoDragLastX;
+        const dy = e.clientY - gizmoDragLastY;
+        if (dx !== 0 || dy !== 0) gizmoDragMoved = true;
+        gizmoDragLastX = e.clientX;
+        gizmoDragLastY = e.clientY;
+
+        const offset = camera.position.clone().sub(controls.target);
+        const r = offset.length();
+        let theta = Math.atan2(offset.x, offset.z);
+        let phi   = Math.acos(THREE.MathUtils.clamp(offset.y / r, -1, 1));
+        theta -= dx * 0.008;
+        phi    = THREE.MathUtils.clamp(phi - dy * 0.008, 0.02, Math.PI - 0.02);
+        offset.set(
+          r * Math.sin(phi) * Math.sin(theta),
+          r * Math.cos(phi),
+          r * Math.sin(phi) * Math.cos(theta)
+        );
+        camera.position.copy(controls.target).add(offset);
+        camera.lookAt(controls.target);
+        controls.update();
+        return;
+      }
       if (e.buttons === 2) return;
       if (traceAnim) return;
       virtualX = e.clientX;
@@ -339,9 +362,15 @@
       return local.applyQuaternion(q);
     }
 
+    let gizmoDragActive = false;
+    let gizmoDragMoved  = false;
+    let gizmoDragLastX  = 0;
+    let gizmoDragLastY  = 0;
+
     canvas.addEventListener('click', (e) => {
       // Intercept clicks on the gizmo area (top-right corner)
       if (e.clientX >= window.innerWidth - GIZMO && e.clientY < GIZMO) {
+        if (gizmoDragMoved) { gizmoDragMoved = false; return; }
         const localX = e.clientX - (window.innerWidth - GIZMO);
         const ndcX   = (localX / GIZMO) * 2 - 1;
         const ndcY   = -((e.clientY / GIZMO) * 2 - 1);
@@ -404,10 +433,20 @@
 
     canvas.addEventListener('mousedown', (e) => {
       if (e.button !== 0) return;
-      if (e.clientX >= window.innerWidth - GIZMO && e.clientY < GIZMO) return;
+      if (e.clientX >= window.innerWidth - GIZMO && e.clientY < GIZMO) {
+        gizmoDragActive = true;
+        gizmoDragMoved  = false;
+        gizmoDragLastX  = e.clientX;
+        gizmoDragLastY  = e.clientY;
+        return;
+      }
       startHold();
     });
-    window.addEventListener('mouseup',   (e) => { if (e.button === 0) stopHold(); });
+    window.addEventListener('mouseup', (e) => {
+      if (e.button !== 0) return;
+      gizmoDragActive = false;
+      stopHold();
+    });
     window.addEventListener('mouseleave', stopHold);
     window.addEventListener('keyup', (e) => { if (e.key === ' ') stopHold(); });
 
