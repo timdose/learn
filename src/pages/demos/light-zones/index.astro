@@ -895,6 +895,7 @@ import Fullstory from '../../../components/Fullstory.astro';
       panel.classList.add('collapsed');
       panelToggle.textContent = '▴';
     }
+    if (_params.has('ground')) toggleGround();
 
     traceBtn.addEventListener('click', startTrace);
     document.getElementById('labels-btn')!.addEventListener('click', toggleLabels);
