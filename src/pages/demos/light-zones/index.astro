@@ -76,7 +76,7 @@ import Fullstory from '../../../components/Fullstory.astro';
     #zone-labels { position: fixed; inset: 0; pointer-events: none; }
     .zone-label {
       position: absolute; transform: translate(-50%, -50%);
-      color: #fff; font: 11px/1 sans-serif; letter-spacing: 0.06em; text-transform: uppercase;
+      color: #ff8c42; font: 11px/1 sans-serif; letter-spacing: 0.06em; text-transform: uppercase;
       white-space: nowrap;
       background: rgba(0,0,0,0.55); padding: 2px 7px; border-radius: 3px;
       opacity: 0; transition: opacity 0.3s;
@@ -118,7 +118,7 @@ import Fullstory from '../../../components/Fullstory.astro';
   <div id="zone-labels">
     <div class="zone-label" id="lbl-light">Zone of Light</div>
     <div class="zone-label" id="lbl-term">Terminator</div>
-    <div class="zone-label" id="lbl-shadow">Zone of Shadow</div>
+    <div class="zone-label" id="lbl-shadow">Form Shadow</div>
     <div class="zone-label" id="lbl-cast">Cast Shadow</div>
   </div>
 
@@ -690,6 +690,7 @@ import Fullstory from '../../../components/Fullstory.astro';
       const castShow = labelsVisible && groundVisible;
       LABEL_DEFS[LABEL_DEFS.length - 1].el.classList.toggle('visible', castShow);
       labelLines[labelLines.length - 1].visible = castShow;
+      castOutlineLine.visible = castShow;
       (document.getElementById('ground-toggle') as HTMLInputElement).checked = groundVisible;
     }
 
@@ -757,9 +758,9 @@ import Fullstory from '../../../components/Fullstory.astro';
 
     const termAnchor = ringCenter.clone().addScaledVector(termU, ringRadius);
     const LABEL_DEFS = [
-      { el: document.getElementById('lbl-light')!,  anchor: new THREE.Vector3(0, SPHERE_RADIUS, 0),                    pos: new THREE.Vector3(2.4,  2.2, 0),            color: COLOR.terminator },
+      { el: document.getElementById('lbl-light')!,  anchor: new THREE.Vector3(0,  1.2, 0.9),                          pos: new THREE.Vector3(2.4,  2.2, 0.9),            color: COLOR.terminator },
       { el: document.getElementById('lbl-term')!,   anchor: termAnchor,                                                pos: new THREE.Vector3(2.9,  ringCenter.y, 0),    color: COLOR.terminator },
-      { el: document.getElementById('lbl-shadow')!, anchor: new THREE.Vector3(0, -SPHERE_RADIUS, 0),                   pos: new THREE.Vector3(2.4, -1.9, 0),            color: COLOR.terminator },
+      { el: document.getElementById('lbl-shadow')!, anchor: new THREE.Vector3(0.6, -.6, 1.25),                          pos: new THREE.Vector3(2.4, -1.2, 1.25),            color: COLOR.terminator },
       { el: document.getElementById('lbl-cast')!,   anchor: new THREE.Vector3(-castShadowRadius, GROUND_Y + 0.003, 0), pos: new THREE.Vector3(-3.2, GROUND_Y + 0.4, 0), color: COLOR.terminator },
     ];
 
@@ -775,6 +776,23 @@ import Fullstory from '../../../components/Fullstory.astro';
       return line;
     });
 
+    // Orange outline circle around the cast shadow disc
+    const castOutlinePts: number[] = [];
+    for (let i = 0; i <= 64; i++) {
+      const a = (i / 64) * Math.PI * 2;
+      castOutlinePts.push(Math.cos(a) * castShadowRadius, GROUND_Y + 0.006, Math.sin(a) * castShadowRadius);
+    }
+    const castOutlineGeom = new LineGeometry();
+    castOutlineGeom.setPositions(castOutlinePts);
+    const castOutlineMat = new LineMaterial({
+      color: COLOR.terminator, linewidth: 2,
+      resolution: new THREE.Vector2(window.innerWidth, window.innerHeight),
+    });
+    labelLineMats.push(castOutlineMat); // included in resize updates automatically
+    const castOutlineLine = new Line2(castOutlineGeom, castOutlineMat);
+    castOutlineLine.visible = false;
+    scene.add(castOutlineLine);
+
     function toggleLabels() {
       labelsVisible = !labelsVisible;
       // Terminator
@@ -785,6 +803,7 @@ import Fullstory from '../../../components/Fullstory.astro';
       shadowZone.visible          = labelsVisible;
       castShadowMesh.visible      = labelsVisible && groundVisible;
       groundLightMesh.visible     = labelsVisible && groundVisible;
+      castOutlineLine.visible     = labelsVisible && groundVisible;
       // Floating labels + connector lines
       LABEL_DEFS.forEach((d, i) => {
         const isCast = i === LABEL_DEFS.length - 1;
