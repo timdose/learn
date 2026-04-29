@@ -22,14 +22,14 @@ import Fullstory from '../../../components/Fullstory.astro';
     /* ── Controls panel ── */
     #panel {
       position: fixed; bottom: 1rem; right: 1rem;
-      background: rgba(255,255,255,0.07);
+      background: rgba(0,0,0,0.75);
       border: 1px solid rgba(255,255,255,0.12);
       border-radius: 8px;
-      padding: 0.75rem 1rem;
+      padding: 0.6rem 0.75rem;
       color: #ccc;
       font-size: 12px;
       line-height: 1.9;
-      min-width: 210px;
+      width: 160px;
       z-index: 10;
     }
     #panel h3 { color: #fff; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.4rem; display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; }
@@ -46,40 +46,33 @@ import Fullstory from '../../../components/Fullstory.astro';
       border: 1px solid #555; border-radius: 3px;
       font: 11px monospace; color: #bbb; background: rgba(255,255,255,0.06);
     }
-#terminator-btn {
-      width: 100%; margin-top: 0.25rem; padding: 4px 0;
+    button {
+      width: 100%; margin-top: 0.25rem; padding: 12px 0;
       border: 1px solid #555; border-radius: 4px;
-      background: rgba(255,255,255,0.06); color: #ccc; cursor: pointer; font-size: 12px;
+      background: rgba(255,255,255,0.06); color: #ccc; cursor: pointer; font-size: 14px;
     }
-    #terminator-btn:hover { background: rgba(255,255,255,0.14); color: #fff; }
-    #terminator-btn.active { border-color: #ff8c42; color: #ff8c42; background: rgba(255,140,66,0.1); }
-    #clear-btn {
-      width: 100%; margin-top: 0.25rem; padding: 4px 0;
-      border: 1px solid #555; border-radius: 4px;
-      background: rgba(255,255,255,0.06); color: #ccc; cursor: pointer; font-size: 12px;
+    button:hover { background: rgba(255,255,255,0.14); color: #fff; }
+    button.active { border-color: #ff8c42; color: #ff8c42; background: rgba(255,140,66,0.1); }
+    .toggle-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 5px 0; font-size: 12px; color: #ccc; cursor: pointer;
     }
-    #clear-btn:hover { background: rgba(255,60,60,0.15); color: #f88; border-color: #f66; }
-    #trace-btn {
-      width: 100%; margin-top: 0.25rem; padding: 4px 0;
-      border: 1px solid #555; border-radius: 4px;
-      background: rgba(255,255,255,0.06); color: #ccc; cursor: pointer; font-size: 12px;
+    #panel button:first-of-type { margin-top: 12px; }
+    .toggle { position: relative; display: inline-block; width: 30px; height: 17px; flex-shrink: 0; }
+    .toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+    .toggle-track {
+      position: absolute; inset: 0; border-radius: 9px;
+      background: rgba(255,255,255,0.15); transition: background 0.2s;
     }
-    #trace-btn:hover { background: rgba(255,255,255,0.14); color: #fff; }
-    #trace-btn.active { border-color: #ff8c42; color: #ff8c42; background: rgba(255,140,66,0.1); }
-    #labels-btn {
-      width: 100%; margin-top: 0.25rem; padding: 4px 0;
-      border: 1px solid #555; border-radius: 4px;
-      background: rgba(255,255,255,0.06); color: #ccc; cursor: pointer; font-size: 12px;
+    .toggle-track::before {
+      content: ''; position: absolute;
+      width: 13px; height: 13px; top: 2px; left: 2px;
+      border-radius: 50%; background: #666;
+      transition: transform 0.2s, background 0.2s;
     }
-    #labels-btn:hover { background: rgba(255,255,255,0.14); color: #fff; }
-    #labels-btn.active { border-color: #aaa; color: #fff; background: rgba(255,255,255,0.1); }
-    #ground-btn {
-      width: 100%; margin-top: 0.25rem; padding: 4px 0;
-      border: 1px solid #555; border-radius: 4px;
-      background: rgba(255,255,255,0.06); color: #ccc; cursor: pointer; font-size: 12px;
-    }
-    #ground-btn:hover { background: rgba(255,255,255,0.14); color: #fff; }
-    #ground-btn.active { border-color: #aaa; color: #fff; background: rgba(255,255,255,0.1); }
+    .toggle input:checked + .toggle-track { background: rgba(255,255,255,0.4); }
+    .toggle input:checked + .toggle-track::before { transform: translateX(13px); background: #ddd; }
+
     #zone-labels { position: fixed; inset: 0; pointer-events: none; }
     .zone-label {
       position: absolute; transform: translate(-50%, -50%);
@@ -133,9 +126,15 @@ import Fullstory from '../../../components/Fullstory.astro';
 
   <div id="panel">
     <h3>Controls &nbsp;<span id="panel-toggle">▾</span></h3>
+    <label class="toggle-row" for="labels-toggle">
+      <span>Labels</span>
+      <span class="toggle"><input type="checkbox" id="labels-toggle"><span class="toggle-track"></span></span>
+    </label>
+    <label class="toggle-row" for="ground-toggle">
+      <span>Ground</span>
+      <span class="toggle"><input type="checkbox" id="ground-toggle"><span class="toggle-track"></span></span>
+    </label>
     <button id="trace-btn">Trace terminator</button>
-    <button id="labels-btn">Show labels</button>
-    <button id="ground-btn">Show ground</button>
     <button id="clear-btn">Clear dots</button>
   </div>
 
@@ -383,6 +382,7 @@ import Fullstory from '../../../components/Fullstory.astro';
     let touchStartX   = 0, touchStartY   = 0;
     let touchLastX    = 0, touchLastY    = 0;
     let touchDragging = false;
+    let touchInGizmo  = false;
     const DRAG_THRESHOLD = 8;
 
     canvas.addEventListener('click', (e) => {
@@ -473,10 +473,14 @@ import Fullstory from '../../../components/Fullstory.astro';
       e.preventDefault();
       if (e.touches.length !== 1) return;
       const t = e.touches[0];
-      if (t.clientX >= window.innerWidth - GIZMO && t.clientY < GIZMO) return;
       touchStartX = touchLastX = t.clientX;
       touchStartY = touchLastY = t.clientY;
       touchDragging = false;
+      if (t.clientX >= window.innerWidth - GIZMO && t.clientY < GIZMO) {
+        touchInGizmo = true;
+        return;
+      }
+      touchInGizmo = false;
       virtualX = t.clientX; virtualY = t.clientY;
       aimFromScreen(virtualX, virtualY);
       startHold();
@@ -524,15 +528,39 @@ import Fullstory from '../../../components/Fullstory.astro';
     canvas.addEventListener('touchend', (e) => {
       e.preventDefault();
       stopHold();
-      if (!touchDragging && !autoFired) fireDots(1, 0);
+      if (touchInGizmo && !touchDragging) {
+        const localX = touchStartX - (window.innerWidth - GIZMO);
+        const ndcX   = (localX / GIZMO) * 2 - 1;
+        const ndcY   = -((touchStartY / GIZMO) * 2 - 1);
+        const gizmoPick = new THREE.Raycaster();
+        gizmoPick.setFromCamera(new THREE.Vector2(ndcX, ndcY), axesCamera);
+        const hits = gizmoPick.intersectObject(gizmoSphere, true);
+        if (hits.length > 0) {
+          let face: string;
+          if      (hits[0].object === topCap)    face = 'top';
+          else if (hits[0].object === bottomCap) face = 'bottom';
+          else if (hits[0].face) {
+            const n = hits[0].face.normal;
+            const ax = Math.abs(n.x), ay = Math.abs(n.y), az = Math.abs(n.z);
+            if      (ax >= ay && ax >= az) face = n.x > 0 ? 'right' : 'left';
+            else if (ay >= ax && ay >= az) face = n.y > 0 ? 'top'   : 'bottom';
+            else                           face = n.z > 0 ? 'front' : 'back';
+          } else { touchInGizmo = false; return; }
+          snapToView(face);
+        }
+      } else if (!touchDragging && !autoFired) {
+        fireDots(1, 0);
+      }
       autoFired     = false;
       touchDragging = false;
+      touchInGizmo  = false;
     }, { passive: false });
 
     canvas.addEventListener('touchcancel', () => {
       stopHold();
       autoFired     = false;
       touchDragging = false;
+      touchInGizmo  = false;
     });
 
     // Suppress context menu so right-click drag works cleanly
@@ -653,9 +681,7 @@ import Fullstory from '../../../components/Fullstory.astro';
       const castShow = labelsVisible && groundVisible;
       LABEL_DEFS[LABEL_DEFS.length - 1].el.classList.toggle('visible', castShow);
       labelLines[labelLines.length - 1].visible = castShow;
-      const btn = document.getElementById('ground-btn')!;
-      btn.textContent = groundVisible ? 'G — Hide ground' : 'G — Show ground';
-      btn.classList.toggle('active', groundVisible);
+      (document.getElementById('ground-toggle') as HTMLInputElement).checked = groundVisible;
     }
 
     // ── Ring trace animation ──────────────────────────────────────────────────
@@ -699,7 +725,7 @@ import Fullstory from '../../../components/Fullstory.astro';
       if (!traceAnim) return;
       window.clearTimeout(traceAnim.timerId);
       traceAnim = null;
-      traceBtn.textContent = 'T — Trace terminator';
+      traceBtn.textContent = 'Trace terminator';
       traceBtn.classList.remove('active');
     }
 
@@ -757,9 +783,7 @@ import Fullstory from '../../../components/Fullstory.astro';
         d.el.classList.toggle('visible', show);
         labelLines[i].visible = show;
       });
-      const btn = document.getElementById('labels-btn')!;
-      btn.textContent = labelsVisible ? 'L — Hide labels' : 'L — Show labels';
-      btn.classList.toggle('active', labelsVisible);
+      (document.getElementById('labels-toggle') as HTMLInputElement).checked = labelsVisible;
     }
 
     // ── Resize ────────────────────────────────────────────────────────────────
@@ -910,8 +934,8 @@ import Fullstory from '../../../components/Fullstory.astro';
     if (_params.has('ground')) toggleGround();
 
     traceBtn.addEventListener('click', startTrace);
-    document.getElementById('labels-btn')!.addEventListener('click', toggleLabels);
-    document.getElementById('ground-btn')!.addEventListener('click', toggleGround);
+    document.getElementById('labels-toggle')!.addEventListener('change', toggleLabels);
+    document.getElementById('ground-toggle')!.addEventListener('change', toggleGround);
     document.getElementById('clear-btn')!.addEventListener('click', clearDots);
 
     const helpBtn   = document.getElementById('help-btn')!;
