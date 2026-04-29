@@ -10,8 +10,8 @@ import Fullstory from '../../../components/Fullstory.astro';
   <Fullstory />
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: #000; overflow: hidden; font-family: sans-serif; }
-    canvas { display: block; width: 100vw; height: 100vh; }
+    body { background: #000; overflow: hidden; font-family: sans-serif; -webkit-user-select: none; user-select: none; }
+    canvas { display: block; width: 100vw; height: 100vh; touch-action: none; }
 
     #back {
       position: fixed; top: 1rem; left: 1rem;
@@ -46,17 +46,7 @@ import Fullstory from '../../../components/Fullstory.astro';
       border: 1px solid #555; border-radius: 3px;
       font: 11px monospace; color: #bbb; background: rgba(255,255,255,0.06);
     }
-    .val-input {
-      width: 50px; background: rgba(255,255,255,0.08); border: 1px solid #555;
-      border-radius: 4px; color: #fff; font-size: 12px; text-align: center;
-      padding: 1px 4px; -moz-appearance: textfield;
-    }
-    .val-input::-webkit-outer-spin-button,
-    .val-input::-webkit-inner-spin-button { -webkit-appearance: none; }
-    .val-input:focus { outline: none; border-color: #888; }
-    .val-unit { color: #777; font-size: 11px; }
-    .val-slider { width: 100%; margin: 2px 0 6px; accent-color: #777; cursor: pointer; }
-    #terminator-btn {
+#terminator-btn {
       width: 100%; margin-top: 0.25rem; padding: 4px 0;
       border: 1px solid #555; border-radius: 4px;
       background: rgba(255,255,255,0.06); color: #ccc; cursor: pointer; font-size: 12px;
@@ -143,17 +133,6 @@ import Fullstory from '../../../components/Fullstory.astro';
 
   <div id="panel">
     <h3>Controls &nbsp;<span id="panel-toggle">▾</span></h3>
-    <div class="row">
-      <label>Spray count</label>
-      <input type="number" class="val-input" id="spray-val" value="1" min="1" max="1000">
-    </div>
-    <input type="range" class="val-slider" id="spray-slider" min="1" max="100" step="1" value="1">
-    <div class="row">
-      <label>Spray spread</label>
-      <input type="number" class="val-input" id="spread-val" value="5" min="1" max="90"><span class="val-unit">°</span>
-    </div>
-    <input type="range" class="val-slider" id="spread-slider" min="1" max="90" step="1" value="5">
-    <hr />
     <button id="trace-btn">Trace terminator</button>
     <button id="labels-btn">Show labels</button>
     <button id="ground-btn">Show ground</button>
@@ -165,11 +144,10 @@ import Fullstory from '../../../components/Fullstory.astro';
   <div id="help-panel">
     <h3>Keyboard Shortcuts</h3>
     <div class="help-row"><span class="help-keys"><kbd>Mouse</kbd></span><span class="help-desc">Aim ray</span></div>
-    <div class="help-row"><span class="help-keys"><kbd>Click</kbd> / <kbd>Space</kbd></span><span class="help-desc">Place dot(s)</span></div>
+    <div class="help-row"><span class="help-keys"><kbd>Click</kbd> / <kbd>Space</kbd></span><span class="help-desc">Place dot</span></div>
+    <div class="help-row"><span class="help-keys"><kbd>Hold</kbd> / <kbd>Hold Space</kbd></span><span class="help-desc">Spray dots</span></div>
     <div class="help-row"><span class="help-keys"><kbd>↑↓←→</kbd></span><span class="help-desc">Nudge aim</span></div>
     <div class="help-row"><span class="help-keys"><kbd>Shift</kbd>+<kbd>↑↓←→</kbd></span><span class="help-desc">Fine nudge</span></div>
-    <div class="help-row"><span class="help-keys"><kbd>[</kbd> <kbd>]</kbd></span><span class="help-desc">Spray count &nbsp;(<kbd>Shift</kbd> ±10)</span></div>
-    <div class="help-row"><span class="help-keys"><kbd>,</kbd> <kbd>.</kbd></span><span class="help-desc">Spray spread &nbsp;(<kbd>Shift</kbd> ±10°)</span></div>
     <div class="help-row"><span class="help-keys"><kbd>T</kbd> / <kbd>Esc</kbd></span><span class="help-desc">Trace terminator / stop</span></div>
     <div class="help-row"><span class="help-keys"><kbd>L</kbd></span><span class="help-desc">Toggle labels</span></div>
     <div class="help-row"><span class="help-keys"><kbd>G</kbd></span><span class="help-desc">Toggle ground</span></div>
@@ -355,10 +333,6 @@ import Fullstory from '../../../components/Fullstory.astro';
         case 'ArrowUp':    virtualY = Math.max(0,                    virtualY - px); break;
         case 'ArrowDown':  virtualY = Math.min(window.innerHeight,   virtualY + px); break;
         case ' ': e.preventDefault(); if (!e.repeat) startHold(); return;
-        case '[': case '{': adjustCount(e.shiftKey ? -10 : -1);  return;
-        case ']': case '}': adjustCount(e.shiftKey ?  10 :  1);  return;
-        case ',': case '<': adjustSpread(e.shiftKey ? -10 : -1); return;
-        case '.': case '>': adjustSpread(e.shiftKey ?  10 :  1); return;
         case 't': case 'T': startTrace(); return;
         case 'l': case 'L': toggleLabels(); return;
         case 'g': case 'G': toggleGround(); return;
@@ -376,8 +350,8 @@ import Fullstory from '../../../components/Fullstory.astro';
     const dotMat = new THREE.MeshBasicMaterial({ color: COLOR.dot });
     const dots: THREE.Mesh[] = [];
 
-    let sprayCount  = 1;
-    let spraySpread = 5 * (Math.PI / 180); // degrees → radians
+    const SPRAY_COUNT  = 100;
+    const SPRAY_SPREAD = 20 * (Math.PI / 180);
 
     function placeDot(pos: THREE.Vector3) {
       const dot = new THREE.Mesh(dotGeo, dotMat);
@@ -405,6 +379,11 @@ import Fullstory from '../../../components/Fullstory.astro';
     let gizmoDragMoved  = false;
     let gizmoDragLastX  = 0;
     let gizmoDragLastY  = 0;
+
+    let touchStartX   = 0, touchStartY   = 0;
+    let touchLastX    = 0, touchLastY    = 0;
+    let touchDragging = false;
+    const DRAG_THRESHOLD = 8;
 
     canvas.addEventListener('click', (e) => {
       // Intercept clicks on the gizmo area (top-right corner)
@@ -436,15 +415,15 @@ import Fullstory from '../../../components/Fullstory.astro';
 
       if (traceAnim) return;
       if (autoFired) { autoFired = false; return; } // already fired via hold
-      fireDots();
+      fireDots(1, 0);
     });
 
     // ── Hold-to-fire ─────────────────────────────────────────────────────────
-    function fireDots() {
+    function fireDots(count: number, spreadRad: number) {
       if (traceAnim) return;
       const primaryDir = dirFromAngles(azimuth, polar);
       const dirs: THREE.Vector3[] = [primaryDir];
-      for (let i = 1; i < sprayCount; i++) dirs.push(sampleCone(primaryDir, spraySpread));
+      for (let i = 1; i < count; i++) dirs.push(sampleCone(primaryDir, spreadRad));
       dirs.forEach(dir => {
         raycaster.set(lightPos, dir.normalize());
         const hits = raycaster.intersectObject(sphere);
@@ -462,7 +441,7 @@ import Fullstory from '../../../components/Fullstory.astro';
 
     function startHold() {
       if (holdTimer !== null || traceAnim) return;
-      holdTimer = window.setInterval(() => { autoFired = true; fireDots(); }, 100);
+      holdTimer = window.setInterval(() => { autoFired = true; fireDots(SPRAY_COUNT, SPRAY_SPREAD); }, 100);
     }
     function stopHold() {
       if (holdTimer === null) return;
@@ -488,6 +467,73 @@ import Fullstory from '../../../components/Fullstory.astro';
     });
     window.addEventListener('mouseleave', stopHold);
     window.addEventListener('keyup', (e) => { if (e.key === ' ') stopHold(); });
+
+    // ── Touch support ─────────────────────────────────────────────────────────
+    canvas.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      if (e.touches.length !== 1) return;
+      const t = e.touches[0];
+      if (t.clientX >= window.innerWidth - GIZMO && t.clientY < GIZMO) return;
+      touchStartX = touchLastX = t.clientX;
+      touchStartY = touchLastY = t.clientY;
+      touchDragging = false;
+      virtualX = t.clientX; virtualY = t.clientY;
+      aimFromScreen(virtualX, virtualY);
+      startHold();
+    }, { passive: false });
+
+    canvas.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      if (e.touches.length !== 1) return;
+      const t = e.touches[0];
+      const dx = t.clientX - touchLastX;
+      const dy = t.clientY - touchLastY;
+
+      if (!touchDragging) {
+        const dist = Math.hypot(t.clientX - touchStartX, t.clientY - touchStartY);
+        if (dist > DRAG_THRESHOLD) {
+          touchDragging = true;
+          stopHold();
+        }
+      }
+
+      if (touchDragging) {
+        const offset = camera.position.clone().sub(controls.target);
+        const r = offset.length();
+        let theta = Math.atan2(offset.x, offset.z);
+        let phi   = Math.acos(THREE.MathUtils.clamp(offset.y / r, -1, 1));
+        theta -= dx * 0.008;
+        phi    = THREE.MathUtils.clamp(phi - dy * 0.008, 0.02, Math.PI - 0.02);
+        offset.set(
+          r * Math.sin(phi) * Math.sin(theta),
+          r * Math.cos(phi),
+          r * Math.sin(phi) * Math.cos(theta)
+        );
+        camera.position.copy(controls.target).add(offset);
+        camera.lookAt(controls.target);
+        controls.update();
+      } else if (!traceAnim) {
+        virtualX = t.clientX; virtualY = t.clientY;
+        aimFromScreen(virtualX, virtualY);
+      }
+
+      touchLastX = t.clientX;
+      touchLastY = t.clientY;
+    }, { passive: false });
+
+    canvas.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      stopHold();
+      if (!touchDragging && !autoFired) fireDots(1, 0);
+      autoFired     = false;
+      touchDragging = false;
+    }, { passive: false });
+
+    canvas.addEventListener('touchcancel', () => {
+      stopHold();
+      autoFired     = false;
+      touchDragging = false;
+    });
 
     // Suppress context menu so right-click drag works cleanly
     canvas.addEventListener('contextmenu', e => e.preventDefault());
@@ -660,6 +706,7 @@ import Fullstory from '../../../components/Fullstory.astro';
     // ── Orbit (right-click only) ──────────────────────────────────────────────
     const controls = new OrbitControls(camera, canvas);
     controls.mouseButtons = { LEFT: null as any, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.ROTATE };
+    controls.touches = { ONE: null as any, TWO: null as any }; // touch handled manually
     controls.target.set(0, 5, 0);
     controls.enableDamping = true;
     controls.update();
@@ -847,41 +894,6 @@ import Fullstory from '../../../components/Fullstory.astro';
     }
 
     // ── UI wiring ─────────────────────────────────────────────────────────────
-    const sprayValInput  = document.getElementById('spray-val')!    as HTMLInputElement;
-    const spraySlider    = document.getElementById('spray-slider')! as HTMLInputElement;
-    const spreadValInput = document.getElementById('spread-val')!   as HTMLInputElement;
-    const spreadSlider   = document.getElementById('spread-slider')! as HTMLInputElement;
-
-    function adjustCount(delta: number) {
-      sprayCount = Math.max(1, Math.min(1000, sprayCount + delta));
-      sprayValInput.value = String(sprayCount);
-      spraySlider.value   = String(Math.min(sprayCount, 100));
-    }
-    function adjustSpread(delta: number) {
-      const deg = Math.max(1, Math.min(90, Math.round(spraySpread * 180 / Math.PI) + delta));
-      spraySpread = deg * Math.PI / 180;
-      spreadValInput.value = String(deg);
-      spreadSlider.value   = String(deg);
-    }
-
-    sprayValInput.addEventListener('input', () => {
-      sprayCount = Math.max(1, parseInt(sprayValInput.value) || 1);
-      spraySlider.value = String(Math.min(sprayCount, 100));
-    });
-    spraySlider.addEventListener('input', () => {
-      sprayCount = parseInt(spraySlider.value);
-      sprayValInput.value = String(sprayCount);
-    });
-    spreadValInput.addEventListener('input', () => {
-      const deg = Math.max(1, Math.min(90, parseInt(spreadValInput.value) || 1));
-      spraySpread = deg * Math.PI / 180;
-      spreadSlider.value = String(deg);
-    });
-    spreadSlider.addEventListener('input', () => {
-      const deg = parseInt(spreadSlider.value);
-      spraySpread = deg * Math.PI / 180;
-      spreadValInput.value = String(deg);
-    });
     const panel       = document.getElementById('panel')!;
     const panelToggle = document.getElementById('panel-toggle')!;
     function togglePanel() {
