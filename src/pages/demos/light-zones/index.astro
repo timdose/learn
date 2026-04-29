@@ -132,7 +132,7 @@ import Fullstory from '../../../components/Fullstory.astro';
     </label>
     <label class="toggle-row" for="ground-toggle">
       <span>Ground</span>
-      <span class="toggle"><input type="checkbox" id="ground-toggle"><span class="toggle-track"></span></span>
+      <span class="toggle"><input type="checkbox" id="ground-toggle" checked><span class="toggle-track"></span></span>
     </label>
     <button id="trace-btn">Trace terminator</button>
     <button id="clear-btn">Clear dots</button>
@@ -383,6 +383,7 @@ import Fullstory from '../../../components/Fullstory.astro';
     let touchLastX    = 0, touchLastY    = 0;
     let touchDragging = false;
     let touchInGizmo  = false;
+    let touchActive   = false;
     const DRAG_THRESHOLD = 8;
 
     canvas.addEventListener('click', (e) => {
@@ -471,7 +472,11 @@ import Fullstory from '../../../components/Fullstory.astro';
     // ── Touch support ─────────────────────────────────────────────────────────
     canvas.addEventListener('touchstart', (e) => {
       e.preventDefault();
-      if (e.touches.length !== 1) return;
+      if (e.touches.length !== 1) {
+        if (touchActive) { stopHold(); autoFired = false; touchDragging = false; touchActive = false; }
+        return;
+      }
+      touchActive = true;
       const t = e.touches[0];
       touchStartX = touchLastX = t.clientX;
       touchStartY = touchLastY = t.clientY;
@@ -528,6 +533,7 @@ import Fullstory from '../../../components/Fullstory.astro';
     canvas.addEventListener('touchend', (e) => {
       e.preventDefault();
       stopHold();
+      if (!touchActive) return;
       if (touchInGizmo && !touchDragging) {
         const localX = touchStartX - (window.innerWidth - GIZMO);
         const ndcX   = (localX / GIZMO) * 2 - 1;
@@ -554,12 +560,15 @@ import Fullstory from '../../../components/Fullstory.astro';
       autoFired     = false;
       touchDragging = false;
       touchInGizmo  = false;
+      touchActive   = false;
     }, { passive: false });
 
     canvas.addEventListener('touchcancel', () => {
       stopHold();
       autoFired     = false;
       touchDragging = false;
+      touchInGizmo  = false;
+      touchActive   = false;
       touchInGizmo  = false;
     });
 
@@ -629,7 +638,7 @@ import Fullstory from '../../../components/Fullstory.astro';
     );
     groundMesh.rotation.x = -Math.PI / 2;
     groundMesh.position.y = GROUND_Y;
-    groundMesh.visible = false;
+    groundMesh.visible = true;
     scene.add(groundMesh);
 
     const castShadowMesh = new THREE.Mesh(
@@ -672,7 +681,7 @@ import Fullstory from '../../../components/Fullstory.astro';
     groundLightMesh.visible = false;
     scene.add(groundLightMesh);
 
-    let groundVisible = false;
+    let groundVisible = true;
     function toggleGround() {
       groundVisible = !groundVisible;
       groundMesh.visible = groundVisible;
@@ -732,8 +741,8 @@ import Fullstory from '../../../components/Fullstory.astro';
     // ── Orbit (right-click only) ──────────────────────────────────────────────
     const controls = new OrbitControls(camera, canvas);
     controls.mouseButtons = { LEFT: null as any, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.ROTATE };
-    controls.touches = { ONE: null as any, TWO: null as any }; // touch handled manually
-    controls.target.set(0, 5, 0);
+    controls.touches = { ONE: null as any, TWO: THREE.TOUCH.DOLLY_PAN };
+    controls.target.set(0, 4, 0);
     controls.enableDamping = true;
     controls.update();
 
@@ -931,7 +940,7 @@ import Fullstory from '../../../components/Fullstory.astro';
       panel.classList.add('collapsed');
       panelToggle.textContent = '▴';
     }
-    if (_params.has('ground')) toggleGround();
+    if (_params.has('noground')) toggleGround();
 
     traceBtn.addEventListener('click', startTrace);
     document.getElementById('labels-toggle')!.addEventListener('change', toggleLabels);
