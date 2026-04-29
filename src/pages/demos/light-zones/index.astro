@@ -116,7 +116,7 @@ import Fullstory from '../../../components/Fullstory.astro';
   <a id="back" href="/demos/">← Demos</a>
 
   <div id="zone-labels">
-    <div class="zone-label" id="lbl-light">Zone of Light</div>
+    <div class="zone-label" id="lbl-light">Form Light</div>
     <div class="zone-label" id="lbl-term">Terminator</div>
     <div class="zone-label" id="lbl-shadow">Form Shadow</div>
     <div class="zone-label" id="lbl-cast">Cast Shadow</div>
@@ -350,7 +350,7 @@ import Fullstory from '../../../components/Fullstory.astro';
     const dots: THREE.Mesh[] = [];
 
     const SPRAY_COUNT  = 100;
-    const SPRAY_SPREAD = 20 * (Math.PI / 180);
+    const SPRAY_SPREAD = 22.5 * (Math.PI / 180);
 
     function placeDot(pos: THREE.Vector3) {
       const dot = new THREE.Mesh(dotGeo, dotMat);
@@ -758,9 +758,9 @@ import Fullstory from '../../../components/Fullstory.astro';
 
     const termAnchor = ringCenter.clone().addScaledVector(termU, ringRadius);
     const LABEL_DEFS = [
-      { el: document.getElementById('lbl-light')!,  anchor: new THREE.Vector3(0,  1.2, 0.9),                          pos: new THREE.Vector3(2.4,  2.2, 0.9),            color: COLOR.terminator },
-      { el: document.getElementById('lbl-term')!,   anchor: termAnchor,                                                pos: new THREE.Vector3(2.9,  ringCenter.y, 0),    color: COLOR.terminator },
-      { el: document.getElementById('lbl-shadow')!, anchor: new THREE.Vector3(0.6, -.6, 1.25),                          pos: new THREE.Vector3(2.4, -1.2, 1.25),            color: COLOR.terminator },
+      { el: document.getElementById('lbl-light')!,  anchor: new THREE.Vector3(0.6,  1.0, 0.9),                          pos: new THREE.Vector3(2.4,  1.0, 0.9),            color: COLOR.terminator },
+      { el: document.getElementById('lbl-term')!,   anchor: new THREE.Vector3(1, ringCenter.y, 0.9),                  pos: new THREE.Vector3(2.8,  ringCenter.y, 0.9),    color: COLOR.terminator },
+      { el: document.getElementById('lbl-shadow')!, anchor: new THREE.Vector3(0.6, -0.6, 1.25),                         pos: new THREE.Vector3(2.4, -0.6, 1.25),            color: COLOR.terminator },
       { el: document.getElementById('lbl-cast')!,   anchor: new THREE.Vector3(-castShadowRadius, GROUND_Y + 0.003, 0), pos: new THREE.Vector3(-3.2, GROUND_Y + 0.4, 0), color: COLOR.terminator },
     ];
 
@@ -768,7 +768,7 @@ import Fullstory from '../../../components/Fullstory.astro';
     const labelLines = LABEL_DEFS.map(d => {
       const geo = new LineGeometry();
       geo.setPositions([d.anchor.x, d.anchor.y, d.anchor.z, d.pos.x, d.pos.y, d.pos.z]);
-      const mat = new LineMaterial({ color: d.color, transparent: true, opacity: 0.5, linewidth: 2, resolution: new THREE.Vector2(window.innerWidth, window.innerHeight) });
+      const mat = new LineMaterial({ color: d.color, transparent: true, opacity: 0.75, linewidth: 2, resolution: new THREE.Vector2(window.innerWidth, window.innerHeight) });
       labelLineMats.push(mat);
       const line = new Line2(geo, mat);
       line.visible = false;
