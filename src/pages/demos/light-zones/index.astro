@@ -78,7 +78,7 @@ import Fullstory from '../../../components/Fullstory.astro';
       position: absolute; transform: translate(-50%, -50%);
       color: #ff8c42; font: 11px/1 sans-serif; letter-spacing: 0.06em; text-transform: uppercase;
       white-space: nowrap;
-      background: rgba(0,0,0,0.55); padding: 2px 7px; border-radius: 3px;
+      background: rgba(0,0,0,0.85); padding: 2px 7px; border-radius: 3px;
       opacity: 0; transition: opacity 0.3s;
     }
     .zone-label.visible { opacity: 1; }
@@ -442,10 +442,14 @@ import Fullstory from '../../../components/Fullstory.astro';
 
     function startHold() {
       if (holdTimer !== null || traceAnim) return;
-      holdTimer = window.setInterval(() => { autoFired = true; fireDots(SPRAY_COUNT, SPRAY_SPREAD); }, 100);
+      holdTimer = window.setTimeout(() => {
+        autoFired = true; fireDots(SPRAY_COUNT, SPRAY_SPREAD);
+        holdTimer = window.setInterval(() => { fireDots(SPRAY_COUNT, SPRAY_SPREAD); }, 100);
+      }, 400);
     }
     function stopHold() {
       if (holdTimer === null) return;
+      window.clearTimeout(holdTimer);   // works for both setTimeout and setInterval IDs
       window.clearInterval(holdTimer);
       holdTimer = null;
     }
