@@ -98,7 +98,19 @@ import Fullstory from '../../../components/Fullstory.astro';
 
   <div id="panel">
     <h3>Controls &nbsp;<span id="panel-toggle">▾</span></h3>
-    <button id="clear-btn" style="margin-top:0.4rem">Clear dots</button>
+    <label class="toggle-row" for="dot-hitsphere-toggle">
+      <span>Sphere hits</span>
+      <span class="toggle"><input type="checkbox" id="dot-hitsphere-toggle" checked><span class="toggle-track"></span></span>
+    </label>
+    <label class="toggle-row" for="dot-hitground-toggle">
+      <span>Ground hits</span>
+      <span class="toggle"><input type="checkbox" id="dot-hitground-toggle" checked><span class="toggle-track"></span></span>
+    </label>
+    <label class="toggle-row" for="dot-bounce-toggle">
+      <span>Bounce hits</span>
+      <span class="toggle"><input type="checkbox" id="dot-bounce-toggle" checked><span class="toggle-track"></span></span>
+    </label>
+    <button id="clear-btn" style="margin-top:0.25rem">Clear dots</button>
     <label class="toggle-row" for="ground-toggle">
       <span>Ground</span>
       <span class="toggle"><input type="checkbox" id="ground-toggle" checked><span class="toggle-track"></span></span>
@@ -227,27 +239,34 @@ import Fullstory from '../../../components/Fullstory.astro';
     const dotMat         = new THREE.MeshBasicMaterial({ color: COLOR.dotBounce,    transparent: true, opacity: OPACITY.dotBounce });
     const dotSphereMat   = new THREE.MeshBasicMaterial({ color: COLOR.dotHitSphere, transparent: true, opacity: OPACITY.dotHitSphere });
     const dotGroundMat   = new THREE.MeshBasicMaterial({ color: COLOR.dotHitGround, transparent: true, opacity: OPACITY.dotHitGround });
-    const dots: THREE.Mesh[] = [];
+    type DotType = 'hitSphere' | 'hitGround' | 'bounce';
+    const dotsByType: Record<DotType, THREE.Mesh[]> = { hitSphere: [], hitGround: [], bounce: [] };
+    const dotVisible:  Record<DotType, boolean>     = { hitSphere: true, hitGround: true, bounce: true };
 
-    function placeDot(pos: THREE.Vector3, normal: THREE.Vector3, mat = dotMat, geo = dotGeo) {
+    function placeDot(pos: THREE.Vector3, normal: THREE.Vector3, type: DotType, mat = dotMat, geo = dotGeo) {
       const dot = new THREE.Mesh(geo, mat);
       dot.position.copy(pos).addScaledVector(normal, 0.002);
       dot.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), normal);
+      dot.visible = dotVisible[type];
       scene.add(dot);
-      dots.push(dot);
+      dotsByType[type].push(dot);
     }
     function clearDots() {
-      dots.forEach(d => scene.remove(d));
-      dots.length = 0;
+      (Object.values(dotsByType) as THREE.Mesh[][]).forEach(arr => { arr.forEach(d => scene.remove(d)); arr.length = 0; });
+    }
+    function toggleDotType(type: DotType) {
+      dotVisible[type] = !dotVisible[type];
+      dotsByType[type].forEach(d => d.visible = dotVisible[type]);
+      (document.getElementById(`dot-${type === 'hitSphere' ? 'hitsphere' : type === 'hitGround' ? 'hitground' : 'bounce'}-toggle`) as HTMLInputElement).checked = dotVisible[type];
     }
 
     // First-hit point + bounce sphere hits for the current aim — updated each updateRay call
-    let currentFirstHit: { pos: THREE.Vector3; normal: THREE.Vector3; mat: THREE.MeshBasicMaterial; geo: THREE.CircleGeometry } | null = null;
+    let currentFirstHit: { pos: THREE.Vector3; normal: THREE.Vector3; type: DotType; mat: THREE.MeshBasicMaterial; geo: THREE.CircleGeometry } | null = null;
     let currentBounceHits: { pos: THREE.Vector3; normal: THREE.Vector3 }[] = [];
 
     function placeBounceHits() {
-      if (currentFirstHit) placeDot(currentFirstHit.pos, currentFirstHit.normal, currentFirstHit.mat, currentFirstHit.geo);
-      currentBounceHits.forEach(h => placeDot(h.pos, h.normal));
+      if (currentFirstHit) placeDot(currentFirstHit.pos, currentFirstHit.normal, currentFirstHit.type, currentFirstHit.mat, currentFirstHit.geo);
+      currentBounceHits.forEach(h => placeDot(h.pos, h.normal, 'bounce'));
     }
 
     // Sample a direction uniformly within a cone around `dir`
@@ -271,18 +290,18 @@ import Fullstory from '../../../components/Fullstory.astro';
         if (sh.length > 0) {
           firstPt = sh[0].point;
           firstN  = firstPt.clone().normalize();
-          placeDot(firstPt.clone(), firstN, dotSphereMat, dotSphereGeo);
+          placeDot(firstPt.clone(), firstN, 'hitSphere', dotSphereMat, dotSphereGeo);
         } else if (groundVisible) {
           const gh = raycaster.intersectObject(groundMesh);
           if (gh.length === 0) continue;
           firstPt = gh[0].point;
           firstN  = new THREE.Vector3(0, 1, 0);
-          placeDot(firstPt.clone(), firstN, dotGroundMat, dotGroundGeo);
+          placeDot(firstPt.clone(), firstN, 'hitGround', dotGroundMat, dotGroundGeo);
         } else continue;
         const bounceOrigin = firstPt.clone().addScaledVector(firstN, 0.001);
         raycaster.set(bounceOrigin, sampleLambertian(firstN));
         const bh = raycaster.intersectObject(sphere);
-        if (bh.length > 0) placeDot(bh[0].point.clone(), bh[0].point.clone().normalize());
+        if (bh.length > 0) placeDot(bh[0].point.clone(), bh[0].point.clone().normalize(), 'bounce');
       }
     }
 
@@ -328,14 +347,14 @@ import Fullstory from '../../../components/Fullstory.astro';
         end = sphereHits[0].point;
         hit = true;
         hitNormal = end.clone().normalize(); // sphere centered at origin
-        currentFirstHit = { pos: end.clone(), normal: hitNormal.clone(), mat: dotSphereMat, geo: dotSphereGeo };
+        currentFirstHit = { pos: end.clone(), normal: hitNormal.clone(), type: 'hitSphere', mat: dotSphereMat, geo: dotSphereGeo };
       } else if (groundVisible) {
         const gHits = raycaster.intersectObject(groundMesh);
         if (gHits.length > 0) {
           end = gHits[0].point;
           hitNormal = new THREE.Vector3(0, 1, 0);
           hitGround = true;
-          currentFirstHit = { pos: end.clone(), normal: hitNormal.clone(), mat: dotGroundMat, geo: dotGroundGeo };
+          currentFirstHit = { pos: end.clone(), normal: hitNormal.clone(), type: 'hitGround', mat: dotGroundMat, geo: dotGroundGeo };
         } else {
           end = lightPos.clone().addScaledVector(dir, 15);
           currentFirstHit = null;
@@ -766,6 +785,9 @@ import Fullstory from '../../../components/Fullstory.astro';
     }
     if (_params.has('noground')) toggleGround();
 
+    document.getElementById('dot-hitsphere-toggle')!.addEventListener('change', () => toggleDotType('hitSphere'));
+    document.getElementById('dot-hitground-toggle')!.addEventListener('change', () => toggleDotType('hitGround'));
+    document.getElementById('dot-bounce-toggle')!.addEventListener('change',    () => toggleDotType('bounce'));
     document.getElementById('clear-btn')!.addEventListener('click', clearDots);
     document.getElementById('ground-toggle')!.addEventListener('change', toggleGround);
 
