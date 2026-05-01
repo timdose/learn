@@ -156,9 +156,9 @@ import Fullstory from '../../../components/Fullstory.astro';
       dotHitGround:   1.0,
     };
     const DOT_SIZE = {
-      dotBounce:    0.015,
-      dotHitSphere: 0.02,
-      dotHitGround: 0.02,
+      dotBounce:    0.02,
+      dotHitSphere: 0.03,
+      dotHitGround: 0.03,
     };
     const SPRAY_COUNT  = 150;                       // rays per hold-spray tick
     const SPRAY_SPREAD = 22.5 * (Math.PI / 180);  // half-angle cone
@@ -221,17 +221,18 @@ import Fullstory from '../../../components/Fullstory.astro';
     scene.add(bounceRayLine);
 
 // ── Dots ───────────────────────────────────────────────────────────────────
-    const dotGeo         = new THREE.SphereGeometry(DOT_SIZE.dotBounce,    16, 16);
-    const dotSphereGeo   = new THREE.SphereGeometry(DOT_SIZE.dotHitSphere, 16, 16);
-    const dotGroundGeo   = new THREE.SphereGeometry(DOT_SIZE.dotHitGround, 16, 16);
+    const dotGeo         = new THREE.CircleGeometry(DOT_SIZE.dotBounce,    12);
+    const dotSphereGeo   = new THREE.CircleGeometry(DOT_SIZE.dotHitSphere, 12);
+    const dotGroundGeo   = new THREE.CircleGeometry(DOT_SIZE.dotHitGround, 12);
     const dotMat         = new THREE.MeshBasicMaterial({ color: COLOR.dotBounce,    transparent: true, opacity: OPACITY.dotBounce });
     const dotSphereMat   = new THREE.MeshBasicMaterial({ color: COLOR.dotHitSphere, transparent: true, opacity: OPACITY.dotHitSphere });
     const dotGroundMat   = new THREE.MeshBasicMaterial({ color: COLOR.dotHitGround, transparent: true, opacity: OPACITY.dotHitGround });
     const dots: THREE.Mesh[] = [];
 
-    function placeDot(pos: THREE.Vector3, mat = dotMat, geo = dotGeo) {
+    function placeDot(pos: THREE.Vector3, normal: THREE.Vector3, mat = dotMat, geo = dotGeo) {
       const dot = new THREE.Mesh(geo, mat);
-      dot.position.copy(pos);
+      dot.position.copy(pos).addScaledVector(normal, 0.002);
+      dot.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), normal);
       scene.add(dot);
       dots.push(dot);
     }
@@ -241,12 +242,12 @@ import Fullstory from '../../../components/Fullstory.astro';
     }
 
     // First-hit point + bounce sphere hits for the current aim — updated each updateRay call
-    let currentFirstHit: { pos: THREE.Vector3; mat: THREE.MeshBasicMaterial; geo: THREE.SphereGeometry } | null = null;
-    let currentBounceHits: THREE.Vector3[] = [];
+    let currentFirstHit: { pos: THREE.Vector3; normal: THREE.Vector3; mat: THREE.MeshBasicMaterial; geo: THREE.CircleGeometry } | null = null;
+    let currentBounceHits: { pos: THREE.Vector3; normal: THREE.Vector3 }[] = [];
 
     function placeBounceHits() {
-      if (currentFirstHit) placeDot(currentFirstHit.pos, currentFirstHit.mat, currentFirstHit.geo);
-      currentBounceHits.forEach(p => placeDot(p));
+      if (currentFirstHit) placeDot(currentFirstHit.pos, currentFirstHit.normal, currentFirstHit.mat, currentFirstHit.geo);
+      currentBounceHits.forEach(h => placeDot(h.pos, h.normal));
     }
 
     // Sample a direction uniformly within a cone around `dir`
@@ -270,18 +271,18 @@ import Fullstory from '../../../components/Fullstory.astro';
         if (sh.length > 0) {
           firstPt = sh[0].point;
           firstN  = firstPt.clone().normalize();
-          placeDot(firstPt.clone(), dotSphereMat, dotSphereGeo);
+          placeDot(firstPt.clone(), firstN, dotSphereMat, dotSphereGeo);
         } else if (groundVisible) {
           const gh = raycaster.intersectObject(groundMesh);
           if (gh.length === 0) continue;
           firstPt = gh[0].point;
           firstN  = new THREE.Vector3(0, 1, 0);
-          placeDot(firstPt.clone(), dotGroundMat, dotGroundGeo);
+          placeDot(firstPt.clone(), firstN, dotGroundMat, dotGroundGeo);
         } else continue;
         const bounceOrigin = firstPt.clone().addScaledVector(firstN, 0.001);
         raycaster.set(bounceOrigin, sampleLambertian(firstN));
         const bh = raycaster.intersectObject(sphere);
-        if (bh.length > 0) placeDot(bh[0].point.clone());
+        if (bh.length > 0) placeDot(bh[0].point.clone(), bh[0].point.clone().normalize());
       }
     }
 
@@ -327,14 +328,14 @@ import Fullstory from '../../../components/Fullstory.astro';
         end = sphereHits[0].point;
         hit = true;
         hitNormal = end.clone().normalize(); // sphere centered at origin
-        currentFirstHit = { pos: end.clone(), mat: dotSphereMat, geo: dotSphereGeo };
+        currentFirstHit = { pos: end.clone(), normal: hitNormal.clone(), mat: dotSphereMat, geo: dotSphereGeo };
       } else if (groundVisible) {
         const gHits = raycaster.intersectObject(groundMesh);
         if (gHits.length > 0) {
           end = gHits[0].point;
           hitNormal = new THREE.Vector3(0, 1, 0);
           hitGround = true;
-          currentFirstHit = { pos: end.clone(), mat: dotGroundMat, geo: dotGroundGeo };
+          currentFirstHit = { pos: end.clone(), normal: hitNormal.clone(), mat: dotGroundMat, geo: dotGroundGeo };
         } else {
           end = lightPos.clone().addScaledVector(dir, 15);
           currentFirstHit = null;
@@ -371,7 +372,7 @@ import Fullstory from '../../../components/Fullstory.astro';
         bounceGeom.setPositions([end.x, end.y, end.z, pt.x, pt.y, pt.z]);
         bounceRayLine.material = hitSphere ? bounceHitMat : bounceMat;
         bounceRayLine.visible = true;
-        if (hitSphere) currentBounceHits.push(pt.clone());
+        if (hitSphere) currentBounceHits.push({ pos: pt.clone(), normal: pt.clone().normalize() });
       } else {
         bounceRayLine.visible = false;
         lastBounceOrigin = null;
