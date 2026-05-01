@@ -98,10 +98,7 @@ import Fullstory from '../../../components/Fullstory.astro';
 
   <div id="panel">
     <h3>Controls &nbsp;<span id="panel-toggle">▾</span></h3>
-    <label class="toggle-row" for="spread-toggle">
-      <span>Spread</span>
-      <span class="toggle"><input type="checkbox" id="spread-toggle"><span class="toggle-track"></span></span>
-    </label>
+    <button id="clear-btn" style="margin-top:0.4rem">Clear dots</button>
     <label class="toggle-row" for="ground-toggle">
       <span>Ground</span>
       <span class="toggle"><input type="checkbox" id="ground-toggle" checked><span class="toggle-track"></span></span>
@@ -115,7 +112,9 @@ import Fullstory from '../../../components/Fullstory.astro';
     <div class="help-row"><span class="help-keys"><kbd>Mouse</kbd></span><span class="help-desc">Aim ray</span></div>
     <div class="help-row"><span class="help-keys"><kbd>↑↓←→</kbd></span><span class="help-desc">Nudge aim</span></div>
     <div class="help-row"><span class="help-keys"><kbd>Shift</kbd>+<kbd>↑↓←→</kbd></span><span class="help-desc">Fine nudge</span></div>
-    <div class="help-row"><span class="help-keys"><kbd>S</kbd></span><span class="help-desc">Toggle spread</span></div>
+    <div class="help-row"><span class="help-keys"><kbd>Click</kbd> / <kbd>Tap</kbd></span><span class="help-desc">Place dots at bounce hits</span></div>
+    <div class="help-row"><span class="help-keys"><kbd>Hold</kbd> / <kbd>Space</kbd></span><span class="help-desc">Spray rays, place bounce dots</span></div>
+    <div class="help-row"><span class="help-keys"><kbd>C</kbd></span><span class="help-desc">Clear dots</span></div>
     <div class="help-row"><span class="help-keys"><kbd>G</kbd></span><span class="help-desc">Toggle ground</span></div>
     <div class="help-row"><span class="help-keys"><kbd>H</kbd></span><span class="help-desc">Toggle controls panel</span></div>
     <div class="help-row"><span class="help-keys"><kbd>Right-drag</kbd></span><span class="help-desc">Orbit camera</span></div>
@@ -131,13 +130,16 @@ import Fullstory from '../../../components/Fullstory.astro';
     // ── Colours ────────────────────────────────────────────────────────────────
     const COLOR = {
       bg:          0x000000,
-      sphere:      0x333333,
+      sphere:      0x1a1a1a,
       light:       0xffffff,
       rayMiss:     0x555555,
       rayHit:      0xffffff,
       bounceSphere:  0x888888,  // bounce ray after hitting sphere (misses sphere on bounce)
       bounceGround:  0x4444ff,  // bounce ray after hitting ground (misses sphere on bounce)
       bounceToSphere: 0x4444ff, // bounce ray that ends on the sphere
+      dotBounce:     0x1111ff,  // bounce ray hits sphere
+      dotHitSphere:  0xffffff,  // first ray hits sphere
+      dotHitGround:  0x1111ff,  // first ray hits ground
       ground:      0x111133,
       gizmoRight:  0xbf3333,
       gizmoLeft:   0x268e8e,
@@ -149,8 +151,17 @@ import Fullstory from '../../../components/Fullstory.astro';
     const OPACITY = {
       bounceRay:      0.2,
       bounceToSphere: 0.6,
+      dotBounce:      1.0,
+      dotHitSphere:   1.0,
+      dotHitGround:   1.0,
     };
-    const SPRAY_COUNT = 6; // rays shown in spread mode
+    const DOT_SIZE = {
+      dotBounce:    0.015,
+      dotHitSphere: 0.02,
+      dotHitGround: 0.02,
+    };
+    const SPRAY_COUNT  = 150;                       // rays per hold-spray tick
+    const SPRAY_SPREAD = 22.5 * (Math.PI / 180);  // half-angle cone
     const toRGB = (c: number): [number, number, number] =>
       [(c >> 16) & 0xff, (c >> 8) & 0xff, c & 0xff];
 
@@ -163,7 +174,7 @@ import Fullstory from '../../../components/Fullstory.astro';
     scene.background = new THREE.Color(COLOR.bg);
 
     const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 200);
-    camera.position.set(0, 3, 22);
+    camera.position.set(0, 4, 22);
 
     // ── Scene objects ──────────────────────────────────────────────────────────
     const SPHERE_RADIUS = 1.5;
@@ -209,17 +220,84 @@ import Fullstory from '../../../components/Fullstory.astro';
     bounceRayLine.visible = false;
     scene.add(bounceRayLine);
 
-    // Pre-allocate spray lines (share bounceMat so color/opacity stay in sync)
-    const sprayGeoms: LineGeometry[] = [];
-    const sprayLines: Line2[] = [];
-    for (let i = 0; i < SPRAY_COUNT; i++) {
-      const geo = new LineGeometry();
-      geo.setPositions([0, 0, 0, 0, 0, 0]);
-      const line = new Line2(geo, bounceMat);
-      line.visible = false;
-      scene.add(line);
-      sprayGeoms.push(geo);
-      sprayLines.push(line);
+// ── Dots ───────────────────────────────────────────────────────────────────
+    const dotGeo         = new THREE.SphereGeometry(DOT_SIZE.dotBounce,    16, 16);
+    const dotSphereGeo   = new THREE.SphereGeometry(DOT_SIZE.dotHitSphere, 16, 16);
+    const dotGroundGeo   = new THREE.SphereGeometry(DOT_SIZE.dotHitGround, 16, 16);
+    const dotMat         = new THREE.MeshBasicMaterial({ color: COLOR.dotBounce,    transparent: true, opacity: OPACITY.dotBounce });
+    const dotSphereMat   = new THREE.MeshBasicMaterial({ color: COLOR.dotHitSphere, transparent: true, opacity: OPACITY.dotHitSphere });
+    const dotGroundMat   = new THREE.MeshBasicMaterial({ color: COLOR.dotHitGround, transparent: true, opacity: OPACITY.dotHitGround });
+    const dots: THREE.Mesh[] = [];
+
+    function placeDot(pos: THREE.Vector3, mat = dotMat, geo = dotGeo) {
+      const dot = new THREE.Mesh(geo, mat);
+      dot.position.copy(pos);
+      scene.add(dot);
+      dots.push(dot);
+    }
+    function clearDots() {
+      dots.forEach(d => scene.remove(d));
+      dots.length = 0;
+    }
+
+    // First-hit point + bounce sphere hits for the current aim — updated each updateRay call
+    let currentFirstHit: { pos: THREE.Vector3; mat: THREE.MeshBasicMaterial; geo: THREE.SphereGeometry } | null = null;
+    let currentBounceHits: THREE.Vector3[] = [];
+
+    function placeBounceHits() {
+      if (currentFirstHit) placeDot(currentFirstHit.pos, currentFirstHit.mat, currentFirstHit.geo);
+      currentBounceHits.forEach(p => placeDot(p));
+    }
+
+    // Sample a direction uniformly within a cone around `dir`
+    function sampleCone(dir: THREE.Vector3, halfAngle: number): THREE.Vector3 {
+      const phi      = 2 * Math.PI * Math.random();
+      const cosTheta = 1 - Math.random() * (1 - Math.cos(halfAngle));
+      const sinTheta = Math.sqrt(1 - cosTheta * cosTheta);
+      const local    = new THREE.Vector3(sinTheta * Math.cos(phi), sinTheta * Math.sin(phi), cosTheta);
+      const q        = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), dir.clone().normalize());
+      return local.applyQuaternion(q);
+    }
+
+    // ── Hold-to-spray ──────────────────────────────────────────────────────────
+    function sprayDots() {
+      const primaryDir = dirFromAngles(azimuth, polar);
+      for (let i = 0; i < SPRAY_COUNT; i++) {
+        const dir = sampleCone(primaryDir, SPRAY_SPREAD).normalize();
+        raycaster.set(lightPos, dir);
+        const sh = raycaster.intersectObject(sphere);
+        let firstPt: THREE.Vector3, firstN: THREE.Vector3;
+        if (sh.length > 0) {
+          firstPt = sh[0].point;
+          firstN  = firstPt.clone().normalize();
+          placeDot(firstPt.clone(), dotSphereMat, dotSphereGeo);
+        } else if (groundVisible) {
+          const gh = raycaster.intersectObject(groundMesh);
+          if (gh.length === 0) continue;
+          firstPt = gh[0].point;
+          firstN  = new THREE.Vector3(0, 1, 0);
+          placeDot(firstPt.clone(), dotGroundMat, dotGroundGeo);
+        } else continue;
+        const bounceOrigin = firstPt.clone().addScaledVector(firstN, 0.001);
+        raycaster.set(bounceOrigin, sampleLambertian(firstN));
+        const bh = raycaster.intersectObject(sphere);
+        if (bh.length > 0) placeDot(bh[0].point.clone());
+      }
+    }
+
+    let holdTimer: number | null = null;
+    function startHold() {
+      if (holdTimer !== null) return;
+      holdTimer = window.setTimeout(() => {
+        sprayDots();
+        holdTimer = window.setInterval(sprayDots, 100);
+      }, 400);
+    }
+    function stopHold() {
+      if (holdTimer === null) return;
+      window.clearTimeout(holdTimer);
+      window.clearInterval(holdTimer);
+      holdTimer = null;
     }
 
     // Cosine-weighted hemisphere sampling (Lambertian/diffuse reflection)
@@ -249,17 +327,21 @@ import Fullstory from '../../../components/Fullstory.astro';
         end = sphereHits[0].point;
         hit = true;
         hitNormal = end.clone().normalize(); // sphere centered at origin
+        currentFirstHit = { pos: end.clone(), mat: dotSphereMat, geo: dotSphereGeo };
       } else if (groundVisible) {
         const gHits = raycaster.intersectObject(groundMesh);
         if (gHits.length > 0) {
           end = gHits[0].point;
           hitNormal = new THREE.Vector3(0, 1, 0);
           hitGround = true;
+          currentFirstHit = { pos: end.clone(), mat: dotGroundMat, geo: dotGroundGeo };
         } else {
           end = lightPos.clone().addScaledVector(dir, 15);
+          currentFirstHit = null;
         }
       } else {
         end = lightPos.clone().addScaledVector(dir, 15);
+        currentFirstHit = null;
       }
 
       rayGeom.setPositions([lightPos.x, lightPos.y, lightPos.z, end.x, end.y, end.z]);
@@ -280,40 +362,24 @@ import Fullstory from '../../../components/Fullstory.astro';
           return { pt: bounceOrigin.clone().addScaledVector(dir, 12), hitSphere: false };
         }
 
-        if (sprayMode) {
-          bounceRayLine.visible = false;
-          sprayLines.forEach((line, i) => {
-            const { pt, hitSphere } = castBounce(sampleLambertian(hitNormal!));
-            sprayGeoms[i].setPositions([end.x, end.y, end.z, pt.x, pt.y, pt.z]);
-            line.material = hitSphere ? bounceHitMat : bounceMat;
-            line.visible = true;
-          });
-        } else {
-          sprayLines.forEach(l => l.visible = false);
-          if (!lastBounceOrigin || bounceOrigin.distanceTo(lastBounceOrigin) > BOUNCE_RESAMPLE_DIST) {
-            lastBounceDir    = sampleLambertian(hitNormal);
-            lastBounceOrigin = bounceOrigin.clone();
-          }
-          const { pt, hitSphere } = castBounce(lastBounceDir!);
-          bounceGeom.setPositions([end.x, end.y, end.z, pt.x, pt.y, pt.z]);
-          bounceRayLine.material = hitSphere ? bounceHitMat : bounceMat;
-          bounceRayLine.visible = true;
+        currentBounceHits = [];
+        if (!lastBounceOrigin || bounceOrigin.distanceTo(lastBounceOrigin) > BOUNCE_RESAMPLE_DIST) {
+          lastBounceDir    = sampleLambertian(hitNormal);
+          lastBounceOrigin = bounceOrigin.clone();
         }
+        const { pt, hitSphere } = castBounce(lastBounceDir!);
+        bounceGeom.setPositions([end.x, end.y, end.z, pt.x, pt.y, pt.z]);
+        bounceRayLine.material = hitSphere ? bounceHitMat : bounceMat;
+        bounceRayLine.visible = true;
+        if (hitSphere) currentBounceHits.push(pt.clone());
       } else {
         bounceRayLine.visible = false;
-        sprayLines.forEach(l => l.visible = false);
         lastBounceOrigin = null;
+        currentBounceHits = [];
       }
     }
 
-    let sprayMode = false;
-    function toggleSpread() {
-      sprayMode = !sprayMode;
-      (document.getElementById('spread-toggle') as HTMLInputElement).checked = sprayMode;
-      applyDir();
-    }
-
-    // ── Aim state ──────────────────────────────────────────────────────────────
+// ── Aim state ──────────────────────────────────────────────────────────────
     let azimuth = 0;
     let polar    = 0;
 
@@ -395,6 +461,7 @@ import Fullstory from '../../../components/Fullstory.astro';
       virtualX = e.clientX;
       virtualY = e.clientY;
       aimFromScreen(virtualX, virtualY);
+      if (e.buttons === 1) placeBounceHits();
     });
 
     window.addEventListener('keydown', (e) => {
@@ -404,7 +471,8 @@ import Fullstory from '../../../components/Fullstory.astro';
         case 'ArrowRight': virtualX = Math.min(window.innerWidth,  virtualX + px); break;
         case 'ArrowUp':    virtualY = Math.max(0,                  virtualY - px); break;
         case 'ArrowDown':  virtualY = Math.min(window.innerHeight, virtualY + px); break;
-        case 's': case 'S': toggleSpread(); return;
+        case ' ': e.preventDefault(); if (!e.repeat) startHold(); return;
+        case 'c': case 'C': clearDots(); return;
         case 'g': case 'G': toggleGround(); return;
         case 'h': case 'H': togglePanel(); return;
         default: return;
@@ -412,6 +480,8 @@ import Fullstory from '../../../components/Fullstory.astro';
       e.preventDefault();
       aimFromScreen(virtualX, virtualY);
     });
+
+    window.addEventListener('keyup', (e) => { if (e.key === ' ') stopHold(); });
 
     // ── Gizmo drag ─────────────────────────────────────────────────────────────
     let gizmoDragActive = false;
@@ -443,7 +513,9 @@ import Fullstory from '../../../components/Fullstory.astro';
           } else { return; }
           snapToView(face);
         }
+        return;
       }
+      placeBounceHits();
     });
 
     canvas.addEventListener('mousedown', (e) => {
@@ -453,9 +525,16 @@ import Fullstory from '../../../components/Fullstory.astro';
         gizmoDragMoved  = false;
         gizmoDragLastX  = e.clientX;
         gizmoDragLastY  = e.clientY;
+        return;
       }
+      startHold();
     });
-    window.addEventListener('mouseup', (e) => { if (e.button !== 0) return; gizmoDragActive = false; });
+    window.addEventListener('mouseup', (e) => {
+      if (e.button !== 0) return;
+      gizmoDragActive = false;
+      stopHold();
+    });
+    window.addEventListener('mouseleave', stopHold);
     canvas.addEventListener('contextmenu', e => e.preventDefault());
 
     // ── Touch support ──────────────────────────────────────────────────────────
@@ -479,39 +558,20 @@ import Fullstory from '../../../components/Fullstory.astro';
       touchInGizmo = false;
       virtualX = t.clientX; virtualY = t.clientY;
       aimFromScreen(virtualX, virtualY);
+      startHold();
     }, { passive: false });
 
     canvas.addEventListener('touchmove', (e) => {
       e.preventDefault();
       if (e.touches.length !== 1) return;
       const t = e.touches[0];
-      const dx = t.clientX - touchLastX;
-      const dy = t.clientY - touchLastY;
 
-      if (!touchDragging) {
-        if (Math.hypot(t.clientX - touchStartX, t.clientY - touchStartY) > DRAG_THRESHOLD)
-          touchDragging = true;
-      }
+      if (!touchDragging && Math.hypot(t.clientX - touchStartX, t.clientY - touchStartY) > DRAG_THRESHOLD)
+        touchDragging = true;
 
-      if (touchDragging) {
-        const offset = camera.position.clone().sub(controls.target);
-        const r = offset.length();
-        let theta = Math.atan2(offset.x, offset.z);
-        let phi   = Math.acos(THREE.MathUtils.clamp(offset.y / r, -1, 1));
-        theta -= dx * 0.008;
-        phi    = THREE.MathUtils.clamp(phi - dy * 0.008, 0.02, Math.PI - 0.02);
-        offset.set(
-          r * Math.sin(phi) * Math.sin(theta),
-          r * Math.cos(phi),
-          r * Math.sin(phi) * Math.cos(theta)
-        );
-        camera.position.copy(controls.target).add(offset);
-        camera.lookAt(controls.target);
-        controls.update();
-      } else {
-        virtualX = t.clientX; virtualY = t.clientY;
-        aimFromScreen(virtualX, virtualY);
-      }
+      virtualX = t.clientX; virtualY = t.clientY;
+      aimFromScreen(virtualX, virtualY);
+      placeBounceHits();
 
       touchLastX = t.clientX;
       touchLastY = t.clientY;
@@ -539,12 +599,15 @@ import Fullstory from '../../../components/Fullstory.astro';
           } else { touchDragging = false; touchInGizmo = false; return; }
           snapToView(face);
         }
+      } else if (!touchDragging) {
+        placeBounceHits();
       }
+      stopHold();
       touchDragging = false;
       touchInGizmo  = false;
     }, { passive: false });
 
-    canvas.addEventListener('touchcancel', () => { touchDragging = false; touchInGizmo = false; });
+    canvas.addEventListener('touchcancel', () => { stopHold(); touchDragging = false; touchInGizmo = false; });
 
     // ── Ground plane ───────────────────────────────────────────────────────────
     const GROUND_Y = -(SPHERE_RADIUS);
@@ -702,7 +765,7 @@ import Fullstory from '../../../components/Fullstory.astro';
     }
     if (_params.has('noground')) toggleGround();
 
-    document.getElementById('spread-toggle')!.addEventListener('change', toggleSpread);
+    document.getElementById('clear-btn')!.addEventListener('click', clearDots);
     document.getElementById('ground-toggle')!.addEventListener('change', toggleGround);
 
     const helpBtn   = document.getElementById('help-btn')!;
