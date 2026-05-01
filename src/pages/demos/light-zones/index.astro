@@ -20,7 +20,7 @@ import Fullstory from '../../../components/Fullstory.astro';
     #back:hover { color: #fff; }
     #hint {
       position: fixed; top: 1rem; left: 50%; transform: translateX(-50%);
-      color: #666; font-size: 12px; text-align: center; pointer-events: none; z-index: 10;
+      color: #666; font-size: 12px; white-space: nowrap; pointer-events: none; z-index: 10;
     }
 
     /* ── Controls panel ── */
@@ -118,7 +118,7 @@ import Fullstory from '../../../components/Fullstory.astro';
 </head>
 <body>
   <a id="back" href="/demos/">← Demos</a>
-  <div id="hint">Click/tap to make one dot.<br>Hold to make many.</div>
+  <div id="hint">Click/tap to make one dot. Hold to make many.</div>
 
   <div id="zone-labels">
     <div class="zone-label" id="lbl-light">Form Light</div>
