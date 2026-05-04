@@ -1,0 +1,507 @@
+---
+import Fullstory from '../../../components/Fullstory.astro';
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Highlights</title>
+  <Fullstory />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #000; overflow: hidden; font-family: sans-serif; -webkit-user-select: none; user-select: none; }
+    canvas { display: block; width: 100vw; height: 100vh; touch-action: none; }
+
+    #back {
+      position: fixed; top: 1rem; left: 1rem;
+      color: #666; font: 13px/1 sans-serif; text-decoration: none; z-index: 10;
+    }
+    #back:hover { color: #fff; }
+
+    /* ── Controls panel ── */
+    #panel {
+      position: fixed; bottom: 1rem; right: 1rem;
+      background: rgba(0,0,0,0.75);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 8px;
+      padding: 0.6rem 0.75rem;
+      color: #ccc;
+      font-size: 12px;
+      line-height: 1.9;
+      width: 180px;
+      z-index: 10;
+    }
+    #panel h3 {
+      color: #fff; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+      margin-bottom: 0.4rem; display: flex; align-items: center;
+      justify-content: space-between; cursor: pointer; user-select: none;
+    }
+    #panel h3:hover { color: #ddd; }
+    #panel-toggle { color: #888; font-size: 13px; pointer-events: none; }
+    #panel.collapsed { padding-bottom: 0.75rem; }
+    #panel.collapsed > *:not(h3) { display: none; }
+    #panel.collapsed h3 { margin-bottom: 0; }
+    .row { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+    .row label { flex: 1; }
+    .row .val { color: #aaa; font-variant-numeric: tabular-nums; min-width: 2.5rem; text-align: right; }
+    .val-slider {
+      width: 100%; margin: 2px 0 6px;
+      accent-color: #777; cursor: pointer;
+    }
+    .val-slider:disabled { opacity: 0.35; cursor: default; }
+    .toggle-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 5px 0; font-size: 12px; color: #ccc; cursor: pointer;
+    }
+    .toggle { position: relative; display: inline-block; width: 30px; height: 17px; flex-shrink: 0; }
+    .toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+    .toggle-track {
+      position: absolute; inset: 0; border-radius: 9px;
+      background: rgba(255,255,255,0.15); transition: background 0.2s;
+    }
+    .toggle-track::before {
+      content: ''; position: absolute;
+      width: 13px; height: 13px; top: 2px; left: 2px;
+      border-radius: 50%; background: #666;
+      transition: transform 0.2s, background 0.2s;
+    }
+    .toggle input:checked + .toggle-track { background: rgba(255,255,255,0.4); }
+    .toggle input:checked + .toggle-track::before { transform: translateX(13px); background: #ddd; }
+    .sub-toggle-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 3px 0 3px 10px; font-size: 11px; color: #999; cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <a id="back" href="/demos/">← Demos</a>
+
+  <canvas id="demo-canvas"></canvas>
+
+  <div id="panel">
+    <h3>Controls &nbsp;<span id="panel-toggle">▾</span></h3>
+    <div class="row">
+      <label>Roughness</label>
+      <span class="val" id="roughness-val">0.20</span>
+    </div>
+    <input type="range" class="val-slider" id="roughness-slider" min="0" max="1" step="0.01" value="0.2">
+    <div class="row">
+      <label>Metalness</label>
+      <span class="val" id="metalness-val">0.00</span>
+    </div>
+    <input type="range" class="val-slider" id="metalness-slider" min="0" max="1" step="0.01" value="0">
+    <label class="toggle-row" for="highlight-chk">
+      <span>Highlight</span>
+      <span class="toggle">
+        <input type="checkbox" id="highlight-chk" checked>
+        <span class="toggle-track"></span>
+      </span>
+    </label>
+    <label class="toggle-row" for="arrows-chk">
+      <span>Arrows</span>
+      <span class="toggle">
+        <input type="checkbox" id="arrows-chk" checked>
+        <span class="toggle-track"></span>
+      </span>
+    </label>
+    <label class="sub-toggle-row" for="arrow-light-chk">
+      <span>To light</span>
+      <span class="toggle">
+        <input type="checkbox" id="arrow-light-chk" checked>
+        <span class="toggle-track"></span>
+      </span>
+    </label>
+    <label class="sub-toggle-row" for="arrow-half-chk">
+      <span>From highlight</span>
+      <span class="toggle">
+        <input type="checkbox" id="arrow-half-chk" checked>
+        <span class="toggle-track"></span>
+      </span>
+    </label>
+    <label class="sub-toggle-row" for="arrow-camera-chk">
+      <span>To camera</span>
+      <span class="toggle">
+        <input type="checkbox" id="arrow-camera-chk" checked>
+        <span class="toggle-track"></span>
+      </span>
+    </label>
+  </div>
+
+  <script>
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+
+    // ── Renderer ───────────────────────────────────────────────────────────────
+    const canvas = document.getElementById('demo-canvas') as HTMLCanvasElement;
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1;
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x000000);
+
+    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 200);
+    camera.position.set(0, 4, 22);
+
+    // ── Lights ─────────────────────────────────────────────────────────────────
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
+    scene.add(ambientLight);
+
+    const LIGHT_DIST = 8;
+    let lightAngle = Math.PI / 2; // starts directly above sphere
+    const lightPos = new THREE.Vector3();
+
+    const pointLight = new THREE.PointLight(0xffffff, 200, 0, 2);
+    scene.add(pointLight);
+
+    const lightMarker = new THREE.Mesh(
+      new THREE.SphereGeometry(0.22, 16, 16),
+      new THREE.MeshStandardMaterial({ emissive: 0xffffff, emissiveIntensity: 1, color: 0x000000 })
+    );
+    scene.add(lightMarker);
+
+    function setLightFromAngle() {
+      lightPos.set(0, LIGHT_DIST * Math.sin(lightAngle), LIGHT_DIST * Math.cos(lightAngle));
+      pointLight.position.copy(lightPos);
+      lightMarker.position.copy(lightPos);
+    }
+    setLightFromAngle();
+
+    // ── Sphere ─────────────────────────────────────────────────────────────────
+    const SPHERE_R = 1.5;
+    const sphereMat = new THREE.MeshStandardMaterial({
+      color:     0x888888,
+      roughness: 0.2,
+      metalness: 0.0,
+    });
+    const sphere = new THREE.Mesh(new THREE.SphereGeometry(SPHERE_R, 128, 128), sphereMat);
+    scene.add(sphere);
+
+    // ── Arrows ─────────────────────────────────────────────────────────────────
+    const ARROW_LEN  = 1.1;
+    const HEAD_LEN   = 0.28;
+    const HEAD_WIDTH = 0.14;
+    const UP = new THREE.Vector3(0, 1, 0);
+
+    const arrowLight     = new THREE.ArrowHelper(UP, new THREE.Vector3(), ARROW_LEN, 0xffcc44, HEAD_LEN, HEAD_WIDTH);
+    const arrowHighlight = new THREE.ArrowHelper(UP, new THREE.Vector3(), ARROW_LEN, 0xffffff, HEAD_LEN, HEAD_WIDTH);
+    const arrowCamera    = new THREE.ArrowHelper(UP, new THREE.Vector3(), ARROW_LEN, 0x66ccff, HEAD_LEN, HEAD_WIDTH);
+    scene.add(arrowLight, arrowHighlight, arrowCamera);
+
+    const _aL = new THREE.Vector3();
+    const _aV = new THREE.Vector3();
+    const _aH = new THREE.Vector3();
+
+    function updateArrows() {
+      _aL.copy(lightPos).normalize();
+      _aV.copy(camera.position).normalize();
+      _aH.addVectors(_aL, _aV).normalize();
+
+      arrowLight.position.copy(_aL).multiplyScalar(SPHERE_R + 0.01);
+      arrowLight.setDirection(_aL);
+
+      arrowHighlight.position.copy(_aH).multiplyScalar(SPHERE_R + 0.01);
+      arrowHighlight.setDirection(_aH);
+
+      arrowCamera.position.copy(_aV).multiplyScalar(SPHERE_R + 0.01);
+      arrowCamera.setDirection(_aV);
+    }
+
+    // ── Controls ───────────────────────────────────────────────────────────────
+    const controls = new OrbitControls(camera, canvas);
+    controls.target.set(0, 4, 0);
+    controls.enableDamping = true;
+    controls.update();
+
+    // ── Gizmo ──────────────────────────────────────────────────────────────────
+    const GIZMO = 110;
+    let gizmoDragActive = false;
+    let gizmoDragMoved  = false;
+    let gizmoDragLastX  = 0;
+    let gizmoDragLastY  = 0;
+
+    const toRGB = (c: number): [number, number, number] =>
+      [(c >> 16) & 0xff, (c >> 8) & 0xff, c & 0xff];
+    const GC = { right:0xbf3333, left:0x268e8e, top:0x33ae33, bottom:0x802e99, front:0x3855bf, back:0x8c2e2e };
+
+    const axesScene = new THREE.Scene();
+    axesScene.add(new THREE.AmbientLight(0xffffff, 0.55));
+    const gizmoLight = new THREE.DirectionalLight(0xffffff, 0.6);
+    gizmoLight.position.set(0, 0, 3);
+    axesScene.add(gizmoLight);
+
+    const TEX_W = 1024, TEX_H = 512;
+    const texCanvas = document.createElement('canvas');
+    texCanvas.width = TEX_W; texCanvas.height = TEX_H;
+    const texCtx = texCanvas.getContext('2d')!;
+    const imgData = texCtx.createImageData(TEX_W, TEX_H);
+    const buf = imgData.data;
+    for (let row = 0; row < TEX_H; row++) {
+      const theta = (row / TEX_H) * Math.PI;
+      const sinT  = Math.sin(theta);
+      const y     = Math.cos(theta);
+      for (let col = 0; col < TEX_W; col++) {
+        const phi = (col / TEX_W) * Math.PI * 2;
+        const x   = -Math.cos(phi) * sinT;
+        const z   =  Math.sin(phi) * sinT;
+        const ax  = Math.abs(x), ay = Math.abs(y), az = Math.abs(z);
+        let r: number, g: number, b: number;
+        if (ax >= ay && ax >= az)      [r,g,b] = x > 0 ? toRGB(GC.right)  : toRGB(GC.left);
+        else if (ay >= ax && ay >= az) [r,g,b] = y > 0 ? toRGB(GC.top)    : toRGB(GC.bottom);
+        else                           [r,g,b] = z > 0 ? toRGB(GC.front)  : toRGB(GC.back);
+        const idx = (row * TEX_W + col) * 4;
+        buf[idx] = r; buf[idx+1] = g; buf[idx+2] = b; buf[idx+3] = 255;
+      }
+    }
+    texCtx.putImageData(imgData, 0, 0);
+    texCtx.textAlign = 'center'; texCtx.textBaseline = 'middle';
+    texCtx.fillStyle = 'white'; texCtx.shadowColor = 'rgba(0,0,0,0.7)'; texCtx.shadowBlur = 10;
+    texCtx.font = 'bold 58px sans-serif';
+    [['Front', 0.25*TEX_W, 0.50*TEX_H], ['Right', 0.50*TEX_W, 0.50*TEX_H], ['Back', 0.75*TEX_W, 0.50*TEX_H]]
+      .forEach(([t,lx,ly]) => texCtx.fillText(t as string, lx as number, ly as number));
+    texCtx.fillText('Left', 0, 0.50*TEX_H);
+    texCtx.fillText('Left', TEX_W, 0.50*TEX_H);
+
+    const gizmoSphere = new THREE.Mesh(
+      new THREE.SphereGeometry(0.8, 64, 64),
+      new THREE.MeshLambertMaterial({ map: new THREE.CanvasTexture(texCanvas) })
+    );
+    axesScene.add(gizmoSphere);
+
+    function makeCapDisc(label: string, yPos: number, flipY: boolean) {
+      const S = 256;
+      const cc = document.createElement('canvas');
+      cc.width = S; cc.height = S;
+      const cx = cc.getContext('2d')!;
+      cx.textAlign = 'center'; cx.textBaseline = 'middle';
+      cx.fillStyle = 'white'; cx.shadowColor = 'rgba(0,0,0,0.6)'; cx.shadowBlur = 8;
+      cx.font = 'bold 64px sans-serif';
+      cx.fillText(label, S/2, S/2);
+      const disc = new THREE.Mesh(
+        new THREE.CircleGeometry(0.42, 48),
+        new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(cc), transparent: true, depthWrite: false })
+      );
+      disc.position.y = yPos;
+      disc.rotation.x = flipY ? Math.PI/2 : -Math.PI/2;
+      return disc;
+    }
+    const topCap    = makeCapDisc('Top',    0.802,  false);
+    const bottomCap = makeCapDisc('Bottom', -0.802, true);
+    gizmoSphere.add(topCap, bottomCap);
+
+    const axesCamera = new THREE.PerspectiveCamera(50, 1, 0.1, 10);
+    axesCamera.position.set(0, 0, 3);
+
+    let snapAnim: { from: THREE.Vector3; to: THREE.Vector3; fromUp: THREE.Vector3; toUp: THREE.Vector3; start: number } | null = null;
+
+    function snapToView(face: string) {
+      const dist = camera.position.distanceTo(controls.target);
+      const t = controls.target;
+      const up0 = new THREE.Vector3(0, 1, 0);
+      const snaps: Record<string, { pos: THREE.Vector3; up: THREE.Vector3 }> = {
+        front:  { pos: new THREE.Vector3(t.x,        t.y,        t.z + dist), up: up0.clone() },
+        back:   { pos: new THREE.Vector3(t.x,        t.y,        t.z - dist), up: up0.clone() },
+        right:  { pos: new THREE.Vector3(t.x + dist, t.y,        t.z       ), up: up0.clone() },
+        left:   { pos: new THREE.Vector3(t.x - dist, t.y,        t.z       ), up: up0.clone() },
+        top:    { pos: new THREE.Vector3(t.x,        t.y + dist, t.z       ), up: new THREE.Vector3(0, 0, -1) },
+        bottom: { pos: new THREE.Vector3(t.x,        t.y - dist, t.z       ), up: new THREE.Vector3(0, 0,  1) },
+      };
+      const s = snaps[face];
+      if (!s) return;
+      snapAnim = { from: camera.position.clone(), to: s.pos, fromUp: camera.up.clone(), toUp: s.up, start: performance.now() };
+      controls.enabled = false;
+    }
+
+    // ── Light drag ─────────────────────────────────────────────────────────────
+    const raycaster = new THREE.Raycaster();
+    const _ndc = new THREE.Vector2();
+    let draggingLight = false;
+    let prevDragY = 0;
+    const LIGHT_DRAG_SPEED = 0.012;
+
+    function toNDC(clientX: number, clientY: number) {
+      _ndc.set((clientX / window.innerWidth) * 2 - 1, -(clientY / window.innerHeight) * 2 + 1);
+    }
+
+    canvas.addEventListener('pointerdown', e => {
+      if (e.clientX >= window.innerWidth - GIZMO && e.clientY < GIZMO) {
+        gizmoDragActive = true;
+        gizmoDragMoved  = false;
+        gizmoDragLastX  = e.clientX;
+        gizmoDragLastY  = e.clientY;
+        canvas.setPointerCapture(e.pointerId);
+        return;
+      }
+      toNDC(e.clientX, e.clientY);
+      raycaster.setFromCamera(_ndc, camera);
+      if (raycaster.intersectObject(lightMarker).length > 0) {
+        draggingLight = true;
+        prevDragY = e.clientY;
+        controls.enabled = false;
+        canvas.setPointerCapture(e.pointerId);
+        canvas.style.cursor = 'grabbing';
+      }
+    });
+
+    canvas.addEventListener('pointermove', e => {
+      if (gizmoDragActive) {
+        const dx = e.clientX - gizmoDragLastX;
+        const dy = e.clientY - gizmoDragLastY;
+        if (dx !== 0 || dy !== 0) gizmoDragMoved = true;
+        gizmoDragLastX = e.clientX;
+        gizmoDragLastY = e.clientY;
+        const offset = camera.position.clone().sub(controls.target);
+        const r = offset.length();
+        let theta = Math.atan2(offset.x, offset.z);
+        let phi   = Math.acos(THREE.MathUtils.clamp(offset.y / r, -1, 1));
+        theta -= dx * 0.008;
+        phi    = THREE.MathUtils.clamp(phi - dy * 0.008, 0.02, Math.PI - 0.02);
+        offset.set(r * Math.sin(phi) * Math.sin(theta), r * Math.cos(phi), r * Math.sin(phi) * Math.cos(theta));
+        camera.position.copy(controls.target).add(offset);
+        camera.lookAt(controls.target);
+        controls.update();
+        return;
+      }
+      if (draggingLight) {
+        lightAngle -= (e.clientY - prevDragY) * LIGHT_DRAG_SPEED;
+        prevDragY = e.clientY;
+        setLightFromAngle();
+        return;
+      }
+      toNDC(e.clientX, e.clientY);
+      raycaster.setFromCamera(_ndc, camera);
+      canvas.style.cursor = raycaster.intersectObject(lightMarker).length > 0 ? 'grab' : '';
+    });
+
+    canvas.addEventListener('pointerup', e => {
+      if (gizmoDragActive) {
+        gizmoDragActive = false;
+        canvas.releasePointerCapture(e.pointerId);
+        return;
+      }
+      if (draggingLight) {
+        draggingLight = false;
+        controls.enabled = true;
+        canvas.releasePointerCapture(e.pointerId);
+        canvas.style.cursor = '';
+      }
+    });
+
+    canvas.addEventListener('click', e => {
+      if (!(e.clientX >= window.innerWidth - GIZMO && e.clientY < GIZMO)) return;
+      if (gizmoDragMoved) { gizmoDragMoved = false; return; }
+      const localX = e.clientX - (window.innerWidth - GIZMO);
+      const ndcX   = (localX / GIZMO) * 2 - 1;
+      const ndcY   = -((e.clientY / GIZMO) * 2 - 1);
+      const gizmoPick = new THREE.Raycaster();
+      gizmoPick.setFromCamera(new THREE.Vector2(ndcX, ndcY), axesCamera);
+      const hits = gizmoPick.intersectObject(gizmoSphere, true);
+      if (hits.length === 0) return;
+      let face: string;
+      if      (hits[0].object === topCap)    { face = 'top'; }
+      else if (hits[0].object === bottomCap) { face = 'bottom'; }
+      else if (hits[0].face) {
+        const n = hits[0].face.normal;
+        const ax = Math.abs(n.x), ay = Math.abs(n.y), az = Math.abs(n.z);
+        if      (ax >= ay && ax >= az) face = n.x > 0 ? 'right' : 'left';
+        else if (ay >= ax && ay >= az) face = n.y > 0 ? 'top'   : 'bottom';
+        else                           face = n.z > 0 ? 'front' : 'back';
+      } else { return; }
+      snapToView(face);
+    });
+
+    // ── Panel ──────────────────────────────────────────────────────────────────
+    const panel       = document.getElementById('panel')!;
+    const panelToggle = document.getElementById('panel-toggle')!;
+    panel.querySelector('h3')!.addEventListener('click', () => {
+      const collapsed = panel.classList.toggle('collapsed');
+      panelToggle.textContent = collapsed ? '▴' : '▾';
+    });
+
+    const roughnessSlider = document.getElementById('roughness-slider') as HTMLInputElement;
+    const roughnessVal    = document.getElementById('roughness-val')!;
+    roughnessSlider.addEventListener('input', () => {
+      sphereMat.roughness = parseFloat(roughnessSlider.value);
+      roughnessVal.textContent = parseFloat(roughnessSlider.value).toFixed(2);
+    });
+
+    const metalnessSlider = document.getElementById('metalness-slider') as HTMLInputElement;
+    const metalnessVal    = document.getElementById('metalness-val')!;
+    metalnessSlider.addEventListener('input', () => {
+      sphereMat.metalness = parseFloat(metalnessSlider.value);
+      metalnessVal.textContent = parseFloat(metalnessSlider.value).toFixed(2);
+    });
+
+    const arrowsChk      = document.getElementById('arrows-chk')       as HTMLInputElement;
+    const arrowLightChk  = document.getElementById('arrow-light-chk')  as HTMLInputElement;
+    const arrowHalfChk   = document.getElementById('arrow-half-chk')   as HTMLInputElement;
+    const arrowCameraChk = document.getElementById('arrow-camera-chk') as HTMLInputElement;
+
+    function updateArrowVisibility() {
+      const on = arrowsChk.checked;
+      arrowLight.visible     = on && arrowLightChk.checked;
+      arrowHighlight.visible = on && arrowHalfChk.checked;
+      arrowCamera.visible    = on && arrowCameraChk.checked;
+    }
+    [arrowsChk, arrowLightChk, arrowHalfChk, arrowCameraChk].forEach(el =>
+      el.addEventListener('change', updateArrowVisibility)
+    );
+
+    const highlightChk = document.getElementById('highlight-chk') as HTMLInputElement;
+    let savedRoughness = sphereMat.roughness;
+    highlightChk.addEventListener('change', () => {
+      if (highlightChk.checked) {
+        sphereMat.roughness = savedRoughness;
+        roughnessSlider.disabled = false;
+        roughnessVal.textContent = savedRoughness.toFixed(2);
+      } else {
+        savedRoughness = sphereMat.roughness;
+        sphereMat.roughness = 1.0;
+        roughnessSlider.disabled = true;
+      }
+    });
+
+    // ── Resize ─────────────────────────────────────────────────────────────────
+    function setSize() {
+      const w = window.innerWidth, h = window.innerHeight;
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    }
+    setSize();
+    window.addEventListener('resize', setSize);
+
+    // ── Render loop ────────────────────────────────────────────────────────────
+    function animate() {
+      requestAnimationFrame(animate);
+
+      if (snapAnim) {
+        const t = Math.min((performance.now() - snapAnim.start) / 300, 1);
+        const ease = 1 - Math.pow(1 - t, 3);
+        camera.position.lerpVectors(snapAnim.from, snapAnim.to, ease);
+        camera.up.lerpVectors(snapAnim.fromUp, snapAnim.toUp, ease).normalize();
+        camera.lookAt(controls.target);
+        if (t >= 1) { controls.update(); controls.enabled = true; snapAnim = null; }
+      }
+
+      controls.update();
+      updateArrows();
+
+      renderer.setScissorTest(false);
+      renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
+      renderer.render(scene, camera);
+
+      gizmoSphere.quaternion.copy(camera.quaternion).invert();
+      renderer.setScissorTest(true);
+      renderer.setScissor(window.innerWidth - GIZMO, window.innerHeight - GIZMO, GIZMO, GIZMO);
+      renderer.setViewport(window.innerWidth - GIZMO, window.innerHeight - GIZMO, GIZMO, GIZMO);
+      renderer.render(axesScene, axesCamera);
+      renderer.setScissorTest(false);
+    }
+    animate();
+  </script>
+</body>
+</html>
