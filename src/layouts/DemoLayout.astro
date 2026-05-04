@@ -1,0 +1,159 @@
+---
+import Fullstory from '../components/Fullstory.astro';
+
+interface Props {
+  title: string;
+}
+const { title } = Astro.props;
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{title}</title>
+  <Fullstory />
+</head>
+<body>
+  <a id="back" href="/demos/">← Demos</a>
+
+  <slot name="labels" />
+
+  <canvas id="demo-canvas"></canvas>
+
+  <button id="help-btn" title="Keyboard shortcuts">?</button>
+
+  <div id="help-panel">
+    <h3>Keyboard Shortcuts</h3>
+    <slot name="help" />
+  </div>
+
+  <div id="panel">
+    <h3>Controls &nbsp;<span id="panel-toggle">▾</span></h3>
+    <slot name="panel" />
+  </div>
+
+  <slot />
+</body>
+</html>
+
+<style is:global>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #000; overflow: hidden; font-family: sans-serif; -webkit-user-select: none; user-select: none; }
+  canvas { display: block; width: 100vw; height: 100vh; touch-action: none; }
+
+  #back {
+    position: fixed; top: 1rem; left: 1rem;
+    color: #666; font: 13px/1 sans-serif; text-decoration: none; z-index: 10;
+  }
+  #back:hover { color: #fff; }
+
+  /* ── Controls panel ── */
+  #panel {
+    position: fixed; bottom: 1rem; right: 1rem;
+    background: rgba(0,0,0,0.75);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 8px;
+    padding: 0.6rem 0.75rem;
+    color: #ccc;
+    font-size: 12px;
+    line-height: 1.9;
+    width: 180px;
+    z-index: 10;
+  }
+  #panel h3 {
+    color: #fff; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+    margin-bottom: 0.4rem; display: flex; align-items: center;
+    justify-content: space-between; cursor: pointer; user-select: none;
+  }
+  #panel h3:hover { color: #ddd; }
+  #panel-toggle { color: #888; font-size: 13px; pointer-events: none; }
+  #panel.collapsed { padding-bottom: 0.75rem; }
+  #panel.collapsed > *:not(h3) { display: none; }
+  #panel.collapsed h3 { margin-bottom: 0; }
+  #panel hr { border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 0.5rem 0; }
+
+  .row { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+  .row label { flex: 1; }
+  .row .val { color: #aaa; font-variant-numeric: tabular-nums; min-width: 2.5rem; text-align: right; }
+
+  .val-slider { width: 100%; margin: 2px 0 6px; accent-color: #777; cursor: pointer; }
+  .val-slider:disabled { opacity: 0.35; cursor: default; }
+
+  kbd {
+    display: inline-block; padding: 1px 5px;
+    border: 1px solid #555; border-radius: 3px;
+    font: 11px monospace; color: #bbb; background: rgba(255,255,255,0.06);
+  }
+
+  button {
+    width: 100%; margin-top: 0.25rem; padding: 12px 0;
+    border: 1px solid #555; border-radius: 4px;
+    background: rgba(255,255,255,0.06); color: #ccc; cursor: pointer; font-size: 14px;
+  }
+  button:hover { background: rgba(255,255,255,0.14); color: #fff; }
+  #panel button:first-of-type { margin-top: 12px; }
+
+  .toggle-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 5px 0; font-size: 12px; color: #ccc; cursor: pointer;
+  }
+  .toggle { position: relative; display: inline-block; width: 30px; height: 17px; flex-shrink: 0; }
+  .toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+  .toggle-track {
+    position: absolute; inset: 0; border-radius: 9px;
+    background: rgba(255,255,255,0.15); transition: background 0.2s;
+  }
+  .toggle-track::before {
+    content: ''; position: absolute;
+    width: 13px; height: 13px; top: 2px; left: 2px;
+    border-radius: 50%; background: #666;
+    transition: transform 0.2s, background 0.2s;
+  }
+  .toggle input:checked + .toggle-track { background: rgba(255,255,255,0.4); }
+  .toggle input:checked + .toggle-track::before { transform: translateX(13px); background: #ddd; }
+
+  /* ── Help button & panel ── */
+  #help-btn {
+    position: fixed; bottom: 1rem; left: 1rem;
+    width: 26px; height: 26px; border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.25);
+    background: rgba(255,255,255,0.07);
+    color: #999; font-size: 13px; font-weight: bold;
+    cursor: pointer; z-index: 10;
+    display: flex; align-items: center; justify-content: center;
+    user-select: none; transition: background 0.15s, color 0.15s;
+    /* override button base styles */
+    width: 26px; margin-top: 0; padding: 0;
+  }
+  #help-btn:hover { background: rgba(255,255,255,0.14); color: #fff; }
+  #help-btn.active { border-color: #aaa; color: #fff; background: rgba(255,255,255,0.12); }
+  #help-panel {
+    position: fixed; bottom: 3.25rem; left: 1rem;
+    background: rgba(0,0,0,0.75);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 8px; padding: 0.6rem 0.75rem;
+    color: #ccc; font-size: 12px; line-height: 1.9;
+    z-index: 10; display: none; white-space: nowrap;
+  }
+  #help-panel.open { display: block; }
+  #help-panel h3 { color: #fff; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.3rem; }
+  .help-row { display: flex; gap: 0.6rem; align-items: baseline; }
+  .help-keys { flex-shrink: 0; min-width: 9rem; }
+  .help-desc { color: #999; }
+</style>
+
+<script>
+  const panel       = document.getElementById('panel')!;
+  const panelToggle = document.getElementById('panel-toggle')!;
+  panel.querySelector('h3')!.addEventListener('click', () => {
+    const collapsed = panel.classList.toggle('collapsed');
+    panelToggle.textContent = collapsed ? '▴' : '▾';
+  });
+
+  const helpBtn   = document.getElementById('help-btn')!;
+  const helpPanel = document.getElementById('help-panel')!;
+  helpBtn.addEventListener('click', () => {
+    helpBtn.classList.toggle('active', helpPanel.classList.toggle('open'));
+  });
+</script>
