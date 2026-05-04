@@ -68,10 +68,16 @@ import Fullstory from '../../../components/Fullstory.astro';
     }
     .toggle input:checked + .toggle-track { background: rgba(255,255,255,0.4); }
     .toggle input:checked + .toggle-track::before { transform: translateX(13px); background: #ddd; }
-    .sub-toggle-row {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 3px 0 3px 10px; font-size: 11px; color: #999; cursor: pointer;
+    .pin-btn {
+      display: block; width: 100%; margin-top: 0.3rem; padding: 4px 8px;
+      border: 1px solid rgba(255,255,255,0.18); border-radius: 4px;
+      background: rgba(255,255,255,0.05); cursor: pointer; font-size: 12px; text-align: left;
     }
+    .pin-btn:hover { background: rgba(255,255,255,0.13); }
+    #pin-light-btn     { color: #ffcc44; }
+    #pin-highlight-btn { color: #ffffff; }
+    #pin-camera-btn    { color: #66ccff; }
+    #pin-clear-btn     { color: #888; margin-top: 0.5rem; }
   </style>
 </head>
 <body>
@@ -98,34 +104,10 @@ import Fullstory from '../../../components/Fullstory.astro';
         <span class="toggle-track"></span>
       </span>
     </label>
-    <label class="toggle-row" for="arrows-chk">
-      <span>Arrows</span>
-      <span class="toggle">
-        <input type="checkbox" id="arrows-chk" checked>
-        <span class="toggle-track"></span>
-      </span>
-    </label>
-    <label class="sub-toggle-row" for="arrow-light-chk">
-      <span>To light</span>
-      <span class="toggle">
-        <input type="checkbox" id="arrow-light-chk" checked>
-        <span class="toggle-track"></span>
-      </span>
-    </label>
-    <label class="sub-toggle-row" for="arrow-half-chk">
-      <span>From highlight</span>
-      <span class="toggle">
-        <input type="checkbox" id="arrow-half-chk" checked>
-        <span class="toggle-track"></span>
-      </span>
-    </label>
-    <label class="sub-toggle-row" for="arrow-camera-chk">
-      <span>To camera</span>
-      <span class="toggle">
-        <input type="checkbox" id="arrow-camera-chk" checked>
-        <span class="toggle-track"></span>
-      </span>
-    </label>
+    <button class="pin-btn" id="pin-light-btn">Facing light</button>
+    <button class="pin-btn" id="pin-highlight-btn">At highlight</button>
+    <button class="pin-btn" id="pin-camera-btn">Facing camera</button>
+    <button class="pin-btn" id="pin-clear-btn">Clear pins</button>
   </div>
 
   <script>
@@ -180,34 +162,42 @@ import Fullstory from '../../../components/Fullstory.astro';
     const sphere = new THREE.Mesh(new THREE.SphereGeometry(SPHERE_R, 128, 128), sphereMat);
     scene.add(sphere);
 
-    // ── Arrows ─────────────────────────────────────────────────────────────────
-    const ARROW_LEN  = 1.1;
-    const HEAD_LEN   = 0.28;
-    const HEAD_WIDTH = 0.14;
-    const UP = new THREE.Vector3(0, 1, 0);
+    // ── Pins ───────────────────────────────────────────────────────────────────
+    const PIN_COLORS = { light: 0xffcc44, highlight: 0xffffff, camera: 0x66ccff } as const;
+    type PinType = keyof typeof PIN_COLORS;
+    const PIN_LEN   = 1.1;
+    const PIN_TIP_R = 0.08;
+    const pins: THREE.Group[] = [];
+    const _pL = new THREE.Vector3();
+    const _pV = new THREE.Vector3();
+    const _pH = new THREE.Vector3();
 
-    const arrowLight     = new THREE.ArrowHelper(UP, new THREE.Vector3(), ARROW_LEN, 0xffcc44, HEAD_LEN, HEAD_WIDTH);
-    const arrowHighlight = new THREE.ArrowHelper(UP, new THREE.Vector3(), ARROW_LEN, 0xffffff, HEAD_LEN, HEAD_WIDTH);
-    const arrowCamera    = new THREE.ArrowHelper(UP, new THREE.Vector3(), ARROW_LEN, 0x66ccff, HEAD_LEN, HEAD_WIDTH);
-    scene.add(arrowLight, arrowHighlight, arrowCamera);
+    function placePin(type: PinType) {
+      _pL.copy(lightPos).normalize();
+      _pV.copy(camera.position).normalize();
+      _pH.addVectors(_pL, _pV).normalize();
+      const normal = type === 'light' ? _pL.clone() : type === 'highlight' ? _pH.clone() : _pV.clone();
+      const color  = PIN_COLORS[type];
+      const base = normal.clone().multiplyScalar(SPHERE_R + 0.002);
+      const tip  = normal.clone().multiplyScalar(SPHERE_R + PIN_LEN);
+      const line = new THREE.Line(
+        new THREE.BufferGeometry().setFromPoints([base, tip]),
+        new THREE.LineBasicMaterial({ color })
+      );
+      const tipMesh = new THREE.Mesh(
+        new THREE.SphereGeometry(PIN_TIP_R, 12, 12),
+        new THREE.MeshBasicMaterial({ color })
+      );
+      tipMesh.position.copy(tip);
+      const pin = new THREE.Group();
+      pin.add(line, tipMesh);
+      scene.add(pin);
+      pins.push(pin);
+    }
 
-    const _aL = new THREE.Vector3();
-    const _aV = new THREE.Vector3();
-    const _aH = new THREE.Vector3();
-
-    function updateArrows() {
-      _aL.copy(lightPos).normalize();
-      _aV.copy(camera.position).normalize();
-      _aH.addVectors(_aL, _aV).normalize();
-
-      arrowLight.position.copy(_aL).multiplyScalar(SPHERE_R + 0.01);
-      arrowLight.setDirection(_aL);
-
-      arrowHighlight.position.copy(_aH).multiplyScalar(SPHERE_R + 0.01);
-      arrowHighlight.setDirection(_aH);
-
-      arrowCamera.position.copy(_aV).multiplyScalar(SPHERE_R + 0.01);
-      arrowCamera.setDirection(_aV);
+    function clearPins() {
+      pins.forEach(p => scene.remove(p));
+      pins.length = 0;
     }
 
     // ── Controls ───────────────────────────────────────────────────────────────
@@ -435,20 +425,10 @@ import Fullstory from '../../../components/Fullstory.astro';
       metalnessVal.textContent = parseFloat(metalnessSlider.value).toFixed(2);
     });
 
-    const arrowsChk      = document.getElementById('arrows-chk')       as HTMLInputElement;
-    const arrowLightChk  = document.getElementById('arrow-light-chk')  as HTMLInputElement;
-    const arrowHalfChk   = document.getElementById('arrow-half-chk')   as HTMLInputElement;
-    const arrowCameraChk = document.getElementById('arrow-camera-chk') as HTMLInputElement;
-
-    function updateArrowVisibility() {
-      const on = arrowsChk.checked;
-      arrowLight.visible     = on && arrowLightChk.checked;
-      arrowHighlight.visible = on && arrowHalfChk.checked;
-      arrowCamera.visible    = on && arrowCameraChk.checked;
-    }
-    [arrowsChk, arrowLightChk, arrowHalfChk, arrowCameraChk].forEach(el =>
-      el.addEventListener('change', updateArrowVisibility)
-    );
+    document.getElementById('pin-light-btn')!    .addEventListener('click', () => placePin('light'));
+    document.getElementById('pin-highlight-btn')!.addEventListener('click', () => placePin('highlight'));
+    document.getElementById('pin-camera-btn')!   .addEventListener('click', () => placePin('camera'));
+    document.getElementById('pin-clear-btn')!    .addEventListener('click', clearPins);
 
     const highlightChk = document.getElementById('highlight-chk') as HTMLInputElement;
     let savedRoughness = sphereMat.roughness;
@@ -488,7 +468,6 @@ import Fullstory from '../../../components/Fullstory.astro';
       }
 
       controls.update();
-      updateArrows();
 
       renderer.setScissorTest(false);
       renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
