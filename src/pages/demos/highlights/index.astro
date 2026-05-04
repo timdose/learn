@@ -165,7 +165,7 @@ import Fullstory from '../../../components/Fullstory.astro';
     </label>
     <button class="pin-btn" id="pin-light-btn">Facing light</button>
     <button class="pin-btn" id="pin-highlight-btn">At highlight</button>
-    <button class="pin-btn" id="pin-camera-btn">Facing camera</button>
+    <button class="pin-btn" id="pin-camera-btn">Facing viewer</button>
     <button class="pin-btn" id="pin-clear-btn">Clear pins</button>
   </div>
 
@@ -181,7 +181,7 @@ import Fullstory from '../../../components/Fullstory.astro';
       pinLight:     0xffcc44,
       pinHighlight: 0xffffff,
       pinCamera:    0x4444ff,
-      arc:          0x999999,
+      arc:          0xaa0000,
       gizmoRight:   0xbf3333,
       gizmoLeft:    0x268e8e,
       gizmoTop:     0x33ae33,
@@ -244,8 +244,8 @@ import Fullstory from '../../../components/Fullstory.astro';
     // ── Pins ───────────────────────────────────────────────────────────────────
     const PIN_COLORS     = { light: COLOR.pinLight, highlight: COLOR.pinHighlight, camera: COLOR.pinCamera };
     type PinType = keyof typeof PIN_COLORS;
-    const PIN_LABEL_TEXT: Record<PinType, string> = { light: 'Facing Light', highlight: 'Highlight', camera: 'Facing Camera' };
-    const PIN_LEN         = 0.8;
+    const PIN_LABEL_TEXT: Record<PinType, string> = { light: 'Facing Light', highlight: 'Highlight', camera: 'Facing viewer' };
+    const PIN_LEN         = 0.6;
     const PIN_SHAFT_R     = 0.02;
     const PIN_TIP_R       = 0.1;
     const PIN_CONE_H      = 0.22;
@@ -279,56 +279,62 @@ import Fullstory from '../../../components/Fullstory.astro';
              .addScaledVector(b, Math.sin(t*angle)/s);
     }
 
-    const ARC_SURFACE_OFFSET = 0.4;
+    const ARC_SURFACE_OFFSET = 0.3;
     const ARC_TUBE_R         = 0.02;
     const ARC_TICK_LEN       = 0.20;
     const ARC_TICK_R         = 0.02;
     const ARC_OPACITY        = 0.65;
+    const ARC_DRAW_MS        = 300;
+    const ARC_PAUSE_MS       = 300;
+    const ARC_FADE_MS        = 300;
     let arcsVisible = false;
-    const arcs: Partial<Record<'lightToHighlight'|'highlightToCamera', THREE.Group>> = {};
+    type ArcEntry = { group: THREE.Group; tubeGeo: THREE.TubeGeometry; tickMat: THREE.MeshBasicMaterial; maxIdx: number };
+    type ArcAnim  = { start: number; both: boolean };
+    const arcEntries: Partial<Record<'cameraToHighlight'|'highlightToLight', ArcEntry>> = {};
+    let arcAnim: ArcAnim | null = null;
 
-    function makeArcGroup(dirA: THREE.Vector3, dirB: THREE.Vector3): THREE.Group {
-      const arcMat = () => new THREE.MeshBasicMaterial({ color: COLOR.arc, transparent: true, opacity: ARC_OPACITY });
+    function makeArcEntry(dirA: THREE.Vector3, dirB: THREE.Vector3): ArcEntry {
+      const tubeMat = new THREE.MeshBasicMaterial({ color: COLOR.arc, transparent: true, opacity: ARC_OPACITY });
+      const tickMat = new THREE.MeshBasicMaterial({ color: COLOR.arc, transparent: true, opacity: 0 });
       const pts: THREE.Vector3[] = [];
       for (let i = 0; i <= 48; i++) pts.push(slerpVec(dirA, dirB, i / 48).multiplyScalar(SPHERE_R + ARC_SURFACE_OFFSET));
-      const tube = new THREE.Mesh(
-        new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 48, ARC_TUBE_R, 6, false),
-        arcMat()
-      );
-      const midDir  = slerpVec(dirA, dirB, 0.5).normalize();
-      const nearDir = slerpVec(dirA, dirB, 0.51).normalize();
-      const tangent = nearDir.clone().sub(midDir).normalize();
-      const tickDir = new THREE.Vector3().crossVectors(tangent, midDir).normalize();
+      const tubeGeo = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 48, ARC_TUBE_R, 6, false);
+      tubeGeo.setDrawRange(0, 0);
+      const tube = new THREE.Mesh(tubeGeo, tubeMat);
+      const midDir = slerpVec(dirA, dirB, 0.5).normalize();
       const tick = new THREE.Mesh(
         new THREE.CylinderGeometry(ARC_TICK_R, ARC_TICK_R, ARC_TICK_LEN, 6),
-        arcMat()
+        tickMat
       );
-      tick.position.copy(midDir).multiplyScalar(SPHERE_R + ARC_SURFACE_OFFSET  );
+      tick.position.copy(midDir).multiplyScalar(SPHERE_R + ARC_SURFACE_OFFSET);
       tick.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), midDir);
-      const g = new THREE.Group();
-      g.add(tube, tick);
-      return g;
+      const group = new THREE.Group();
+      group.add(tube, tick);
+      return { group, tubeGeo, tickMat, maxIdx: tubeGeo.index!.count };
     }
 
     function updateArcs() {
-      if (arcs.lightToHighlight)  { scene.remove(arcs.lightToHighlight);  delete arcs.lightToHighlight; }
-      if (arcs.highlightToCamera) { scene.remove(arcs.highlightToCamera); delete arcs.highlightToCamera; }
-      if (pinNormals.light && pinNormals.highlight) {
-        arcs.lightToHighlight = makeArcGroup(pinNormals.light, pinNormals.highlight);
-        arcs.lightToHighlight.visible = arcsVisible;
-        scene.add(arcs.lightToHighlight);
+      (['cameraToHighlight', 'highlightToLight'] as const).forEach(k => {
+        if (arcEntries[k]) { scene.remove(arcEntries[k]!.group); delete arcEntries[k]; }
+      });
+      arcAnim = null;
+      if (!arcsVisible) return;
+      const hasC2H = !!(pinNormals.camera && pinNormals.highlight);
+      const hasH2L = !!(pinNormals.highlight && pinNormals.light);
+      if (hasC2H) {
+        arcEntries.cameraToHighlight = makeArcEntry(pinNormals.camera!, pinNormals.highlight!);
+        scene.add(arcEntries.cameraToHighlight.group);
       }
-      if (pinNormals.highlight && pinNormals.camera) {
-        arcs.highlightToCamera = makeArcGroup(pinNormals.highlight, pinNormals.camera);
-        arcs.highlightToCamera.visible = arcsVisible;
-        scene.add(arcs.highlightToCamera);
+      if (hasH2L) {
+        arcEntries.highlightToLight = makeArcEntry(pinNormals.highlight!, pinNormals.light!);
+        scene.add(arcEntries.highlightToLight.group);
       }
+      if (hasC2H || hasH2L) arcAnim = { start: performance.now(), both: hasC2H && hasH2L };
     }
 
     function setArcsVisible(v: boolean) {
       arcsVisible = v;
-      if (arcs.lightToHighlight)  arcs.lightToHighlight.visible  = v;
-      if (arcs.highlightToCamera) arcs.highlightToCamera.visible = v;
+      updateArcs();
     }
 
     function placePin(type: PinType) {
@@ -488,7 +494,7 @@ import Fullstory from '../../../components/Fullstory.astro';
     const raycaster = new THREE.Raycaster();
     const _ndc = new THREE.Vector2();
     let draggingLight = false;
-    let prevDragY = 0;
+    let prevDragX = 0, prevDragY = 0;
     const LIGHT_DRAG_SPEED = 0.012;
 
     function toNDC(clientX: number, clientY: number) {
@@ -508,6 +514,7 @@ import Fullstory from '../../../components/Fullstory.astro';
       raycaster.setFromCamera(_ndc, camera);
       if (raycaster.intersectObject(lightMarker).length > 0) {
         draggingLight = true;
+        prevDragX = e.clientX;
         prevDragY = e.clientY;
         controls.enabled = false;
         canvas.setPointerCapture(e.pointerId);
@@ -535,8 +542,20 @@ import Fullstory from '../../../components/Fullstory.astro';
         return;
       }
       if (draggingLight) {
-        lightAngle -= (e.clientY - prevDragY) * LIGHT_DRAG_SPEED;
+        const dx = e.clientX - prevDragX;
+        const dy = e.clientY - prevDragY;
+        prevDragX = e.clientX;
         prevDragY = e.clientY;
+        const T      = new THREE.Vector3(0, Math.cos(lightAngle), -Math.sin(lightAngle));
+        const fwd    = camera.getWorldDirection(new THREE.Vector3());
+        const right  = new THREE.Vector3().crossVectors(fwd, camera.up).normalize();
+        const rDotT  = right.dot(T);
+        const uDotT  = camera.up.dot(T);
+        // visLen: how much of the arc tangent is visible in screen space (0 = going into screen)
+        const visLen = Math.sqrt(rDotT * rDotT + uDotT * uDotT);
+        // Blend: side views → accurate projection; front view (arc into screen) → Y-drag fallback
+        const blend  = THREE.MathUtils.smoothstep(visLen, 0.1, 0.35);
+        lightAngle  += THREE.MathUtils.lerp(-dy, dx * rDotT - dy * uDotT, blend) * LIGHT_DRAG_SPEED;
         setLightFromAngle();
         return;
       }
@@ -702,6 +721,29 @@ import Fullstory from '../../../components/Fullstory.astro';
           a.pin.position.set(0, 0, 0);
           a.mats.forEach(m => { m.opacity = 1; });
           pinAnims.splice(i, 1);
+        }
+      }
+
+      if (arcAnim) {
+        const el = performance.now() - arcAnim.start;
+        if (arcAnim.both) {
+          const t0 = Math.min(el / ARC_DRAW_MS, 1);
+          if (arcEntries.cameraToHighlight)
+            arcEntries.cameraToHighlight.tubeGeo.setDrawRange(0, Math.floor(t0 * arcEntries.cameraToHighlight.maxIdx));
+          const t2 = Math.max(0, Math.min((el - ARC_DRAW_MS - ARC_PAUSE_MS) / ARC_DRAW_MS, 1));
+          if (arcEntries.highlightToLight)
+            arcEntries.highlightToLight.tubeGeo.setDrawRange(0, Math.floor(t2 * arcEntries.highlightToLight.maxIdx));
+          const t3 = Math.max(0, Math.min((el - 2*ARC_DRAW_MS - ARC_PAUSE_MS) / ARC_FADE_MS, 1));
+          if (arcEntries.cameraToHighlight) arcEntries.cameraToHighlight.tickMat.opacity = t3 * ARC_OPACITY;
+          if (arcEntries.highlightToLight)  arcEntries.highlightToLight.tickMat.opacity  = t3 * ARC_OPACITY;
+          if (el >= 2*ARC_DRAW_MS + ARC_PAUSE_MS + ARC_FADE_MS) arcAnim = null;
+        } else {
+          const entry = arcEntries.cameraToHighlight ?? arcEntries.highlightToLight!;
+          const t0 = Math.min(el / ARC_DRAW_MS, 1);
+          entry.tubeGeo.setDrawRange(0, Math.floor(t0 * entry.maxIdx));
+          const t1 = Math.max(0, Math.min((el - ARC_DRAW_MS) / ARC_FADE_MS, 1));
+          entry.tickMat.opacity = t1 * ARC_OPACITY;
+          if (el >= ARC_DRAW_MS + ARC_FADE_MS) arcAnim = null;
         }
       }
 
