@@ -10,26 +10,30 @@ import Fullstory from '../../../components/Fullstory.astro';
   <Fullstory />
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: #000; overflow: hidden; font-family: sans-serif; }
-    canvas { display: block; width: 100vw; height: 100vh; }
+    body { background: #000; overflow: hidden; font-family: sans-serif; -webkit-user-select: none; user-select: none; }
+    canvas { display: block; width: 100vw; height: 100vh; touch-action: none; }
 
     #back {
       position: fixed; top: 1rem; left: 1rem;
       color: #666; font: 13px/1 sans-serif; text-decoration: none; z-index: 10;
     }
     #back:hover { color: #fff; }
+    #hint {
+      position: fixed; top: 1rem; left: 50%; transform: translateX(-50%);
+      color: #666; font-size: 12px; white-space: nowrap; pointer-events: none; z-index: 10;
+    }
 
     /* ── Controls panel ── */
     #panel {
       position: fixed; bottom: 1rem; right: 1rem;
-      background: rgba(255,255,255,0.07);
+      background: rgba(0,0,0,0.75);
       border: 1px solid rgba(255,255,255,0.12);
       border-radius: 8px;
-      padding: 0.75rem 1rem;
+      padding: 0.6rem 0.75rem;
       color: #ccc;
       font-size: 12px;
       line-height: 1.9;
-      min-width: 210px;
+      width: 160px;
       z-index: 10;
     }
     #panel h3 { color: #fff; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.4rem; display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; }
@@ -46,56 +50,39 @@ import Fullstory from '../../../components/Fullstory.astro';
       border: 1px solid #555; border-radius: 3px;
       font: 11px monospace; color: #bbb; background: rgba(255,255,255,0.06);
     }
-    .val-input {
-      width: 50px; background: rgba(255,255,255,0.08); border: 1px solid #555;
-      border-radius: 4px; color: #fff; font-size: 12px; text-align: center;
-      padding: 1px 4px; -moz-appearance: textfield;
-    }
-    .val-input::-webkit-outer-spin-button,
-    .val-input::-webkit-inner-spin-button { -webkit-appearance: none; }
-    .val-input:focus { outline: none; border-color: #888; }
-    .val-unit { color: #777; font-size: 11px; }
-    .val-slider { width: 100%; margin: 2px 0 6px; accent-color: #777; cursor: pointer; }
-    #terminator-btn {
-      width: 100%; margin-top: 0.25rem; padding: 4px 0;
+    button {
+      width: 100%; margin-top: 0.25rem; padding: 12px 0;
       border: 1px solid #555; border-radius: 4px;
-      background: rgba(255,255,255,0.06); color: #ccc; cursor: pointer; font-size: 12px;
+      background: rgba(255,255,255,0.06); color: #ccc; cursor: pointer; font-size: 14px;
     }
-    #terminator-btn:hover { background: rgba(255,255,255,0.14); color: #fff; }
-    #terminator-btn.active { border-color: #ff8c42; color: #ff8c42; background: rgba(255,140,66,0.1); }
-    #clear-btn {
-      width: 100%; margin-top: 0.25rem; padding: 4px 0;
-      border: 1px solid #555; border-radius: 4px;
-      background: rgba(255,255,255,0.06); color: #ccc; cursor: pointer; font-size: 12px;
+    button:hover { background: rgba(255,255,255,0.14); color: #fff; }
+    button.active { border-color: #ff8c42; color: #ff8c42; background: rgba(255,140,66,0.1); }
+    .toggle-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 5px 0; font-size: 12px; color: #ccc; cursor: pointer;
     }
-    #clear-btn:hover { background: rgba(255,60,60,0.15); color: #f88; border-color: #f66; }
-    #trace-btn {
-      width: 100%; margin-top: 0.25rem; padding: 4px 0;
-      border: 1px solid #555; border-radius: 4px;
-      background: rgba(255,255,255,0.06); color: #ccc; cursor: pointer; font-size: 12px;
+    #panel button:first-of-type { margin-top: 12px; }
+    .toggle { position: relative; display: inline-block; width: 30px; height: 17px; flex-shrink: 0; }
+    .toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+    .toggle-track {
+      position: absolute; inset: 0; border-radius: 9px;
+      background: rgba(255,255,255,0.15); transition: background 0.2s;
     }
-    #trace-btn:hover { background: rgba(255,255,255,0.14); color: #fff; }
-    #trace-btn.active { border-color: #ff8c42; color: #ff8c42; background: rgba(255,140,66,0.1); }
-    #labels-btn {
-      width: 100%; margin-top: 0.25rem; padding: 4px 0;
-      border: 1px solid #555; border-radius: 4px;
-      background: rgba(255,255,255,0.06); color: #ccc; cursor: pointer; font-size: 12px;
+    .toggle-track::before {
+      content: ''; position: absolute;
+      width: 13px; height: 13px; top: 2px; left: 2px;
+      border-radius: 50%; background: #666;
+      transition: transform 0.2s, background 0.2s;
     }
-    #labels-btn:hover { background: rgba(255,255,255,0.14); color: #fff; }
-    #labels-btn.active { border-color: #aaa; color: #fff; background: rgba(255,255,255,0.1); }
-    #ground-btn {
-      width: 100%; margin-top: 0.25rem; padding: 4px 0;
-      border: 1px solid #555; border-radius: 4px;
-      background: rgba(255,255,255,0.06); color: #ccc; cursor: pointer; font-size: 12px;
-    }
-    #ground-btn:hover { background: rgba(255,255,255,0.14); color: #fff; }
-    #ground-btn.active { border-color: #aaa; color: #fff; background: rgba(255,255,255,0.1); }
+    .toggle input:checked + .toggle-track { background: rgba(255,255,255,0.4); }
+    .toggle input:checked + .toggle-track::before { transform: translateX(13px); background: #ddd; }
+
     #zone-labels { position: fixed; inset: 0; pointer-events: none; }
     .zone-label {
       position: absolute; transform: translate(-50%, -50%);
-      color: #fff; font: 11px/1 sans-serif; letter-spacing: 0.06em; text-transform: uppercase;
+      color: #ff8c42; font: 11px/1 sans-serif; letter-spacing: 0.06em; text-transform: uppercase;
       white-space: nowrap;
-      background: rgba(0,0,0,0.55); padding: 2px 7px; border-radius: 3px;
+      background: rgba(0,0,0,0.85); padding: 2px 7px; border-radius: 3px;
       opacity: 0; transition: opacity 0.3s;
     }
     .zone-label.visible { opacity: 1; }
@@ -115,9 +102,9 @@ import Fullstory from '../../../components/Fullstory.astro';
     #help-btn.active { border-color: #aaa; color: #fff; background: rgba(255,255,255,0.12); }
     #help-panel {
       position: fixed; bottom: 3.25rem; left: 1rem;
-      background: rgba(255,255,255,0.07);
+      background: rgba(0,0,0,0.75);
       border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 8px; padding: 0.75rem 1rem;
+      border-radius: 8px; padding: 0.6rem 0.75rem;
       color: #ccc; font-size: 12px; line-height: 1.9;
       z-index: 10; display: none; white-space: nowrap;
     }
@@ -131,11 +118,12 @@ import Fullstory from '../../../components/Fullstory.astro';
 </head>
 <body>
   <a id="back" href="/demos/">← Demos</a>
+  <div id="hint">Click/tap to make one dot. Hold to make many.</div>
 
   <div id="zone-labels">
-    <div class="zone-label" id="lbl-light">Zone of Light</div>
+    <div class="zone-label" id="lbl-light">Form Light</div>
     <div class="zone-label" id="lbl-term">Terminator</div>
-    <div class="zone-label" id="lbl-shadow">Zone of Shadow</div>
+    <div class="zone-label" id="lbl-shadow">Form Shadow</div>
     <div class="zone-label" id="lbl-cast">Cast Shadow</div>
   </div>
 
@@ -143,20 +131,15 @@ import Fullstory from '../../../components/Fullstory.astro';
 
   <div id="panel">
     <h3>Controls &nbsp;<span id="panel-toggle">▾</span></h3>
-    <div class="row">
-      <label>Spray count</label>
-      <input type="number" class="val-input" id="spray-val" value="1" min="1" max="1000">
-    </div>
-    <input type="range" class="val-slider" id="spray-slider" min="1" max="100" step="1" value="1">
-    <div class="row">
-      <label>Spray spread</label>
-      <input type="number" class="val-input" id="spread-val" value="5" min="1" max="90"><span class="val-unit">°</span>
-    </div>
-    <input type="range" class="val-slider" id="spread-slider" min="1" max="90" step="1" value="5">
-    <hr />
+    <label class="toggle-row" for="labels-toggle">
+      <span>Labels</span>
+      <span class="toggle"><input type="checkbox" id="labels-toggle"><span class="toggle-track"></span></span>
+    </label>
+    <label class="toggle-row" for="ground-toggle">
+      <span>Ground</span>
+      <span class="toggle"><input type="checkbox" id="ground-toggle" checked><span class="toggle-track"></span></span>
+    </label>
     <button id="trace-btn">Trace terminator</button>
-    <button id="labels-btn">Show labels</button>
-    <button id="ground-btn">Show ground</button>
     <button id="clear-btn">Clear dots</button>
   </div>
 
@@ -165,11 +148,10 @@ import Fullstory from '../../../components/Fullstory.astro';
   <div id="help-panel">
     <h3>Keyboard Shortcuts</h3>
     <div class="help-row"><span class="help-keys"><kbd>Mouse</kbd></span><span class="help-desc">Aim ray</span></div>
-    <div class="help-row"><span class="help-keys"><kbd>Click</kbd> / <kbd>Space</kbd></span><span class="help-desc">Place dot(s)</span></div>
+    <div class="help-row"><span class="help-keys"><kbd>Click</kbd> / <kbd>Space</kbd></span><span class="help-desc">Place dot</span></div>
+    <div class="help-row"><span class="help-keys"><kbd>Hold</kbd> / <kbd>Hold Space</kbd></span><span class="help-desc">Spray dots</span></div>
     <div class="help-row"><span class="help-keys"><kbd>↑↓←→</kbd></span><span class="help-desc">Nudge aim</span></div>
     <div class="help-row"><span class="help-keys"><kbd>Shift</kbd>+<kbd>↑↓←→</kbd></span><span class="help-desc">Fine nudge</span></div>
-    <div class="help-row"><span class="help-keys"><kbd>[</kbd> <kbd>]</kbd></span><span class="help-desc">Spray count &nbsp;(<kbd>Shift</kbd> ±10)</span></div>
-    <div class="help-row"><span class="help-keys"><kbd>,</kbd> <kbd>.</kbd></span><span class="help-desc">Spray spread &nbsp;(<kbd>Shift</kbd> ±10°)</span></div>
     <div class="help-row"><span class="help-keys"><kbd>T</kbd> / <kbd>Esc</kbd></span><span class="help-desc">Trace terminator / stop</span></div>
     <div class="help-row"><span class="help-keys"><kbd>L</kbd></span><span class="help-desc">Toggle labels</span></div>
     <div class="help-row"><span class="help-keys"><kbd>G</kbd></span><span class="help-desc">Toggle ground</span></div>
@@ -355,10 +337,6 @@ import Fullstory from '../../../components/Fullstory.astro';
         case 'ArrowUp':    virtualY = Math.max(0,                    virtualY - px); break;
         case 'ArrowDown':  virtualY = Math.min(window.innerHeight,   virtualY + px); break;
         case ' ': e.preventDefault(); if (!e.repeat) startHold(); return;
-        case '[': case '{': adjustCount(e.shiftKey ? -10 : -1);  return;
-        case ']': case '}': adjustCount(e.shiftKey ?  10 :  1);  return;
-        case ',': case '<': adjustSpread(e.shiftKey ? -10 : -1); return;
-        case '.': case '>': adjustSpread(e.shiftKey ?  10 :  1); return;
         case 't': case 'T': startTrace(); return;
         case 'l': case 'L': toggleLabels(); return;
         case 'g': case 'G': toggleGround(); return;
@@ -376,8 +354,8 @@ import Fullstory from '../../../components/Fullstory.astro';
     const dotMat = new THREE.MeshBasicMaterial({ color: COLOR.dot });
     const dots: THREE.Mesh[] = [];
 
-    let sprayCount  = 1;
-    let spraySpread = 5 * (Math.PI / 180); // degrees → radians
+    const SPRAY_COUNT  = 100;
+    const SPRAY_SPREAD = 22.5 * (Math.PI / 180);
 
     function placeDot(pos: THREE.Vector3) {
       const dot = new THREE.Mesh(dotGeo, dotMat);
@@ -405,6 +383,13 @@ import Fullstory from '../../../components/Fullstory.astro';
     let gizmoDragMoved  = false;
     let gizmoDragLastX  = 0;
     let gizmoDragLastY  = 0;
+
+    let touchStartX   = 0, touchStartY   = 0;
+    let touchLastX    = 0, touchLastY    = 0;
+    let touchDragging = false;
+    let touchInGizmo  = false;
+    let touchActive   = false;
+    const DRAG_THRESHOLD = 8;
 
     canvas.addEventListener('click', (e) => {
       // Intercept clicks on the gizmo area (top-right corner)
@@ -436,15 +421,15 @@ import Fullstory from '../../../components/Fullstory.astro';
 
       if (traceAnim) return;
       if (autoFired) { autoFired = false; return; } // already fired via hold
-      fireDots();
+      fireDots(1, 0);
     });
 
     // ── Hold-to-fire ─────────────────────────────────────────────────────────
-    function fireDots() {
+    function fireDots(count: number, spreadRad: number) {
       if (traceAnim) return;
       const primaryDir = dirFromAngles(azimuth, polar);
       const dirs: THREE.Vector3[] = [primaryDir];
-      for (let i = 1; i < sprayCount; i++) dirs.push(sampleCone(primaryDir, spraySpread));
+      for (let i = 1; i < count; i++) dirs.push(sampleCone(primaryDir, spreadRad));
       dirs.forEach(dir => {
         raycaster.set(lightPos, dir.normalize());
         const hits = raycaster.intersectObject(sphere);
@@ -462,10 +447,14 @@ import Fullstory from '../../../components/Fullstory.astro';
 
     function startHold() {
       if (holdTimer !== null || traceAnim) return;
-      holdTimer = window.setInterval(() => { autoFired = true; fireDots(); }, 100);
+      holdTimer = window.setTimeout(() => {
+        autoFired = true; fireDots(SPRAY_COUNT, SPRAY_SPREAD);
+        holdTimer = window.setInterval(() => { fireDots(SPRAY_COUNT, SPRAY_SPREAD); }, 100);
+      }, 400);
     }
     function stopHold() {
       if (holdTimer === null) return;
+      window.clearTimeout(holdTimer);   // works for both setTimeout and setInterval IDs
       window.clearInterval(holdTimer);
       holdTimer = null;
     }
@@ -488,6 +477,109 @@ import Fullstory from '../../../components/Fullstory.astro';
     });
     window.addEventListener('mouseleave', stopHold);
     window.addEventListener('keyup', (e) => { if (e.key === ' ') stopHold(); });
+
+    // ── Touch support ─────────────────────────────────────────────────────────
+    canvas.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      if (e.touches.length !== 1) {
+        if (touchActive) { stopHold(); autoFired = false; touchDragging = false; touchActive = false; }
+        return;
+      }
+      touchActive = true;
+      const t = e.touches[0];
+      touchStartX = touchLastX = t.clientX;
+      touchStartY = touchLastY = t.clientY;
+      touchDragging = false;
+      if (t.clientX >= window.innerWidth - GIZMO && t.clientY < GIZMO) {
+        touchInGizmo = true;
+        return;
+      }
+      touchInGizmo = false;
+      virtualX = t.clientX; virtualY = t.clientY;
+      aimFromScreen(virtualX, virtualY);
+      startHold();
+    }, { passive: false });
+
+    canvas.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      if (e.touches.length !== 1) return;
+      const t = e.touches[0];
+      const dx = t.clientX - touchLastX;
+      const dy = t.clientY - touchLastY;
+
+      if (!touchDragging) {
+        const dist = Math.hypot(t.clientX - touchStartX, t.clientY - touchStartY);
+        if (dist > DRAG_THRESHOLD) {
+          touchDragging = true;
+          stopHold();
+        }
+      }
+
+      if (touchDragging) {
+        const offset = camera.position.clone().sub(controls.target);
+        const r = offset.length();
+        let theta = Math.atan2(offset.x, offset.z);
+        let phi   = Math.acos(THREE.MathUtils.clamp(offset.y / r, -1, 1));
+        theta -= dx * 0.008;
+        phi    = THREE.MathUtils.clamp(phi - dy * 0.008, 0.02, Math.PI - 0.02);
+        offset.set(
+          r * Math.sin(phi) * Math.sin(theta),
+          r * Math.cos(phi),
+          r * Math.sin(phi) * Math.cos(theta)
+        );
+        camera.position.copy(controls.target).add(offset);
+        camera.lookAt(controls.target);
+        controls.update();
+      } else if (!traceAnim) {
+        virtualX = t.clientX; virtualY = t.clientY;
+        aimFromScreen(virtualX, virtualY);
+      }
+
+      touchLastX = t.clientX;
+      touchLastY = t.clientY;
+    }, { passive: false });
+
+    canvas.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      stopHold();
+      if (!touchActive) return;
+      if (touchInGizmo && !touchDragging) {
+        const localX = touchStartX - (window.innerWidth - GIZMO);
+        const ndcX   = (localX / GIZMO) * 2 - 1;
+        const ndcY   = -((touchStartY / GIZMO) * 2 - 1);
+        const gizmoPick = new THREE.Raycaster();
+        gizmoPick.setFromCamera(new THREE.Vector2(ndcX, ndcY), axesCamera);
+        const hits = gizmoPick.intersectObject(gizmoSphere, true);
+        if (hits.length > 0) {
+          let face: string;
+          if      (hits[0].object === topCap)    face = 'top';
+          else if (hits[0].object === bottomCap) face = 'bottom';
+          else if (hits[0].face) {
+            const n = hits[0].face.normal;
+            const ax = Math.abs(n.x), ay = Math.abs(n.y), az = Math.abs(n.z);
+            if      (ax >= ay && ax >= az) face = n.x > 0 ? 'right' : 'left';
+            else if (ay >= ax && ay >= az) face = n.y > 0 ? 'top'   : 'bottom';
+            else                           face = n.z > 0 ? 'front' : 'back';
+          } else { touchInGizmo = false; return; }
+          snapToView(face);
+        }
+      } else if (!touchDragging && !autoFired) {
+        fireDots(1, 0);
+      }
+      autoFired     = false;
+      touchDragging = false;
+      touchInGizmo  = false;
+      touchActive   = false;
+    }, { passive: false });
+
+    canvas.addEventListener('touchcancel', () => {
+      stopHold();
+      autoFired     = false;
+      touchDragging = false;
+      touchInGizmo  = false;
+      touchActive   = false;
+      touchInGizmo  = false;
+    });
 
     // Suppress context menu so right-click drag works cleanly
     canvas.addEventListener('contextmenu', e => e.preventDefault());
@@ -555,7 +647,7 @@ import Fullstory from '../../../components/Fullstory.astro';
     );
     groundMesh.rotation.x = -Math.PI / 2;
     groundMesh.position.y = GROUND_Y;
-    groundMesh.visible = false;
+    groundMesh.visible = true;
     scene.add(groundMesh);
 
     const castShadowMesh = new THREE.Mesh(
@@ -598,7 +690,7 @@ import Fullstory from '../../../components/Fullstory.astro';
     groundLightMesh.visible = false;
     scene.add(groundLightMesh);
 
-    let groundVisible = false;
+    let groundVisible = true;
     function toggleGround() {
       groundVisible = !groundVisible;
       groundMesh.visible = groundVisible;
@@ -607,9 +699,8 @@ import Fullstory from '../../../components/Fullstory.astro';
       const castShow = labelsVisible && groundVisible;
       LABEL_DEFS[LABEL_DEFS.length - 1].el.classList.toggle('visible', castShow);
       labelLines[labelLines.length - 1].visible = castShow;
-      const btn = document.getElementById('ground-btn')!;
-      btn.textContent = groundVisible ? 'G — Hide ground' : 'G — Show ground';
-      btn.classList.toggle('active', groundVisible);
+      castOutlineLine.visible = castShow;
+      (document.getElementById('ground-toggle') as HTMLInputElement).checked = groundVisible;
     }
 
     // ── Ring trace animation ──────────────────────────────────────────────────
@@ -653,14 +744,15 @@ import Fullstory from '../../../components/Fullstory.astro';
       if (!traceAnim) return;
       window.clearTimeout(traceAnim.timerId);
       traceAnim = null;
-      traceBtn.textContent = 'T — Trace terminator';
+      traceBtn.textContent = 'Trace terminator';
       traceBtn.classList.remove('active');
     }
 
     // ── Orbit (right-click only) ──────────────────────────────────────────────
     const controls = new OrbitControls(camera, canvas);
     controls.mouseButtons = { LEFT: null as any, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.ROTATE };
-    controls.target.set(0, 5, 0);
+    controls.touches = { ONE: null as any, TWO: THREE.TOUCH.DOLLY_PAN };
+    controls.target.set(0, 4, 0);
     controls.enableDamping = true;
     controls.update();
 
@@ -675,9 +767,9 @@ import Fullstory from '../../../components/Fullstory.astro';
 
     const termAnchor = ringCenter.clone().addScaledVector(termU, ringRadius);
     const LABEL_DEFS = [
-      { el: document.getElementById('lbl-light')!,  anchor: new THREE.Vector3(0, SPHERE_RADIUS, 0),                    pos: new THREE.Vector3(2.4,  2.2, 0),            color: COLOR.terminator },
-      { el: document.getElementById('lbl-term')!,   anchor: termAnchor,                                                pos: new THREE.Vector3(2.9,  ringCenter.y, 0),    color: COLOR.terminator },
-      { el: document.getElementById('lbl-shadow')!, anchor: new THREE.Vector3(0, -SPHERE_RADIUS, 0),                   pos: new THREE.Vector3(2.4, -1.9, 0),            color: COLOR.terminator },
+      { el: document.getElementById('lbl-light')!,  anchor: new THREE.Vector3(0.6,  1.0, 0.9),                          pos: new THREE.Vector3(2.4,  1.0, 0.9),            color: COLOR.terminator },
+      { el: document.getElementById('lbl-term')!,   anchor: new THREE.Vector3(1, ringCenter.y, 0.9),                  pos: new THREE.Vector3(2.8,  ringCenter.y, 0.9),    color: COLOR.terminator },
+      { el: document.getElementById('lbl-shadow')!, anchor: new THREE.Vector3(0.6, -0.6, 1.25),                         pos: new THREE.Vector3(2.4, -0.6, 1.25),            color: COLOR.terminator },
       { el: document.getElementById('lbl-cast')!,   anchor: new THREE.Vector3(-castShadowRadius, GROUND_Y + 0.003, 0), pos: new THREE.Vector3(-3.2, GROUND_Y + 0.4, 0), color: COLOR.terminator },
     ];
 
@@ -685,13 +777,30 @@ import Fullstory from '../../../components/Fullstory.astro';
     const labelLines = LABEL_DEFS.map(d => {
       const geo = new LineGeometry();
       geo.setPositions([d.anchor.x, d.anchor.y, d.anchor.z, d.pos.x, d.pos.y, d.pos.z]);
-      const mat = new LineMaterial({ color: d.color, transparent: true, opacity: 0.5, linewidth: 2, resolution: new THREE.Vector2(window.innerWidth, window.innerHeight) });
+      const mat = new LineMaterial({ color: d.color, transparent: true, opacity: 0.75, linewidth: 2, resolution: new THREE.Vector2(window.innerWidth, window.innerHeight) });
       labelLineMats.push(mat);
       const line = new Line2(geo, mat);
       line.visible = false;
       scene.add(line);
       return line;
     });
+
+    // Orange outline circle around the cast shadow disc
+    const castOutlinePts: number[] = [];
+    for (let i = 0; i <= 64; i++) {
+      const a = (i / 64) * Math.PI * 2;
+      castOutlinePts.push(Math.cos(a) * castShadowRadius, GROUND_Y + 0.006, Math.sin(a) * castShadowRadius);
+    }
+    const castOutlineGeom = new LineGeometry();
+    castOutlineGeom.setPositions(castOutlinePts);
+    const castOutlineMat = new LineMaterial({
+      color: COLOR.terminator, linewidth: 2,
+      resolution: new THREE.Vector2(window.innerWidth, window.innerHeight),
+    });
+    labelLineMats.push(castOutlineMat); // included in resize updates automatically
+    const castOutlineLine = new Line2(castOutlineGeom, castOutlineMat);
+    castOutlineLine.visible = false;
+    scene.add(castOutlineLine);
 
     function toggleLabels() {
       labelsVisible = !labelsVisible;
@@ -703,6 +812,7 @@ import Fullstory from '../../../components/Fullstory.astro';
       shadowZone.visible          = labelsVisible;
       castShadowMesh.visible      = labelsVisible && groundVisible;
       groundLightMesh.visible     = labelsVisible && groundVisible;
+      castOutlineLine.visible     = labelsVisible && groundVisible;
       // Floating labels + connector lines
       LABEL_DEFS.forEach((d, i) => {
         const isCast = i === LABEL_DEFS.length - 1;
@@ -710,9 +820,7 @@ import Fullstory from '../../../components/Fullstory.astro';
         d.el.classList.toggle('visible', show);
         labelLines[i].visible = show;
       });
-      const btn = document.getElementById('labels-btn')!;
-      btn.textContent = labelsVisible ? 'L — Hide labels' : 'L — Show labels';
-      btn.classList.toggle('active', labelsVisible);
+      (document.getElementById('labels-toggle') as HTMLInputElement).checked = labelsVisible;
     }
 
     // ── Resize ────────────────────────────────────────────────────────────────
@@ -847,41 +955,6 @@ import Fullstory from '../../../components/Fullstory.astro';
     }
 
     // ── UI wiring ─────────────────────────────────────────────────────────────
-    const sprayValInput  = document.getElementById('spray-val')!    as HTMLInputElement;
-    const spraySlider    = document.getElementById('spray-slider')! as HTMLInputElement;
-    const spreadValInput = document.getElementById('spread-val')!   as HTMLInputElement;
-    const spreadSlider   = document.getElementById('spread-slider')! as HTMLInputElement;
-
-    function adjustCount(delta: number) {
-      sprayCount = Math.max(1, Math.min(1000, sprayCount + delta));
-      sprayValInput.value = String(sprayCount);
-      spraySlider.value   = String(Math.min(sprayCount, 100));
-    }
-    function adjustSpread(delta: number) {
-      const deg = Math.max(1, Math.min(90, Math.round(spraySpread * 180 / Math.PI) + delta));
-      spraySpread = deg * Math.PI / 180;
-      spreadValInput.value = String(deg);
-      spreadSlider.value   = String(deg);
-    }
-
-    sprayValInput.addEventListener('input', () => {
-      sprayCount = Math.max(1, parseInt(sprayValInput.value) || 1);
-      spraySlider.value = String(Math.min(sprayCount, 100));
-    });
-    spraySlider.addEventListener('input', () => {
-      sprayCount = parseInt(spraySlider.value);
-      sprayValInput.value = String(sprayCount);
-    });
-    spreadValInput.addEventListener('input', () => {
-      const deg = Math.max(1, Math.min(90, parseInt(spreadValInput.value) || 1));
-      spraySpread = deg * Math.PI / 180;
-      spreadSlider.value = String(deg);
-    });
-    spreadSlider.addEventListener('input', () => {
-      const deg = parseInt(spreadSlider.value);
-      spraySpread = deg * Math.PI / 180;
-      spreadValInput.value = String(deg);
-    });
     const panel       = document.getElementById('panel')!;
     const panelToggle = document.getElementById('panel-toggle')!;
     function togglePanel() {
@@ -895,11 +968,11 @@ import Fullstory from '../../../components/Fullstory.astro';
       panel.classList.add('collapsed');
       panelToggle.textContent = '▴';
     }
-    if (_params.has('ground')) toggleGround();
+    if (_params.has('noground')) toggleGround();
 
     traceBtn.addEventListener('click', startTrace);
-    document.getElementById('labels-btn')!.addEventListener('click', toggleLabels);
-    document.getElementById('ground-btn')!.addEventListener('click', toggleGround);
+    document.getElementById('labels-toggle')!.addEventListener('change', toggleLabels);
+    document.getElementById('ground-toggle')!.addEventListener('change', toggleGround);
     document.getElementById('clear-btn')!.addEventListener('click', clearDots);
 
     const helpBtn   = document.getElementById('help-btn')!;
