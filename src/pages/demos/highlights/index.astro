@@ -68,22 +68,79 @@ import Fullstory from '../../../components/Fullstory.astro';
     }
     .toggle input:checked + .toggle-track { background: rgba(255,255,255,0.4); }
     .toggle input:checked + .toggle-track::before { transform: translateX(13px); background: #ddd; }
-    .pin-btn {
-      display: block; width: 100%; margin-top: 0.3rem; padding: 4px 8px;
-      border: 1px solid rgba(255,255,255,0.18); border-radius: 4px;
-      background: rgba(255,255,255,0.05); cursor: pointer; font-size: 12px; text-align: left;
+    kbd {
+      display: inline-block; padding: 1px 5px;
+      border: 1px solid #555; border-radius: 3px;
+      font: 11px monospace; color: #bbb; background: rgba(255,255,255,0.06);
     }
-    .pin-btn:hover { background: rgba(255,255,255,0.13); }
-    #pin-light-btn     { color: #ffcc44; }
-    #pin-highlight-btn { color: #ffffff; }
-    #pin-camera-btn    { color: #66ccff; }
-    #pin-clear-btn     { color: #888; margin-top: 0.5rem; }
+    .pin-btn {
+      width: 100%; margin-top: 0.25rem; padding: 12px 0;
+      border: 1px solid #555; border-radius: 4px;
+      background: rgba(255,255,255,0.06); cursor: pointer; font-size: 14px;
+    }
+    .pin-btn:hover { background: rgba(255,255,255,0.14); }
+    #panel .pin-btn:first-of-type { margin-top: 12px; }
+    #pin-clear-btn { color: #888; margin-top: 0.5rem; }
+
+    #pin-labels { position: fixed; inset: 0; pointer-events: none; }
+    .pin-label {
+      position: absolute; transform: translate(-100%, -100%);
+      font: 11px/1 sans-serif; letter-spacing: 0.06em; text-transform: uppercase;
+      white-space: nowrap; background: rgba(0,0,0,0.85); padding: 2px 7px; border-radius: 3px;
+      opacity: 0; transition: opacity 0.3s;
+    }
+    .pin-label.visible { opacity: 1; }
+
+    /* ── Help button & panel ── */
+    #help-btn {
+      position: fixed; bottom: 1rem; left: 1rem;
+      width: 26px; height: 26px; border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.25);
+      background: rgba(255,255,255,0.07);
+      color: #999; font-size: 13px; font-weight: bold;
+      cursor: pointer; z-index: 10;
+      display: flex; align-items: center; justify-content: center;
+      user-select: none; transition: background 0.15s, color 0.15s;
+    }
+    #help-btn:hover { background: rgba(255,255,255,0.14); color: #fff; }
+    #help-btn.active { border-color: #aaa; color: #fff; background: rgba(255,255,255,0.12); }
+    #help-panel {
+      position: fixed; bottom: 3.25rem; left: 1rem;
+      background: rgba(0,0,0,0.75);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 8px; padding: 0.6rem 0.75rem;
+      color: #ccc; font-size: 12px; line-height: 1.9;
+      z-index: 10; display: none; white-space: nowrap;
+    }
+    #help-panel.open { display: block; }
+    #help-panel h3 { color: #fff; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.3rem; }
+    .help-row { display: flex; gap: 0.6rem; align-items: baseline; }
+    .help-keys { flex-shrink: 0; min-width: 9rem; }
+    .help-desc { color: #999; }
   </style>
 </head>
 <body>
   <a id="back" href="/demos/">← Demos</a>
 
   <canvas id="demo-canvas"></canvas>
+
+  <div id="pin-labels">
+    <div class="pin-label" id="lbl-pin-light"></div>
+    <div class="pin-label" id="lbl-pin-highlight"></div>
+    <div class="pin-label" id="lbl-pin-camera"></div>
+  </div>
+
+  <button id="help-btn" title="Keyboard shortcuts">?</button>
+
+  <div id="help-panel">
+    <h3>Keyboard Shortcuts</h3>
+    <div class="help-row"><span class="help-keys"><kbd>H</kbd></span><span class="help-desc">Toggle highlight</span></div>
+    <div class="help-row"><span class="help-keys"><kbd>A</kbd></span><span class="help-desc">Toggle arcs</span></div>
+    <div class="help-row"><span class="help-keys"><kbd>[</kbd> <kbd>]</kbd></span><span class="help-desc">Roughness ±0.1</span></div>
+    <div class="help-row"><span class="help-keys"><kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd></span><span class="help-desc">Pin light / highlight / camera</span></div>
+    <div class="help-row"><span class="help-keys"><kbd>C</kbd></span><span class="help-desc">Clear pins</span></div>
+    <div class="help-row"><span class="help-keys"><kbd>L</kbd> <kbd>F</kbd> <kbd>R</kbd> <kbd>T</kbd></span><span class="help-desc">Snap left / front / right / top</span></div>
+  </div>
 
   <div id="panel">
     <h3>Controls &nbsp;<span id="panel-toggle">▾</span></h3>
@@ -92,15 +149,17 @@ import Fullstory from '../../../components/Fullstory.astro';
       <span class="val" id="roughness-val">0.20</span>
     </div>
     <input type="range" class="val-slider" id="roughness-slider" min="0" max="1" step="0.01" value="0.2">
-    <div class="row">
-      <label>Metalness</label>
-      <span class="val" id="metalness-val">0.00</span>
-    </div>
-    <input type="range" class="val-slider" id="metalness-slider" min="0" max="1" step="0.01" value="0">
     <label class="toggle-row" for="highlight-chk">
       <span>Highlight</span>
       <span class="toggle">
         <input type="checkbox" id="highlight-chk" checked>
+        <span class="toggle-track"></span>
+      </span>
+    </label>
+    <label class="toggle-row" for="arcs-chk">
+      <span>Arcs</span>
+      <span class="toggle">
+        <input type="checkbox" id="arcs-chk">
         <span class="toggle-track"></span>
       </span>
     </label>
@@ -114,6 +173,26 @@ import Fullstory from '../../../components/Fullstory.astro';
     import * as THREE from 'three';
     import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
+    // ── Colours — edit here to restyle the demo ────────────────────────────────
+    const COLOR = {
+      bg:           0x000000,
+      sphere:       0x888888,
+      lightMarker:  0xffffff,
+      pinLight:     0xffcc44,
+      pinHighlight: 0xffffff,
+      pinCamera:    0x4444ff,
+      arc:          0x999999,
+      gizmoRight:   0xbf3333,
+      gizmoLeft:    0x268e8e,
+      gizmoTop:     0x33ae33,
+      gizmoBottom:  0x802e99,
+      gizmoFront:   0x3855bf,
+      gizmoBack:    0x8c2e2e,
+    };
+    const toRGB = (c: number): [number, number, number] =>
+      [(c >> 16) & 0xff, (c >> 8) & 0xff, c & 0xff];
+    const toHex = (c: number) => `#${c.toString(16).padStart(6, '0')}`;
+
     // ── Renderer ───────────────────────────────────────────────────────────────
     const canvas = document.getElementById('demo-canvas') as HTMLCanvasElement;
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
@@ -123,7 +202,7 @@ import Fullstory from '../../../components/Fullstory.astro';
     renderer.outputColorSpace = THREE.SRGBColorSpace;
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x000000);
+    scene.background = new THREE.Color(COLOR.bg);
 
     const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 200);
     camera.position.set(0, 4, 22);
@@ -141,7 +220,7 @@ import Fullstory from '../../../components/Fullstory.astro';
 
     const lightMarker = new THREE.Mesh(
       new THREE.SphereGeometry(0.22, 16, 16),
-      new THREE.MeshStandardMaterial({ emissive: 0xffffff, emissiveIntensity: 1, color: 0x000000 })
+      new THREE.MeshStandardMaterial({ emissive: COLOR.lightMarker, emissiveIntensity: 1, color: COLOR.bg })
     );
     scene.add(lightMarker);
 
@@ -155,7 +234,7 @@ import Fullstory from '../../../components/Fullstory.astro';
     // ── Sphere ─────────────────────────────────────────────────────────────────
     const SPHERE_R = 1.5;
     const sphereMat = new THREE.MeshStandardMaterial({
-      color:     0x888888,
+      color:     COLOR.sphere,
       roughness: 0.2,
       metalness: 0.0,
     });
@@ -163,41 +242,145 @@ import Fullstory from '../../../components/Fullstory.astro';
     scene.add(sphere);
 
     // ── Pins ───────────────────────────────────────────────────────────────────
-    const PIN_COLORS = { light: 0xffcc44, highlight: 0xffffff, camera: 0x66ccff } as const;
+    const PIN_COLORS     = { light: COLOR.pinLight, highlight: COLOR.pinHighlight, camera: COLOR.pinCamera };
     type PinType = keyof typeof PIN_COLORS;
-    const PIN_LEN   = 1.1;
-    const PIN_TIP_R = 0.08;
-    const pins: THREE.Group[] = [];
+    const PIN_LABEL_TEXT: Record<PinType, string> = { light: 'Facing Light', highlight: 'Highlight', camera: 'Facing Camera' };
+    const PIN_LEN         = 0.8;
+    const PIN_SHAFT_R     = 0.02;
+    const PIN_TIP_R       = 0.1;
+    const PIN_CONE_H      = 0.22;
+    const PIN_ANIM_MS     = 250;
+    const PIN_ANIM_OFFSET = 0.4;
+    const pins: Partial<Record<PinType, THREE.Group>> = {};
+    const pinNormals: Partial<Record<PinType, THREE.Vector3>> = {};
+    const pinLabelAnchors: Partial<Record<PinType, THREE.Vector3>> = {};
+    const pinLabelEls = {
+      light:     document.getElementById('lbl-pin-light')!,
+      highlight: document.getElementById('lbl-pin-highlight')!,
+      camera:    document.getElementById('lbl-pin-camera')!,
+    } as Record<PinType, HTMLElement>;
+    (Object.keys(PIN_LABEL_TEXT) as PinType[]).forEach(t => {
+      pinLabelEls[t].textContent = PIN_LABEL_TEXT[t];
+      pinLabelEls[t].style.color = toHex(PIN_COLORS[t]);
+    });
+    type PinAnim = { pin: THREE.Group; startPos: THREE.Vector3; mats: THREE.MeshBasicMaterial[]; start: number };
+    const pinAnims: PinAnim[] = [];
     const _pL = new THREE.Vector3();
     const _pV = new THREE.Vector3();
     const _pH = new THREE.Vector3();
 
+    // ── Arc helpers ────────────────────────────────────────────────────────────
+    function slerpVec(a: THREE.Vector3, b: THREE.Vector3, t: number): THREE.Vector3 {
+      const dot = Math.max(-1, Math.min(1, a.dot(b)));
+      const angle = Math.acos(dot);
+      if (angle < 0.0001) return a.clone().lerp(b, t).normalize();
+      const s = Math.sin(angle);
+      return a.clone().multiplyScalar(Math.sin((1-t)*angle)/s)
+             .addScaledVector(b, Math.sin(t*angle)/s);
+    }
+
+    const ARC_SURFACE_OFFSET = 0.4;
+    const ARC_TUBE_R         = 0.02;
+    const ARC_TICK_LEN       = 0.20;
+    const ARC_TICK_R         = 0.02;
+    const ARC_OPACITY        = 0.65;
+    let arcsVisible = false;
+    const arcs: Partial<Record<'lightToHighlight'|'highlightToCamera', THREE.Group>> = {};
+
+    function makeArcGroup(dirA: THREE.Vector3, dirB: THREE.Vector3): THREE.Group {
+      const arcMat = () => new THREE.MeshBasicMaterial({ color: COLOR.arc, transparent: true, opacity: ARC_OPACITY });
+      const pts: THREE.Vector3[] = [];
+      for (let i = 0; i <= 48; i++) pts.push(slerpVec(dirA, dirB, i / 48).multiplyScalar(SPHERE_R + ARC_SURFACE_OFFSET));
+      const tube = new THREE.Mesh(
+        new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 48, ARC_TUBE_R, 6, false),
+        arcMat()
+      );
+      const midDir  = slerpVec(dirA, dirB, 0.5).normalize();
+      const nearDir = slerpVec(dirA, dirB, 0.51).normalize();
+      const tangent = nearDir.clone().sub(midDir).normalize();
+      const tickDir = new THREE.Vector3().crossVectors(tangent, midDir).normalize();
+      const tick = new THREE.Mesh(
+        new THREE.CylinderGeometry(ARC_TICK_R, ARC_TICK_R, ARC_TICK_LEN, 6),
+        arcMat()
+      );
+      tick.position.copy(midDir).multiplyScalar(SPHERE_R + ARC_SURFACE_OFFSET  );
+      tick.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), midDir);
+      const g = new THREE.Group();
+      g.add(tube, tick);
+      return g;
+    }
+
+    function updateArcs() {
+      if (arcs.lightToHighlight)  { scene.remove(arcs.lightToHighlight);  delete arcs.lightToHighlight; }
+      if (arcs.highlightToCamera) { scene.remove(arcs.highlightToCamera); delete arcs.highlightToCamera; }
+      if (pinNormals.light && pinNormals.highlight) {
+        arcs.lightToHighlight = makeArcGroup(pinNormals.light, pinNormals.highlight);
+        arcs.lightToHighlight.visible = arcsVisible;
+        scene.add(arcs.lightToHighlight);
+      }
+      if (pinNormals.highlight && pinNormals.camera) {
+        arcs.highlightToCamera = makeArcGroup(pinNormals.highlight, pinNormals.camera);
+        arcs.highlightToCamera.visible = arcsVisible;
+        scene.add(arcs.highlightToCamera);
+      }
+    }
+
+    function setArcsVisible(v: boolean) {
+      arcsVisible = v;
+      if (arcs.lightToHighlight)  arcs.lightToHighlight.visible  = v;
+      if (arcs.highlightToCamera) arcs.highlightToCamera.visible = v;
+    }
+
     function placePin(type: PinType) {
+      if (pins[type]) {
+        const old = pins[type]!;
+        scene.remove(old);
+        const idx = pinAnims.findIndex(a => a.pin === old);
+        if (idx !== -1) pinAnims.splice(idx, 1);
+      }
       _pL.copy(lightPos).normalize();
       _pV.copy(camera.position).normalize();
       _pH.addVectors(_pL, _pV).normalize();
       const normal = type === 'light' ? _pL.clone() : type === 'highlight' ? _pH.clone() : _pV.clone();
+      pinNormals[type] = normal;
       const color  = PIN_COLORS[type];
-      const base = normal.clone().multiplyScalar(SPHERE_R + 0.002);
-      const tip  = normal.clone().multiplyScalar(SPHERE_R + PIN_LEN);
-      const line = new THREE.Line(
-        new THREE.BufferGeometry().setFromPoints([base, tip]),
-        new THREE.LineBasicMaterial({ color })
-      );
-      const tipMesh = new THREE.Mesh(
-        new THREE.SphereGeometry(PIN_TIP_R, 12, 12),
-        new THREE.MeshBasicMaterial({ color })
-      );
-      tipMesh.position.copy(tip);
+      const shaftMat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0 });
+      const tipMat   = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0 });
+      const shaft = new THREE.Mesh(new THREE.CylinderGeometry(PIN_SHAFT_R, PIN_SHAFT_R, PIN_LEN, 8), shaftMat);
+      shaft.position.copy(normal).multiplyScalar(SPHERE_R + 0.002 + PIN_LEN / 2);
+      shaft.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), normal);
+      let tipMesh: THREE.Mesh;
+      if (type === 'highlight') {
+        tipMesh = new THREE.Mesh(new THREE.SphereGeometry(PIN_TIP_R, 12, 12), tipMat);
+        tipMesh.position.copy(normal).multiplyScalar(SPHERE_R + 0.002 + PIN_LEN);
+      } else {
+        tipMesh = new THREE.Mesh(new THREE.ConeGeometry(PIN_TIP_R, PIN_CONE_H, 8), tipMat);
+        tipMesh.position.copy(normal).multiplyScalar(SPHERE_R + 0.002 + PIN_LEN + PIN_CONE_H / 2);
+        tipMesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), normal);
+      }
+      const tipExtent = type === 'highlight' ? PIN_TIP_R : PIN_CONE_H;
+      pinLabelAnchors[type] = normal.clone().multiplyScalar(SPHERE_R + 0.002 + PIN_LEN + tipExtent + 0.15);
       const pin = new THREE.Group();
-      pin.add(line, tipMesh);
+      pin.add(shaft, tipMesh);
+      const startPos = normal.clone().multiplyScalar(PIN_ANIM_OFFSET);
+      pin.position.copy(startPos);
       scene.add(pin);
-      pins.push(pin);
+      pins[type] = pin;
+      pinAnims.push({ pin, startPos, mats: [shaftMat, tipMat], start: performance.now() });
+      pinLabelEls[type].classList.add('visible');
+      updateArcs();
     }
 
     function clearPins() {
-      pins.forEach(p => scene.remove(p));
-      pins.length = 0;
+      (Object.keys(pins) as PinType[]).forEach(k => {
+        scene.remove(pins[k]!);
+        delete pins[k];
+        delete pinNormals[k];
+        delete pinLabelAnchors[k];
+        pinLabelEls[k].classList.remove('visible');
+      });
+      pinAnims.length = 0;
+      updateArcs();
     }
 
     // ── Controls ───────────────────────────────────────────────────────────────
@@ -212,10 +395,6 @@ import Fullstory from '../../../components/Fullstory.astro';
     let gizmoDragMoved  = false;
     let gizmoDragLastX  = 0;
     let gizmoDragLastY  = 0;
-
-    const toRGB = (c: number): [number, number, number] =>
-      [(c >> 16) & 0xff, (c >> 8) & 0xff, c & 0xff];
-    const GC = { right:0xbf3333, left:0x268e8e, top:0x33ae33, bottom:0x802e99, front:0x3855bf, back:0x8c2e2e };
 
     const axesScene = new THREE.Scene();
     axesScene.add(new THREE.AmbientLight(0xffffff, 0.55));
@@ -239,9 +418,9 @@ import Fullstory from '../../../components/Fullstory.astro';
         const z   =  Math.sin(phi) * sinT;
         const ax  = Math.abs(x), ay = Math.abs(y), az = Math.abs(z);
         let r: number, g: number, b: number;
-        if (ax >= ay && ax >= az)      [r,g,b] = x > 0 ? toRGB(GC.right)  : toRGB(GC.left);
-        else if (ay >= ax && ay >= az) [r,g,b] = y > 0 ? toRGB(GC.top)    : toRGB(GC.bottom);
-        else                           [r,g,b] = z > 0 ? toRGB(GC.front)  : toRGB(GC.back);
+        if (ax >= ay && ax >= az)      [r,g,b] = x > 0 ? toRGB(COLOR.gizmoRight) : toRGB(COLOR.gizmoLeft);
+        else if (ay >= ax && ay >= az) [r,g,b] = y > 0 ? toRGB(COLOR.gizmoTop)   : toRGB(COLOR.gizmoBottom);
+        else                           [r,g,b] = z > 0 ? toRGB(COLOR.gizmoFront) : toRGB(COLOR.gizmoBack);
         const idx = (row * TEX_W + col) * 4;
         buf[idx] = r; buf[idx+1] = g; buf[idx+2] = b; buf[idx+3] = 255;
       }
@@ -418,17 +597,19 @@ import Fullstory from '../../../components/Fullstory.astro';
       roughnessVal.textContent = parseFloat(roughnessSlider.value).toFixed(2);
     });
 
-    const metalnessSlider = document.getElementById('metalness-slider') as HTMLInputElement;
-    const metalnessVal    = document.getElementById('metalness-val')!;
-    metalnessSlider.addEventListener('input', () => {
-      sphereMat.metalness = parseFloat(metalnessSlider.value);
-      metalnessVal.textContent = parseFloat(metalnessSlider.value).toFixed(2);
-    });
+    const pinLightBtn = document.getElementById('pin-light-btn')!    as HTMLButtonElement;
+    const pinHalfBtn  = document.getElementById('pin-highlight-btn')! as HTMLButtonElement;
+    const pinCamBtn   = document.getElementById('pin-camera-btn')!   as HTMLButtonElement;
+    pinLightBtn.style.color = toHex(COLOR.pinLight);
+    pinHalfBtn.style.color  = toHex(COLOR.pinHighlight);
+    pinCamBtn.style.color   = toHex(COLOR.pinCamera);
+    pinLightBtn.addEventListener('click', () => placePin('light'));
+    pinHalfBtn.addEventListener('click',  () => placePin('highlight'));
+    pinCamBtn.addEventListener('click',   () => placePin('camera'));
+    document.getElementById('pin-clear-btn')!.addEventListener('click', clearPins);
 
-    document.getElementById('pin-light-btn')!    .addEventListener('click', () => placePin('light'));
-    document.getElementById('pin-highlight-btn')!.addEventListener('click', () => placePin('highlight'));
-    document.getElementById('pin-camera-btn')!   .addEventListener('click', () => placePin('camera'));
-    document.getElementById('pin-clear-btn')!    .addEventListener('click', clearPins);
+    const arcsChk = document.getElementById('arcs-chk') as HTMLInputElement;
+    arcsChk.addEventListener('change', () => setArcsVisible(arcsChk.checked));
 
     const highlightChk = document.getElementById('highlight-chk') as HTMLInputElement;
     let savedRoughness = sphereMat.roughness;
@@ -442,6 +623,44 @@ import Fullstory from '../../../components/Fullstory.astro';
         sphereMat.roughness = 1.0;
         roughnessSlider.disabled = true;
       }
+    });
+
+    function adjustRoughness(delta: number) {
+      if (roughnessSlider.disabled) return;
+      const val = Math.max(0, Math.min(1, Math.round((sphereMat.roughness + delta) * 100) / 100));
+      sphereMat.roughness = val;
+      roughnessSlider.value = String(val);
+      roughnessVal.textContent = val.toFixed(2);
+    }
+
+    window.addEventListener('keydown', e => {
+      switch (e.key) {
+        case 'h': case 'H':
+          highlightChk.checked = !highlightChk.checked;
+          highlightChk.dispatchEvent(new Event('change'));
+          break;
+        case 'a': case 'A':
+          arcsChk.checked = !arcsChk.checked;
+          setArcsVisible(arcsChk.checked);
+          break;
+        case '[': adjustRoughness(-0.1); break;
+        case ']': adjustRoughness( 0.1); break;
+        case '1': placePin('light');     break;
+        case '2': placePin('highlight'); break;
+        case '3': placePin('camera');    break;
+        case 'c': clearPins();            break;
+        case 'l': case 'L': snapToView('left');  break;
+        case 'f': case 'F': snapToView('front'); break;
+        case 'r': case 'R': snapToView('right'); break;
+        case 't': case 'T': snapToView('top');   break;
+      }
+    });
+
+    const helpBtn   = document.getElementById('help-btn')!;
+    const helpPanel = document.getElementById('help-panel')!;
+    helpBtn.addEventListener('click', () => {
+      const open = helpPanel.classList.toggle('open');
+      helpBtn.classList.toggle('active', open);
     });
 
     // ── Resize ─────────────────────────────────────────────────────────────────
@@ -459,9 +678,12 @@ import Fullstory from '../../../components/Fullstory.astro';
       requestAnimationFrame(animate);
 
       if (snapAnim) {
-        const t = Math.min((performance.now() - snapAnim.start) / 300, 1);
+        const t    = Math.min((performance.now() - snapAnim.start) / 300, 1);
         const ease = 1 - Math.pow(1 - t, 3);
-        camera.position.lerpVectors(snapAnim.from, snapAnim.to, ease);
+        const dist    = snapAnim.from.distanceTo(controls.target);
+        const fromDir = snapAnim.from.clone().sub(controls.target).normalize();
+        const toDir   = snapAnim.to.clone().sub(controls.target).normalize();
+        camera.position.copy(controls.target).addScaledVector(fromDir.lerp(toDir, ease).normalize(), dist);
         camera.up.lerpVectors(snapAnim.fromUp, snapAnim.toUp, ease).normalize();
         camera.lookAt(controls.target);
         if (t >= 1) { controls.update(); controls.enabled = true; snapAnim = null; }
@@ -469,9 +691,33 @@ import Fullstory from '../../../components/Fullstory.astro';
 
       controls.update();
 
+      const now = performance.now();
+      for (let i = pinAnims.length - 1; i >= 0; i--) {
+        const a = pinAnims[i];
+        const t    = Math.min((now - a.start) / PIN_ANIM_MS, 1);
+        const ease = 1 - Math.pow(1 - t, 3);
+        a.pin.position.copy(a.startPos).multiplyScalar(1 - ease);
+        a.mats.forEach(m => { m.opacity = ease; });
+        if (t >= 1) {
+          a.pin.position.set(0, 0, 0);
+          a.mats.forEach(m => { m.opacity = 1; });
+          pinAnims.splice(i, 1);
+        }
+      }
+
       renderer.setScissorTest(false);
       renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
       renderer.render(scene, camera);
+
+      (Object.keys(pins) as PinType[]).forEach(type => {
+        const anchor = pinLabelAnchors[type];
+        const pin    = pins[type];
+        if (!anchor || !pin) return;
+        const proj = anchor.clone().add(pin.position).project(camera);
+        const el   = pinLabelEls[type];
+        el.style.left = `${(proj.x + 1) / 2 * window.innerWidth - 6}px`;
+        el.style.top  = `${(-proj.y + 1) / 2 * window.innerHeight + 8}px`;
+      });
 
       gizmoSphere.quaternion.copy(camera.quaternion).invert();
       renderer.setScissorTest(true);
