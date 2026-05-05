@@ -487,6 +487,12 @@ import DemoLayout from '../../../layouts/DemoLayout.astro';
     });
 
     // ── Panel wiring ───────────────────────────────────────────────────────────
+    const _params = new URLSearchParams(location.search);
+    if (_params.has('minimal') || window.innerWidth < 500) {
+      document.getElementById('panel')!.classList.add('collapsed');
+      document.getElementById('panel-toggle')!.textContent = '▴';
+    }
+
     const roughnessSlider = document.getElementById('roughness-slider') as HTMLInputElement;
     const roughnessVal    = document.getElementById('roughness-val')!;
     roughnessSlider.addEventListener('input', () => {
