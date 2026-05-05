@@ -1,0 +1,418 @@
+---
+import DemoLayout from '../../../layouts/DemoLayout.astro';
+---
+<DemoLayout title="Form Direction">
+
+  <Fragment slot="panel">
+    <label class="toggle-row" for="ray-toggle">
+      <span>Light ray</span>
+      <span class="toggle"><input type="checkbox" id="ray-toggle" checked><span class="toggle-track"></span></span>
+    </label>
+    <label class="toggle-row" for="arrow-toggle">
+      <span>Form direction</span>
+      <span class="toggle"><input type="checkbox" id="arrow-toggle" checked><span class="toggle-track"></span></span>
+    </label>
+  </Fragment>
+
+  <Fragment slot="help">
+    <div class="help-row"><span class="help-keys"><kbd>R</kbd></span><span class="help-desc">Toggle light ray</span></div>
+    <div class="help-row"><span class="help-keys"><kbd>D</kbd></span><span class="help-desc">Toggle form direction</span></div>
+  </Fragment>
+
+  <script>
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+    import { Line2 } from 'three/examples/jsm/lines/Line2.js';
+    import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry.js';
+    import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js';
+
+    // ── Config ─────────────────────────────────────────────────────────────────
+    const RAY_PICK_OFFSET  = { x: 0, y: -8 }; // pixels; shifts ray endpoint above cursor tip
+    const ARROW_SHAFT_R    = 0.025;
+    const ARROW_SHAFT_LEN  = 0.5;
+    const ARROW_CONE_R     = 0.08;
+    const ARROW_CONE_H     = 0.18;
+    const DOT_R            = 0.04;
+
+    // ── Colours ────────────────────────────────────────────────────────────────
+    const COLOR = {
+      bg:          0x000000,
+      sphere:      0x888888,
+      lightMarker: 0xffffff,
+      arrow:       0xee3333,
+      rayMiss:     0x555555,
+      rayHit:      0xffffff,
+      gizmoRight:  0xbf3333,
+      gizmoLeft:   0x268e8e,
+      gizmoTop:    0x33ae33,
+      gizmoBottom: 0x802e99,
+      gizmoFront:  0x3855bf,
+      gizmoBack:   0x8c2e2e,
+    };
+    const toRGB = (c: number): [number, number, number] =>
+      [(c >> 16) & 0xff, (c >> 8) & 0xff, c & 0xff];
+
+    // ── Renderer ───────────────────────────────────────────────────────────────
+    const canvas = document.getElementById('demo-canvas') as HTMLCanvasElement;
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1;
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(COLOR.bg);
+
+    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 200);
+    camera.position.set(0, 4, 22);
+
+    // ── Lights ─────────────────────────────────────────────────────────────────
+    scene.add(new THREE.AmbientLight(0xffffff, 0.2));
+
+    const LIGHT_DIST = 8;
+    const lightPos = new THREE.Vector3(0, LIGHT_DIST, 0);
+
+    const pointLight = new THREE.PointLight(0xffffff, 200, 0, 2);
+    pointLight.position.copy(lightPos);
+    scene.add(pointLight);
+
+    const lightMarker = new THREE.Mesh(
+      new THREE.SphereGeometry(0.22, 16, 16),
+      new THREE.MeshStandardMaterial({ emissive: COLOR.lightMarker, emissiveIntensity: 1, color: 0x000000 })
+    );
+    lightMarker.position.copy(lightPos);
+    scene.add(lightMarker);
+
+    // ── Sphere ─────────────────────────────────────────────────────────────────
+    const SPHERE_R = 1.5;
+    const sphere = new THREE.Mesh(
+      new THREE.SphereGeometry(SPHERE_R, 128, 128),
+      new THREE.MeshStandardMaterial({ color: COLOR.sphere, roughness: 1.0, metalness: 0.0 })
+    );
+    scene.add(sphere);
+
+    // ── Ray ───────────────────────────────────────────────────────────────────
+    const raycaster = new THREE.Raycaster();
+    const picker    = new THREE.Raycaster();
+    const mouse     = new THREE.Vector2();
+    const rayGeom   = new LineGeometry();
+    rayGeom.setPositions([lightPos.x, lightPos.y, lightPos.z, lightPos.x, lightPos.y, lightPos.z]);
+    const rayMat = new LineMaterial({
+      color: COLOR.rayMiss, linewidth: 2,
+      resolution: new THREE.Vector2(window.innerWidth, window.innerHeight),
+    });
+    const rayLine = new Line2(rayGeom, rayMat);
+    scene.add(rayLine);
+
+    let rayVisible = true;
+    function toggleRay() {
+      rayVisible = !rayVisible;
+      rayLine.visible = rayVisible;
+      (document.getElementById('ray-toggle') as HTMLInputElement).checked = rayVisible;
+    }
+
+    function updateRay(dir: THREE.Vector3): THREE.Vector3 | null {
+      raycaster.set(lightPos, dir.normalize());
+      const hits = raycaster.intersectObject(sphere);
+      const hit  = hits.length > 0;
+      const end  = hit ? hits[0].point : lightPos.clone().addScaledVector(dir, 15);
+      rayGeom.setPositions([lightPos.x, lightPos.y, lightPos.z, end.x, end.y, end.z]);
+      rayMat.color.setHex(hit ? COLOR.rayHit : COLOR.rayMiss);
+      return hit ? hits[0].point : null;
+    }
+
+    // ── Arrow + dot ────────────────────────────────────────────────────────────
+    // Rendered in a separate scene so they composite on top of the main render.
+    const arrowMat  = new THREE.MeshBasicMaterial({ color: COLOR.arrow });
+    const shaftMesh = new THREE.Mesh(
+      new THREE.CylinderGeometry(ARROW_SHAFT_R, ARROW_SHAFT_R, ARROW_SHAFT_LEN, 8),
+      arrowMat
+    );
+    const coneMesh  = new THREE.Mesh(
+      new THREE.ConeGeometry(ARROW_CONE_R, ARROW_CONE_H, 8),
+      arrowMat
+    );
+    const arrowGroup = new THREE.Group();
+    arrowGroup.add(shaftMesh, coneMesh);
+    arrowGroup.visible = false;
+
+    const dotMesh = new THREE.Mesh(
+      new THREE.SphereGeometry(DOT_R, 16, 16),
+      new THREE.MeshBasicMaterial({ color: COLOR.arrow })
+    );
+    dotMesh.visible = false;
+
+    const arrowScene = new THREE.Scene();
+    arrowScene.add(arrowGroup, dotMesh);
+
+    let arrowEnabled = true;
+    function toggleArrow() {
+      arrowEnabled = !arrowEnabled;
+      arrowGroup.visible = arrowEnabled && dotMesh.visible;
+      (document.getElementById('arrow-toggle') as HTMLInputElement).checked = arrowEnabled;
+    }
+
+    function updateArrow(hitPoint: THREE.Vector3 | null) {
+      if (!hitPoint) { arrowGroup.visible = false; dotMesh.visible = false; return; }
+      const normal = hitPoint.clone().normalize();
+      const q      = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), normal);
+      shaftMesh.position.copy(normal).multiplyScalar(SPHERE_R + ARROW_SHAFT_LEN / 2);
+      shaftMesh.quaternion.copy(q);
+      coneMesh.position.copy(normal).multiplyScalar(SPHERE_R + ARROW_SHAFT_LEN + ARROW_CONE_H / 2);
+      coneMesh.quaternion.copy(q);
+      dotMesh.position.copy(hitPoint);
+      dotMesh.visible    = true;
+      arrowGroup.visible = arrowEnabled;
+    }
+
+    function aimFromScreen(cx: number, cy: number) {
+      mouse.set((cx / window.innerWidth) * 2 - 1, -(cy / window.innerHeight) * 2 + 1);
+      picker.setFromCamera(mouse, camera);
+      const pickerHits     = picker.intersectObject(sphere);
+      const cursorOnSphere = pickerHits.length > 0 ? pickerHits[0].point : null;
+
+      let target: THREE.Vector3;
+      if (cursorOnSphere) {
+        target = cursorOnSphere;
+      } else {
+        const fwd = camera.getWorldDirection(new THREE.Vector3());
+        const plane = new THREE.Plane().setFromNormalAndCoplanarPoint(fwd, sphere.position);
+        target = new THREE.Vector3();
+        if (!picker.ray.intersectPlane(plane, target)) { updateArrow(null); return; }
+      }
+
+      updateRay(target.clone().sub(lightPos));
+      updateArrow(cursorOnSphere);
+    }
+
+    window.addEventListener('mousemove', e => {
+      if (gizmoDragActive) return;
+      if (e.buttons === 2) return;
+      aimFromScreen(e.clientX + RAY_PICK_OFFSET.x, e.clientY + RAY_PICK_OFFSET.y);
+    });
+
+    // ── OrbitControls ──────────────────────────────────────────────────────────
+    const controls = new OrbitControls(camera, canvas);
+    controls.target.set(0, 4, 0);
+    controls.enableDamping = true;
+    controls.update();
+
+    // ── Gizmo ──────────────────────────────────────────────────────────────────
+    const GIZMO = 110;
+    let gizmoDragActive = false;
+    let gizmoDragMoved  = false;
+    let gizmoDragLastX  = 0;
+    let gizmoDragLastY  = 0;
+
+    const axesScene = new THREE.Scene();
+    axesScene.add(new THREE.AmbientLight(0xffffff, 0.55));
+    const gizmoLight = new THREE.DirectionalLight(0xffffff, 0.6);
+    gizmoLight.position.set(0, 0, 3);
+    axesScene.add(gizmoLight);
+
+    const TEX_W = 1024, TEX_H = 512;
+    const texCanvas = document.createElement('canvas');
+    texCanvas.width = TEX_W; texCanvas.height = TEX_H;
+    const texCtx = texCanvas.getContext('2d')!;
+    const imgData = texCtx.createImageData(TEX_W, TEX_H);
+    const buf = imgData.data;
+    for (let row = 0; row < TEX_H; row++) {
+      const theta = (row / TEX_H) * Math.PI;
+      const sinT  = Math.sin(theta);
+      const y     = Math.cos(theta);
+      for (let col = 0; col < TEX_W; col++) {
+        const phi = (col / TEX_W) * Math.PI * 2;
+        const x   = -Math.cos(phi) * sinT;
+        const z   =  Math.sin(phi) * sinT;
+        const ax  = Math.abs(x), ay = Math.abs(y), az = Math.abs(z);
+        let r: number, g: number, b: number;
+        if      (ax >= ay && ax >= az) [r,g,b] = x > 0 ? toRGB(COLOR.gizmoRight) : toRGB(COLOR.gizmoLeft);
+        else if (ay >= ax && ay >= az) [r,g,b] = y > 0 ? toRGB(COLOR.gizmoTop)   : toRGB(COLOR.gizmoBottom);
+        else                           [r,g,b] = z > 0 ? toRGB(COLOR.gizmoFront) : toRGB(COLOR.gizmoBack);
+        const idx = (row * TEX_W + col) * 4;
+        buf[idx] = r; buf[idx+1] = g; buf[idx+2] = b; buf[idx+3] = 255;
+      }
+    }
+    texCtx.putImageData(imgData, 0, 0);
+    texCtx.textAlign = 'center'; texCtx.textBaseline = 'middle';
+    texCtx.fillStyle = 'white'; texCtx.shadowColor = 'rgba(0,0,0,0.7)'; texCtx.shadowBlur = 10;
+    texCtx.font = 'bold 58px sans-serif';
+    [['Front', 0.25*TEX_W, 0.50*TEX_H], ['Right', 0.50*TEX_W, 0.50*TEX_H], ['Back', 0.75*TEX_W, 0.50*TEX_H]]
+      .forEach(([t,lx,ly]) => texCtx.fillText(t as string, lx as number, ly as number));
+    texCtx.fillText('Left', 0, 0.50*TEX_H);
+    texCtx.fillText('Left', TEX_W, 0.50*TEX_H);
+
+    const gizmoSphere = new THREE.Mesh(
+      new THREE.SphereGeometry(0.8, 64, 64),
+      new THREE.MeshLambertMaterial({ map: new THREE.CanvasTexture(texCanvas) })
+    );
+    axesScene.add(gizmoSphere);
+
+    function makeCapDisc(label: string, yPos: number, flipY: boolean) {
+      const S = 256;
+      const cc = document.createElement('canvas');
+      cc.width = S; cc.height = S;
+      const cx = cc.getContext('2d')!;
+      cx.textAlign = 'center'; cx.textBaseline = 'middle';
+      cx.fillStyle = 'white'; cx.shadowColor = 'rgba(0,0,0,0.6)'; cx.shadowBlur = 8;
+      cx.font = 'bold 64px sans-serif';
+      cx.fillText(label, S/2, S/2);
+      const disc = new THREE.Mesh(
+        new THREE.CircleGeometry(0.42, 48),
+        new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(cc), transparent: true, depthWrite: false })
+      );
+      disc.position.y = yPos;
+      disc.rotation.x = flipY ? Math.PI/2 : -Math.PI/2;
+      return disc;
+    }
+    const topCap    = makeCapDisc('Top',    0.802,  false);
+    const bottomCap = makeCapDisc('Bottom', -0.802, true);
+    gizmoSphere.add(topCap, bottomCap);
+
+    const axesCamera = new THREE.PerspectiveCamera(50, 1, 0.1, 10);
+    axesCamera.position.set(0, 0, 3);
+
+    let snapAnim: { from: THREE.Vector3; to: THREE.Vector3; fromUp: THREE.Vector3; toUp: THREE.Vector3; start: number } | null = null;
+
+    function snapToView(face: string) {
+      const dist = camera.position.distanceTo(controls.target);
+      const t = controls.target;
+      const up0 = new THREE.Vector3(0, 1, 0);
+      const snaps: Record<string, { pos: THREE.Vector3; up: THREE.Vector3 }> = {
+        front:  { pos: new THREE.Vector3(t.x,        t.y,        t.z + dist), up: up0.clone() },
+        back:   { pos: new THREE.Vector3(t.x,        t.y,        t.z - dist), up: up0.clone() },
+        right:  { pos: new THREE.Vector3(t.x + dist, t.y,        t.z       ), up: up0.clone() },
+        left:   { pos: new THREE.Vector3(t.x - dist, t.y,        t.z       ), up: up0.clone() },
+        top:    { pos: new THREE.Vector3(t.x,        t.y + dist, t.z       ), up: new THREE.Vector3(0, 0, -1) },
+        bottom: { pos: new THREE.Vector3(t.x,        t.y - dist, t.z       ), up: new THREE.Vector3(0, 0,  1) },
+      };
+      const s = snaps[face];
+      if (!s) return;
+      snapAnim = { from: camera.position.clone(), to: s.pos, fromUp: camera.up.clone(), toUp: s.up, start: performance.now() };
+      controls.enabled = false;
+    }
+
+    // ── Pointer events (gizmo only) ────────────────────────────────────────────
+    canvas.addEventListener('pointerdown', e => {
+      if (!(e.clientX >= window.innerWidth - GIZMO && e.clientY < GIZMO)) return;
+      gizmoDragActive = true;
+      gizmoDragMoved  = false;
+      gizmoDragLastX  = e.clientX;
+      gizmoDragLastY  = e.clientY;
+      canvas.setPointerCapture(e.pointerId);
+    });
+
+    canvas.addEventListener('pointermove', e => {
+      if (!gizmoDragActive) return;
+      const dx = e.clientX - gizmoDragLastX;
+      const dy = e.clientY - gizmoDragLastY;
+      if (dx !== 0 || dy !== 0) gizmoDragMoved = true;
+      gizmoDragLastX = e.clientX;
+      gizmoDragLastY = e.clientY;
+      const offset = camera.position.clone().sub(controls.target);
+      const r = offset.length();
+      let theta = Math.atan2(offset.x, offset.z);
+      let phi   = Math.acos(THREE.MathUtils.clamp(offset.y / r, -1, 1));
+      theta -= dx * 0.008;
+      phi    = THREE.MathUtils.clamp(phi - dy * 0.008, 0.02, Math.PI - 0.02);
+      offset.set(r * Math.sin(phi) * Math.sin(theta), r * Math.cos(phi), r * Math.sin(phi) * Math.cos(theta));
+      camera.position.copy(controls.target).add(offset);
+      camera.lookAt(controls.target);
+      controls.update();
+    });
+
+    canvas.addEventListener('pointerup', e => {
+      if (!gizmoDragActive) return;
+      gizmoDragActive = false;
+      canvas.releasePointerCapture(e.pointerId);
+    });
+
+    canvas.addEventListener('click', e => {
+      if (!(e.clientX >= window.innerWidth - GIZMO && e.clientY < GIZMO)) return;
+      if (gizmoDragMoved) { gizmoDragMoved = false; return; }
+      const localX = e.clientX - (window.innerWidth - GIZMO);
+      const ndcX   = (localX / GIZMO) * 2 - 1;
+      const ndcY   = -((e.clientY / GIZMO) * 2 - 1);
+      const gizmoPick = new THREE.Raycaster();
+      gizmoPick.setFromCamera(new THREE.Vector2(ndcX, ndcY), axesCamera);
+      const hits = gizmoPick.intersectObject(gizmoSphere, true);
+      if (hits.length === 0) return;
+      let face: string;
+      if      (hits[0].object === topCap)    { face = 'top'; }
+      else if (hits[0].object === bottomCap) { face = 'bottom'; }
+      else if (hits[0].face) {
+        const n = hits[0].face.normal;
+        const ax = Math.abs(n.x), ay = Math.abs(n.y), az = Math.abs(n.z);
+        if      (ax >= ay && ax >= az) face = n.x > 0 ? 'right' : 'left';
+        else if (ay >= ax && ay >= az) face = n.y > 0 ? 'top'   : 'bottom';
+        else                           face = n.z > 0 ? 'front' : 'back';
+      } else { return; }
+      snapToView(face);
+    });
+
+    // ── UI wiring ──────────────────────────────────────────────────────────────
+    document.getElementById('ray-toggle')!.addEventListener('change', toggleRay);
+    document.getElementById('arrow-toggle')!.addEventListener('change', toggleArrow);
+
+    // ── Keyboard shortcuts ─────────────────────────────────────────────────────
+    window.addEventListener('keydown', e => {
+      switch (e.key) {
+        case 'r': case 'R': toggleRay();          break;
+        case 'd': case 'D': toggleArrow();        break;
+        case 'l': case 'L': snapToView('left');   break;
+        case 'f': case 'F': snapToView('front');  break;
+        case 't': case 'T': snapToView('top');    break;
+      }
+    });
+
+    // ── Resize ─────────────────────────────────────────────────────────────────
+    function setSize() {
+      const w = window.innerWidth, h = window.innerHeight;
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      rayMat.resolution.set(w, h);
+    }
+    setSize();
+    window.addEventListener('resize', setSize);
+
+    // ── Render loop ────────────────────────────────────────────────────────────
+    function animate() {
+      requestAnimationFrame(animate);
+
+      if (snapAnim) {
+        const t    = Math.min((performance.now() - snapAnim.start) / 300, 1);
+        const ease = 1 - Math.pow(1 - t, 3);
+        const dist    = snapAnim.from.distanceTo(controls.target);
+        const fromDir = snapAnim.from.clone().sub(controls.target).normalize();
+        const toDir   = snapAnim.to.clone().sub(controls.target).normalize();
+        camera.position.copy(controls.target).addScaledVector(fromDir.lerp(toDir, ease).normalize(), dist);
+        camera.up.lerpVectors(snapAnim.fromUp, snapAnim.toUp, ease).normalize();
+        camera.lookAt(controls.target);
+        if (t >= 1) { controls.update(); controls.enabled = true; snapAnim = null; }
+      }
+
+      controls.update();
+
+      renderer.setScissorTest(false);
+      renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
+      renderer.render(scene, camera);
+
+      // Composite dot + arrow on top (clearDepth so they're never occluded by the sphere)
+      renderer.autoClear = false;
+      renderer.clearDepth();
+      renderer.render(arrowScene, camera);
+      renderer.autoClear = true;
+
+      gizmoSphere.quaternion.copy(camera.quaternion).invert();
+      renderer.setScissorTest(true);
+      renderer.setScissor(window.innerWidth - GIZMO, window.innerHeight - GIZMO, GIZMO, GIZMO);
+      renderer.setViewport(window.innerWidth - GIZMO, window.innerHeight - GIZMO, GIZMO, GIZMO);
+      renderer.render(axesScene, axesCamera);
+      renderer.setScissorTest(false);
+    }
+    animate();
+  </script>
+
+
+</DemoLayout>
