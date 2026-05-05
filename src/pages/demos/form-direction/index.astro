@@ -6,11 +6,11 @@ import DemoLayout from '../../../layouts/DemoLayout.astro';
   <Fragment slot="panel">
     <label class="toggle-row" for="ray-toggle">
       <span>Light ray</span>
-      <span class="toggle"><input type="checkbox" id="ray-toggle" checked><span class="toggle-track"></span></span>
+      <span class="toggle"><input type="checkbox" id="ray-toggle"><span class="toggle-track"></span></span>
     </label>
     <label class="toggle-row" for="arrow-toggle">
       <span>Form direction</span>
-      <span class="toggle"><input type="checkbox" id="arrow-toggle" checked><span class="toggle-track"></span></span>
+      <span class="toggle"><input type="checkbox" id="arrow-toggle"><span class="toggle-track"></span></span>
     </label>
   </Fragment>
 
@@ -102,9 +102,10 @@ import DemoLayout from '../../../layouts/DemoLayout.astro';
       resolution: new THREE.Vector2(window.innerWidth, window.innerHeight),
     });
     const rayLine = new Line2(rayGeom, rayMat);
+    rayLine.visible = false;
     scene.add(rayLine);
 
-    let rayVisible = true;
+    let rayVisible = false;
     function toggleRay() {
       rayVisible = !rayVisible;
       rayLine.visible = rayVisible;
@@ -145,7 +146,7 @@ import DemoLayout from '../../../layouts/DemoLayout.astro';
     const arrowScene = new THREE.Scene();
     arrowScene.add(arrowGroup, dotMesh);
 
-    let arrowEnabled = true;
+    let arrowEnabled = false;
     function toggleArrow() {
       arrowEnabled = !arrowEnabled;
       arrowGroup.visible = arrowEnabled && dotMesh.visible;
