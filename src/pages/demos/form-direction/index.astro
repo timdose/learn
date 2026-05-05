@@ -34,11 +34,11 @@ import DemoLayout from '../../../layouts/DemoLayout.astro';
     import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js';
 
     // ── Config ─────────────────────────────────────────────────────────────────
-    const RAY_PICK_OFFSET  = { x: 0, y: -8 };  // pixels; shifts ray endpoint above cursor tip
+    const RAY_PICK_OFFSET  = { x: 0, y: -4 };  // pixels; shifts ray endpoint above cursor tip
     const ARROW_SHAFT_R    = 0.025;
     const ANGLE_W          = 80;               // px — angle canvas logical width
     const ANGLE_H          = 80;               // px — angle canvas logical height
-    const ANGLE_OFFSET     = { x: 12, y: -92 }; // px — canvas position relative to cursor dot
+    const ANGLE_OFFSET     = { x: 40, y: -40 }; // px — canvas position relative to cursor dot
     const ARROW_SHAFT_LEN  = 0.5;
     const ARROW_CONE_R     = 0.08;
     const ARROW_CONE_H     = 0.18;
@@ -168,26 +168,16 @@ import DemoLayout from '../../../layouts/DemoLayout.astro';
 
     function drawAngleGraphic(deg: number) {
       actx.clearRect(0, 0, ANGLE_W, ANGLE_H);
-      const vx = 6, vy = 74, lineLen = 62, arcR = 18;
+      const vx = 10, vy = 72, lineLen = 58;
       const rad = deg * Math.PI / 180;
       actx.strokeStyle = '#44dd66';
-      actx.fillStyle   = '#44dd66';
       actx.lineWidth   = 1.5;
       actx.lineCap     = 'round';
-      // Surface line (horizontal)
-      actx.beginPath(); actx.moveTo(vx, vy); actx.lineTo(vx + lineLen, vy); actx.stroke();
-      // Light-ray line (upward at angle from horizontal)
+      // Fixed vertical line (reference)
+      actx.beginPath(); actx.moveTo(vx, vy); actx.lineTo(vx, vy - lineLen); actx.stroke();
+      // Variable line (vertical at 0°/terminator, horizontal at 90°/facing)
       actx.beginPath(); actx.moveTo(vx, vy);
-      actx.lineTo(vx + lineLen * Math.cos(rad), vy - lineLen * Math.sin(rad)); actx.stroke();
-      // Arc from horizontal up to the ray angle
-      actx.beginPath(); actx.arc(vx, vy, arcR, 0, -rad, true); actx.stroke();
-      // Angle label
-      if (deg > 2) {
-        const mid = rad / 2;
-        actx.font = 'bold 10px sans-serif';
-        actx.textAlign = 'left'; actx.textBaseline = 'middle';
-        actx.fillText(Math.round(deg) + '°', vx + (arcR + 7) * Math.cos(mid), vy - (arcR + 7) * Math.sin(mid));
-      }
+      actx.lineTo(vx + lineLen * Math.sin(rad), vy - lineLen * Math.cos(rad)); actx.stroke();
     }
 
     function drawBlockedGraphic() {
