@@ -1,0 +1,101 @@
+---
+import Fullstory from '../../../components/Fullstory.astro';
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Contrast Effect</title>
+  <Fullstory />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { overflow: hidden; -webkit-user-select: none; user-select: none; }
+
+    #back {
+      position: fixed; top: 1rem; left: 1rem;
+      color: #666; font: 13px/1 sans-serif; text-decoration: none; z-index: 10;
+    }
+    #back:hover { color: #fff; }
+
+    #scene {
+      position: fixed;
+      inset: 0;
+      cursor: pointer;
+    }
+
+    #bg {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to right, #000, #fff);
+    }
+
+    #gray-rect {
+      position: absolute;
+      left: 0; right: 0;
+      top: 0;
+      height: 50%;
+      transform: translateY(-100%);
+      will-change: transform;
+    }
+
+    #squares {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-evenly;
+      pointer-events: none;
+    }
+
+    .sq { flex-shrink: 0; }
+  </style>
+</head>
+<body>
+
+  <a id="back" href="/demos/">← Demos</a>
+
+  <div id="scene">
+    <div id="bg"></div>
+    <div id="gray-rect"></div>
+    <div id="squares">
+      <div class="sq"></div>
+      <div class="sq"></div>
+      <div class="sq"></div>
+      <div class="sq"></div>
+      <div class="sq"></div>
+    </div>
+  </div>
+
+  <script>
+    // ── Config ─────────────────────────────────────────────────────────────────
+    const SQ_SIZE  = '11vw';  // CSS size — scales with the smaller viewport dimension
+    const SQ_COLOR = '#808080'; // middle gray
+    const DURATION = 300;       // ms — animation duration
+
+    // Apply config to DOM
+    const grayRect = document.getElementById('gray-rect')!;
+    grayRect.style.background = SQ_COLOR;
+
+    document.querySelectorAll<HTMLElement>('.sq').forEach(sq => {
+      sq.style.width      = SQ_SIZE;
+      sq.style.height     = SQ_SIZE;
+      sq.style.background = SQ_COLOR;
+    });
+
+    // ── Interaction ────────────────────────────────────────────────────────────
+    let visible = false;
+    function toggle() {
+      visible = !visible;
+      grayRect.style.transition = `transform ${DURATION}ms ${visible ? 'ease-out' : 'ease-in'}`;
+      grayRect.style.transform  = visible ? 'translateY(0)' : 'translateY(-100%)';
+    }
+
+    document.getElementById('scene')!.addEventListener('click', toggle);
+    window.addEventListener('keydown', e => {
+      if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); toggle(); }
+    });
+  </script>
+
+</body>
+</html>
