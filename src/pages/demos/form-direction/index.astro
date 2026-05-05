@@ -3,6 +3,8 @@ import DemoLayout from '../../../layouts/DemoLayout.astro';
 ---
 <DemoLayout title="Form Direction">
 
+  <canvas slot="labels" id="angle-canvas"></canvas>
+
   <Fragment slot="panel">
     <label class="toggle-row" for="ray-toggle">
       <span>Light ray</span>
@@ -12,11 +14,16 @@ import DemoLayout from '../../../layouts/DemoLayout.astro';
       <span>Form direction</span>
       <span class="toggle"><input type="checkbox" id="arrow-toggle"><span class="toggle-track"></span></span>
     </label>
+    <label class="toggle-row" for="angle-toggle">
+      <span>Angle</span>
+      <span class="toggle"><input type="checkbox" id="angle-toggle"><span class="toggle-track"></span></span>
+    </label>
   </Fragment>
 
   <Fragment slot="help">
     <div class="help-row"><span class="help-keys"><kbd>R</kbd></span><span class="help-desc">Toggle light ray</span></div>
     <div class="help-row"><span class="help-keys"><kbd>D</kbd></span><span class="help-desc">Toggle form direction</span></div>
+    <div class="help-row"><span class="help-keys"><kbd>A</kbd></span><span class="help-desc">Toggle angle</span></div>
   </Fragment>
 
   <script>
@@ -27,8 +34,11 @@ import DemoLayout from '../../../layouts/DemoLayout.astro';
     import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js';
 
     // ── Config ─────────────────────────────────────────────────────────────────
-    const RAY_PICK_OFFSET  = { x: 0, y: -8 }; // pixels; shifts ray endpoint above cursor tip
+    const RAY_PICK_OFFSET  = { x: 0, y: -8 };  // pixels; shifts ray endpoint above cursor tip
     const ARROW_SHAFT_R    = 0.025;
+    const ANGLE_W          = 80;               // px — angle canvas logical width
+    const ANGLE_H          = 80;               // px — angle canvas logical height
+    const ANGLE_OFFSET     = { x: 12, y: -92 }; // px — canvas position relative to cursor dot
     const ARROW_SHAFT_LEN  = 0.5;
     const ARROW_CONE_R     = 0.08;
     const ARROW_CONE_H     = 0.18;
@@ -146,6 +156,67 @@ import DemoLayout from '../../../layouts/DemoLayout.astro';
     const arrowScene = new THREE.Scene();
     arrowScene.add(arrowGroup, dotMesh);
 
+    // ── Angle indicator ────────────────────────────────────────────────────────
+    const angleCanvas = document.getElementById('angle-canvas') as HTMLCanvasElement;
+    const dpr = window.devicePixelRatio || 1;
+    angleCanvas.width  = ANGLE_W * dpr;
+    angleCanvas.height = ANGLE_H * dpr;
+    angleCanvas.style.width  = ANGLE_W + 'px';
+    angleCanvas.style.height = ANGLE_H + 'px';
+    const actx = angleCanvas.getContext('2d')!;
+    actx.scale(dpr, dpr);
+
+    function drawAngleGraphic(deg: number) {
+      actx.clearRect(0, 0, ANGLE_W, ANGLE_H);
+      const vx = 6, vy = 74, lineLen = 62, arcR = 18;
+      const rad = deg * Math.PI / 180;
+      actx.strokeStyle = '#44dd66';
+      actx.fillStyle   = '#44dd66';
+      actx.lineWidth   = 1.5;
+      actx.lineCap     = 'round';
+      // Surface line (horizontal)
+      actx.beginPath(); actx.moveTo(vx, vy); actx.lineTo(vx + lineLen, vy); actx.stroke();
+      // Light-ray line (upward at angle from horizontal)
+      actx.beginPath(); actx.moveTo(vx, vy);
+      actx.lineTo(vx + lineLen * Math.cos(rad), vy - lineLen * Math.sin(rad)); actx.stroke();
+      // Arc from horizontal up to the ray angle
+      actx.beginPath(); actx.arc(vx, vy, arcR, 0, -rad, true); actx.stroke();
+      // Angle label
+      if (deg > 2) {
+        const mid = rad / 2;
+        actx.font = 'bold 10px sans-serif';
+        actx.textAlign = 'left'; actx.textBaseline = 'middle';
+        actx.fillText(Math.round(deg) + '°', vx + (arcR + 7) * Math.cos(mid), vy - (arcR + 7) * Math.sin(mid));
+      }
+    }
+
+    function drawBlockedGraphic() {
+      actx.clearRect(0, 0, ANGLE_W, ANGLE_H);
+      const cx = ANGLE_W / 2, cy = ANGLE_H / 2, r = 22;
+      actx.strokeStyle = '#dd3333'; actx.lineWidth = 2; actx.lineCap = 'round';
+      actx.beginPath(); actx.arc(cx, cy, r, 0, Math.PI * 2); actx.stroke();
+      const d = r * 0.707;
+      actx.beginPath(); actx.moveTo(cx - d, cy + d); actx.lineTo(cx + d, cy - d); actx.stroke();
+    }
+
+    let angleVisible = false;
+    function updateAngle(hitPoint: THREE.Vector3 | null, sx: number, sy: number) {
+      if (!angleVisible || !hitPoint) { angleCanvas.style.display = 'none'; return; }
+      angleCanvas.style.left    = (sx + ANGLE_OFFSET.x) + 'px';
+      angleCanvas.style.top     = (sy + ANGLE_OFFSET.y) + 'px';
+      angleCanvas.style.display = 'block';
+      const n     = hitPoint.clone().normalize();
+      const ndotl = n.dot(lightPos.clone().sub(hitPoint).normalize());
+      if (ndotl <= 0) drawBlockedGraphic();
+      else            drawAngleGraphic(Math.asin(Math.min(1, ndotl)) * 180 / Math.PI);
+    }
+
+    function toggleAngle() {
+      angleVisible = !angleVisible;
+      if (!angleVisible) angleCanvas.style.display = 'none';
+      (document.getElementById('angle-toggle') as HTMLInputElement).checked = angleVisible;
+    }
+
     let arrowEnabled = false;
     function toggleArrow() {
       arrowEnabled = !arrowEnabled;
@@ -179,11 +250,12 @@ import DemoLayout from '../../../layouts/DemoLayout.astro';
         const fwd = camera.getWorldDirection(new THREE.Vector3());
         const plane = new THREE.Plane().setFromNormalAndCoplanarPoint(fwd, sphere.position);
         target = new THREE.Vector3();
-        if (!picker.ray.intersectPlane(plane, target)) { updateArrow(null); return; }
+        if (!picker.ray.intersectPlane(plane, target)) { updateArrow(null); updateAngle(null, cx, cy); return; }
       }
 
       updateRay(target.clone().sub(lightPos));
       updateArrow(cursorOnSphere);
+      updateAngle(cursorOnSphere, cx, cy);
     }
 
     window.addEventListener('mousemove', e => {
@@ -361,12 +433,14 @@ import DemoLayout from '../../../layouts/DemoLayout.astro';
 
     document.getElementById('ray-toggle')!.addEventListener('change', toggleRay);
     document.getElementById('arrow-toggle')!.addEventListener('change', toggleArrow);
+    document.getElementById('angle-toggle')!.addEventListener('change', toggleAngle);
 
     // ── Keyboard shortcuts ─────────────────────────────────────────────────────
     window.addEventListener('keydown', e => {
       switch (e.key) {
         case 'r': case 'R': toggleRay();          break;
         case 'd': case 'D': toggleArrow();        break;
+        case 'a': case 'A': toggleAngle();        break;
         case 'l': case 'L': snapToView('left');   break;
         case 'f': case 'F': snapToView('front');  break;
         case 't': case 'T': snapToView('top');    break;
@@ -422,5 +496,8 @@ import DemoLayout from '../../../layouts/DemoLayout.astro';
     animate();
   </script>
 
-
 </DemoLayout>
+
+<style is:global>
+  #angle-canvas { position: fixed; pointer-events: none; display: none; }
+</style>

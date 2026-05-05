@@ -29,7 +29,7 @@ import DemoLayout from '../../../layouts/DemoLayout.astro';
         <span class="toggle-track"></span>
       </span>
     </label>
-    <button class="pin-btn" id="pin-light-btn">Facing light</button>
+    <button class="pin-btn" id="pin-light-btn">Directly lit</button>
     <button class="pin-btn" id="pin-highlight-btn">At highlight</button>
     <button class="pin-btn" id="pin-camera-btn">Facing viewer</button>
     <button id="pin-clear-btn">Clear pins</button>
@@ -131,7 +131,7 @@ import DemoLayout from '../../../layouts/DemoLayout.astro';
     // ── Pins ───────────────────────────────────────────────────────────────────
     const PIN_COLORS     = { light: COLOR.pinLight, highlight: COLOR.pinHighlight, camera: COLOR.pinCamera };
     type PinType = keyof typeof PIN_COLORS;
-    const PIN_LABEL_TEXT: Record<PinType, string> = { light: 'Facing Light', highlight: 'Highlight', camera: 'Facing viewer' };
+    const PIN_LABEL_TEXT: Record<PinType, string> = { light: 'Directly lit', highlight: 'Highlight', camera: 'Facing viewer' };
     const PIN_LEN         = 0.6;
     const PIN_SHAFT_R     = 0.02;
     const PIN_TIP_R       = 0.1;
@@ -239,20 +239,34 @@ import DemoLayout from '../../../layouts/DemoLayout.astro';
       const color  = PIN_COLORS[type];
       const shaftMat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0 });
       const tipMat   = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0 });
-      const shaft = new THREE.Mesh(new THREE.CylinderGeometry(PIN_SHAFT_R, PIN_SHAFT_R, PIN_LEN, 8), shaftMat);
-      shaft.position.copy(normal).multiplyScalar(SPHERE_R + 0.002 + PIN_LEN / 2);
-      shaft.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), normal);
+      let shaft: THREE.Mesh;
       let tipMesh: THREE.Mesh;
-      if (type === 'highlight') {
+      if (type === 'light') {
+        // Cone at the base (tip touching sphere), shaft above — arrow points at the sphere
+        tipMesh = new THREE.Mesh(new THREE.ConeGeometry(PIN_TIP_R, PIN_CONE_H, 8), tipMat);
+        tipMesh.position.copy(normal).multiplyScalar(SPHERE_R + 0.002 + PIN_CONE_H / 2);
+        tipMesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), normal.clone().negate());
+        shaft = new THREE.Mesh(new THREE.CylinderGeometry(PIN_SHAFT_R, PIN_SHAFT_R, PIN_LEN, 8), shaftMat);
+        shaft.position.copy(normal).multiplyScalar(SPHERE_R + 0.002 + PIN_CONE_H + PIN_LEN / 2);
+        shaft.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), normal);
+        pinLabelAnchors[type] = normal.clone().multiplyScalar(SPHERE_R + 0.002 + PIN_CONE_H + PIN_LEN + 0.15);
+      } else if (type === 'highlight') {
+        shaft = new THREE.Mesh(new THREE.CylinderGeometry(PIN_SHAFT_R, PIN_SHAFT_R, PIN_LEN, 8), shaftMat);
+        shaft.position.copy(normal).multiplyScalar(SPHERE_R + 0.002 + PIN_LEN / 2);
+        shaft.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), normal);
         tipMesh = new THREE.Mesh(new THREE.SphereGeometry(PIN_TIP_R, 12, 12), tipMat);
         tipMesh.position.copy(normal).multiplyScalar(SPHERE_R + 0.002 + PIN_LEN);
+        pinLabelAnchors[type] = normal.clone().multiplyScalar(SPHERE_R + 0.002 + PIN_LEN + PIN_TIP_R + 0.15);
       } else {
+        // 'camera' — cone at top pointing outward
+        shaft = new THREE.Mesh(new THREE.CylinderGeometry(PIN_SHAFT_R, PIN_SHAFT_R, PIN_LEN, 8), shaftMat);
+        shaft.position.copy(normal).multiplyScalar(SPHERE_R + 0.002 + PIN_LEN / 2);
+        shaft.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), normal);
         tipMesh = new THREE.Mesh(new THREE.ConeGeometry(PIN_TIP_R, PIN_CONE_H, 8), tipMat);
         tipMesh.position.copy(normal).multiplyScalar(SPHERE_R + 0.002 + PIN_LEN + PIN_CONE_H / 2);
         tipMesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), normal);
+        pinLabelAnchors[type] = normal.clone().multiplyScalar(SPHERE_R + 0.002 + PIN_LEN + PIN_CONE_H + 0.15);
       }
-      const tipExtent = type === 'highlight' ? PIN_TIP_R : PIN_CONE_H;
-      pinLabelAnchors[type] = normal.clone().multiplyScalar(SPHERE_R + 0.002 + PIN_LEN + tipExtent + 0.15);
       const pin = new THREE.Group();
       pin.add(shaft, tipMesh);
       const startPos = normal.clone().multiplyScalar(PIN_ANIM_OFFSET);
