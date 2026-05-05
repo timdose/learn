@@ -62,7 +62,7 @@ import DemoLayout from '../../../layouts/DemoLayout.astro';
 
     // ── Colours — edit here to restyle the demo ────────────────────────────────
     const COLOR = {
-      bg:           0x000000,
+      bg:           0x222222,
       sphere:       0x888888,
       lightMarker:  0xffffff,
       pinLight:     0xffcc44,
@@ -290,6 +290,7 @@ import DemoLayout from '../../../layouts/DemoLayout.astro';
     let gizmoDragLastY  = 0;
 
     const axesScene = new THREE.Scene();
+    axesScene.background = new THREE.Color(COLOR.bg);
     axesScene.add(new THREE.AmbientLight(0xffffff, 0.55));
     const gizmoLight = new THREE.DirectionalLight(0xffffff, 0.6);
     gizmoLight.position.set(0, 0, 3);
