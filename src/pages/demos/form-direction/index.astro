@@ -38,7 +38,7 @@ import DemoLayout from '../../../layouts/DemoLayout.astro';
     const ARROW_SHAFT_R    = 0.025;
     const ANGLE_W          = 80;               // px — angle canvas logical width
     const ANGLE_H          = 80;               // px — angle canvas logical height
-    const ANGLE_OFFSET     = { x: 40, y: -40 }; // px — canvas position relative to cursor dot
+    const ANGLE_OFFSET     = { x: 40, y: 0 }; // px — canvas position relative to cursor dot
     const ARROW_SHAFT_LEN  = 0.5;
     const ARROW_CONE_R     = 0.08;
     const ARROW_CONE_H     = 0.18;
@@ -166,27 +166,40 @@ import DemoLayout from '../../../layouts/DemoLayout.astro';
     const actx = angleCanvas.getContext('2d')!;
     actx.scale(dpr, dpr);
 
-    function drawAngleGraphic(deg: number) {
+    function drawSurfaceAngleGraphic(ndotl: number, hitPoint: THREE.Vector3) {
       actx.clearRect(0, 0, ANGLE_W, ANGLE_H);
-      const vx = 10, vy = 72, lineLen = 58;
-      const rad = deg * Math.PI / 180;
-      actx.strokeStyle = '#44dd66';
-      actx.lineWidth   = 1.5;
-      actx.lineCap     = 'round';
-      // Fixed vertical line (reference)
-      actx.beginPath(); actx.moveTo(vx, vy); actx.lineTo(vx, vy - lineLen); actx.stroke();
-      // Variable line (vertical at 0°/terminator, horizontal at 90°/facing)
-      actx.beginPath(); actx.moveTo(vx, vy);
-      actx.lineTo(vx + lineLen * Math.sin(rad), vy - lineLen * Math.cos(rad)); actx.stroke();
-    }
+      const cx = ANGLE_W / 2, cy = ANGLE_H / 2, lineHalf = 36, rayLen = 36;
 
-    function drawBlockedGraphic() {
-      actx.clearRect(0, 0, ANGLE_W, ANGLE_H);
-      const cx = ANGLE_W / 2, cy = ANGLE_H / 2, r = 22;
-      actx.strokeStyle = '#dd3333'; actx.lineWidth = 2; actx.lineCap = 'round';
-      actx.beginPath(); actx.arc(cx, cy, r, 0, Math.PI * 2); actx.stroke();
-      const d = r * 0.707;
-      actx.beginPath(); actx.moveTo(cx - d, cy + d); actx.lineTo(cx + d, cy - d); actx.stroke();
+      actx.fillStyle = 'rgba(0,0,0,0.35)';
+      actx.fillRect(0, 0, ANGLE_W, ANGLE_H);
+      actx.lineWidth = 2; actx.lineCap = 'round';
+
+      const nWorld = hitPoint.clone().normalize();
+      const lWorld = lightPos.clone().sub(hitPoint).normalize();
+
+      // Surface line: arccos(normal.y) gives angle from horizontal in world space.
+      // normal.y = 1 (top pole) → 0° → horizontal; normal.y = 0 (equator) → 90° → vertical.
+      const surfaceAngle = Math.acos(Math.max(-1, Math.min(1, nWorld.y)));
+      const sdx = Math.cos(surfaceAngle), sdy = Math.sin(surfaceAngle);
+
+      actx.beginPath();
+      actx.strokeStyle = '#888888';
+      actx.moveTo(cx - sdx * lineHalf, cy - sdy * lineHalf);
+      actx.lineTo(cx + sdx * lineHalf, cy + sdy * lineHalf);
+      actx.stroke();
+
+      // Light ray: project world light direction onto the XY plane for 2D display.
+      // lWorld.y is almost always large (light is far above), so this rarely degenerates.
+      const lProjLen = Math.hypot(lWorld.x, lWorld.y);
+      const [ldx, ldy] = lProjLen > 0.001
+        ? [lWorld.x / lProjLen, lWorld.y / lProjLen]
+        : [0, 1];
+
+      actx.beginPath();
+      actx.strokeStyle = ndotl > 0 ? '#ffffff' : '#555555';
+      actx.moveTo(cx + ldx * rayLen, cy - ldy * rayLen);
+      actx.lineTo(cx, cy);
+      actx.stroke();
     }
 
     let angleVisible = false;
@@ -197,8 +210,7 @@ import DemoLayout from '../../../layouts/DemoLayout.astro';
       angleCanvas.style.display = 'block';
       const n     = hitPoint.clone().normalize();
       const ndotl = n.dot(lightPos.clone().sub(hitPoint).normalize());
-      if (ndotl <= 0) drawBlockedGraphic();
-      else            drawAngleGraphic(Math.asin(Math.min(1, ndotl)) * 180 / Math.PI);
+      drawSurfaceAngleGraphic(ndotl, hitPoint);
     }
 
     function toggleAngle() {
@@ -489,5 +501,5 @@ import DemoLayout from '../../../layouts/DemoLayout.astro';
 </DemoLayout>
 
 <style is:global>
-  #angle-canvas { position: fixed; pointer-events: none; display: none; }
+  #angle-canvas { position: fixed; pointer-events: none; display: none; border: 1px solid rgba(255,255,255,0.15); border-radius: 3px; }
 </style>
