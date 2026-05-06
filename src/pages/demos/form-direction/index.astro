@@ -38,7 +38,7 @@ import DemoLayout from '../../../layouts/DemoLayout.astro';
     const ARROW_SHAFT_R    = 0.025;
     const ANGLE_W          = 80;               // px — angle canvas logical width
     const ANGLE_H          = 80;               // px — angle canvas logical height
-    const ANGLE_OFFSET     = { x: 40, y: 0 }; // px — canvas position relative to cursor dot
+    const ANGLE_OFFSET     = { x: -40, y: 25 }; // px — canvas position relative to cursor dot
     const ARROW_SHAFT_LEN  = 0.5;
     const ARROW_CONE_R     = 0.08;
     const ARROW_CONE_H     = 0.18;
@@ -199,8 +199,29 @@ import DemoLayout from '../../../layouts/DemoLayout.astro';
       angleCanvas.style.left    = (sx + ANGLE_OFFSET.x) + 'px';
       angleCanvas.style.top     = (sy + ANGLE_OFFSET.y) + 'px';
       angleCanvas.style.display = 'block';
+
       const n     = hitPoint.clone().normalize();
       const ndotl = n.dot(lightPos.clone().sub(hitPoint).normalize());
+
+      // Rotate the circle so the mini-view ray matches the on-screen ray angle.
+      // Project light and hit to NDC, convert dy to screen-y (down-positive).
+      const lightNDC  = lightPos.clone().project(camera);
+      const hitNDC    = hitPoint.clone().project(camera);
+      // Multiply x by camera.aspect: NDC x and y cover the same [-1,1] range but
+      // x maps to more screen pixels on non-square canvases, so we must undo that.
+      const screenDx  = (hitNDC.x - lightNDC.x) * camera.aspect;
+      const screenDy  = -(hitNDC.y - lightNDC.y);
+      const rotDeg    = Math.atan2(screenDx, screenDy) * 180 / Math.PI;
+      // Flip horizontally when the ray swings to the left to avoid visual inversion.
+      const flipped   = screenDx < 0;
+      // Negate rotDeg: CSS rotate(+θ) moves the canvas top CW (to the right),
+      // making the ray point left — opposite of the actual ray. Negating corrects this.
+      // For the flipped case, scaleX(-1) must come last in the string so CSS applies
+      // it first (right-to-left order), before the rotation.
+      angleCanvas.style.transform = flipped
+        ? `rotate(${-rotDeg}deg) scaleX(-1)`
+        : `rotate(${-rotDeg}deg)`;
+
       drawSurfaceAngleGraphic(ndotl);
     }
 
@@ -492,5 +513,5 @@ import DemoLayout from '../../../layouts/DemoLayout.astro';
 </DemoLayout>
 
 <style is:global>
-  #angle-canvas { position: fixed; pointer-events: none; display: none; border: 1px solid rgba(255,255,255,0.15); border-radius: 3px; }
+  #angle-canvas { position: fixed; pointer-events: none; display: none; border: 1px solid rgba(255,255,255,0.15); border-radius: 50%; }
 </style>
