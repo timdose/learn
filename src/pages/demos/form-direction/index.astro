@@ -166,38 +166,29 @@ import DemoLayout from '../../../layouts/DemoLayout.astro';
     const actx = angleCanvas.getContext('2d')!;
     actx.scale(dpr, dpr);
 
-    function drawSurfaceAngleGraphic(ndotl: number, hitPoint: THREE.Vector3) {
+    function drawSurfaceAngleGraphic(ndotl: number) {
       actx.clearRect(0, 0, ANGLE_W, ANGLE_H);
-      const cx = ANGLE_W / 2, cy = ANGLE_H / 2, lineHalf = 36, rayLen = 36;
+      const cx = ANGLE_W / 2, cy = ANGLE_H / 2;
 
       actx.fillStyle = 'rgba(0,0,0,0.35)';
       actx.fillRect(0, 0, ANGLE_W, ANGLE_H);
+
+      // Surface fill: rotate by arccos(ndotl). Light ray is fixed vertical.
+      // ndotl=1 (pole):       0°  → horizontal edge, ray perpendicular to it.
+      // ndotl=0 (terminator): 90° → vertical edge, ray parallel to it.
+      const phi = Math.acos(Math.max(-1, Math.min(1, ndotl)));
+      actx.save();
+      actx.translate(cx, cy);
+      actx.rotate(phi);
+      actx.fillStyle = '#888888'; // COLOR.sphere
+      actx.fillRect(-ANGLE_W, 0, ANGLE_W * 2, ANGLE_H * 2);
+      actx.restore();
+
+      // Light ray — always vertical (from above).
       actx.lineWidth = 2; actx.lineCap = 'round';
-
-      const nWorld = hitPoint.clone().normalize();
-      const lWorld = lightPos.clone().sub(hitPoint).normalize();
-
-      // Surface line: arccos(normal.y) gives angle from horizontal in world space.
-      // normal.y = 1 (top pole) → 0° → horizontal; normal.y = 0 (equator) → 90° → vertical.
-      const surfaceAngle = Math.acos(Math.max(-1, Math.min(1, nWorld.y)));
-      const sdx = Math.cos(surfaceAngle), sdy = Math.sin(surfaceAngle);
-
-      actx.beginPath();
-      actx.strokeStyle = '#888888';
-      actx.moveTo(cx - sdx * lineHalf, cy - sdy * lineHalf);
-      actx.lineTo(cx + sdx * lineHalf, cy + sdy * lineHalf);
-      actx.stroke();
-
-      // Light ray: project world light direction onto the XY plane for 2D display.
-      // lWorld.y is almost always large (light is far above), so this rarely degenerates.
-      const lProjLen = Math.hypot(lWorld.x, lWorld.y);
-      const [ldx, ldy] = lProjLen > 0.001
-        ? [lWorld.x / lProjLen, lWorld.y / lProjLen]
-        : [0, 1];
-
       actx.beginPath();
       actx.strokeStyle = ndotl > 0 ? '#ffffff' : '#555555';
-      actx.moveTo(cx + ldx * rayLen, cy - ldy * rayLen);
+      actx.moveTo(cx, 0);
       actx.lineTo(cx, cy);
       actx.stroke();
     }
@@ -210,7 +201,7 @@ import DemoLayout from '../../../layouts/DemoLayout.astro';
       angleCanvas.style.display = 'block';
       const n     = hitPoint.clone().normalize();
       const ndotl = n.dot(lightPos.clone().sub(hitPoint).normalize());
-      drawSurfaceAngleGraphic(ndotl, hitPoint);
+      drawSurfaceAngleGraphic(ndotl);
     }
 
     function toggleAngle() {
