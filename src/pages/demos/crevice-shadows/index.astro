@@ -9,6 +9,11 @@ import DemoLayout from '../../../layouts/DemoLayout.astro';
       <span class="toggle"><input type="checkbox" id="energy-toggle" checked><span class="toggle-track"></span></span>
     </label>
     <div class="row">
+      <label>Bounces</label>
+      <span class="val" id="bounces-val">2</span>
+    </div>
+    <input type="range" class="val-slider" id="bounces-slider" min="0" max="2" step="1" value="2">
+    <div class="row">
       <label>Cave depth</label>
       <span class="val" id="depth-val">180</span>
     </div>
@@ -17,6 +22,7 @@ import DemoLayout from '../../../layouts/DemoLayout.astro';
   </Fragment>
 
   <Fragment slot="help">
+    <div class="help-row"><span class="help-keys"><kbd>0</kbd> <kbd>1</kbd> <kbd>2</kbd></span><span class="help-desc">Set bounce count</span></div>
     <div class="help-row"><span class="help-keys"><kbd>C</kbd></span><span class="help-desc">Clear dots</span></div>
     <div class="help-row"><span class="help-keys"><kbd>E</kbd></span><span class="help-desc">Toggle brightness fade</span></div>
   </Fragment>
@@ -24,13 +30,13 @@ import DemoLayout from '../../../layouts/DemoLayout.astro';
   <script>
     // ── Config ─────────────────────────────────────────────────────────────────
     const REFLECTANCE    = 0.5;
-    const MAX_BOUNCES    = 1;
+    let   maxBounces     = 2;
     const SPRAY_COUNT    = 15;
     const SPRAY_SPREAD   = Math.PI / 8;  // ±22.5° around preview direction
     const HOLD_DELAY_MS  = 400;
     const HOLD_RATE_MS   = 100;
     const DOT_RADIUS     = 3.5;
-    const DOT_ALPHA      = 0.08;  // opacity per dot — accumulates additively
+    const DOT_ALPHA      = 0.2;  // opacity per dot — accumulates additively
     const RAY_WIDTH      = 1.5;   // px — preview ray line width
     const CAVE_THICKNESS = 16;    // px — visual depth of cave ceiling/wall slabs
     const GROUND_Y_FRAC  = 0.72;
@@ -65,9 +71,13 @@ import DemoLayout from '../../../layouts/DemoLayout.astro';
     let caveDepth      = 180;
     let brightnessMode = true;
 
-    // Preview state: incidence hit + one sampled bounce, stored in drawPreview(),
+    // Preview state: incidence hit + two sampled bounces, stored in drawPreview(),
     // consumed by fireAt() so a single click fires exactly what the preview shows.
-    type Preview = { ix: number; iy: number; bounceHit: boolean; bx: number; by: number };
+    type Preview = {
+      ix: number; iy: number;
+      b1Hit: boolean; b1x: number; b1y: number;
+      b2Hit: boolean; b2x: number; b2y: number;
+    };
     let preview: Preview | null = null;
 
     let mouseX = 0, mouseY = 0;
@@ -150,7 +160,7 @@ import DemoLayout from '../../../layouts/DemoLayout.astro';
     function traceRay(
       fromX: number, fromY: number,
       dirX:  number, dirY:  number,
-      energy = 1.0, bounces = MAX_BOUNCES
+      energy = 1.0, bounces = maxBounces
     ) {
       const len = Math.hypot(dirX, dirY);
       if (len < 1e-9) return;
@@ -170,11 +180,12 @@ import DemoLayout from '../../../layouts/DemoLayout.astro';
     }
 
     // ── Firing ────────────────────────────────────────────────────────────────
-    // Single click: place dots at exactly the incidence + bounce shown in the preview.
+    // Single click: place dots at exactly the positions shown in the preview.
     function fireAt() {
       if (!preview) return;
       addDot(preview.ix, preview.iy, 1.0);
-      if (preview.bounceHit) addDot(preview.bx, preview.by, REFLECTANCE);
+      if (maxBounces >= 1 && preview.b1Hit) addDot(preview.b1x, preview.b1y, REFLECTANCE);
+      if (maxBounces >= 2 && preview.b2Hit) addDot(preview.b2x, preview.b2y, REFLECTANCE * REFLECTANCE);
       redraw();
     }
 
@@ -225,20 +236,40 @@ import DemoLayout from '../../../layouts/DemoLayout.astro';
 
       if (!incHit) return;
 
-      // Bounce ray — one Lambertian sample from the incidence hit (resampled each move)
-      const b   = lambertianBounce(incHit.seg.nx, incHit.seg.ny);
-      const bHit = firstHit(incEndX, incEndY, b.dx, b.dy, segs);
-      const bEndX = bHit ? incEndX + b.dx * bHit.t : incEndX + b.dx * 2000;
-      const bEndY = bHit ? incEndY + b.dy * bHit.t : incEndY + b.dy * 2000;
+      // Bounce 1
+      let b1Hit = false, b1x = 0, b1y = 0, b1SegNx = 0, b1SegNy = 0;
+      if (maxBounces >= 1) {
+        const b1    = lambertianBounce(incHit.seg.nx, incHit.seg.ny);
+        const b1Res = firstHit(incEndX, incEndY, b1.dx, b1.dy, segs);
+        b1Hit = !!b1Res;
+        b1x   = b1Res ? incEndX + b1.dx * b1Res.t : incEndX + b1.dx * 2000;
+        b1y   = b1Res ? incEndY + b1.dy * b1Res.t : incEndY + b1.dy * 2000;
+        if (b1Res) { b1SegNx = b1Res.seg.nx; b1SegNy = b1Res.seg.ny; }
 
-      ctx.beginPath();
-      ctx.moveTo(incEndX, incEndY);
-      ctx.lineTo(bEndX, bEndY);
-      ctx.strokeStyle = 'rgba(255,255,255,0.18)';
-      ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(incEndX, incEndY);
+        ctx.lineTo(b1x, b1y);
+        ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+        ctx.stroke();
+      }
 
-      // Store for use by fireAt()
-      preview = { ix: incEndX, iy: incEndY, bounceHit: !!bHit, bx: bEndX, by: bEndY };
+      // Bounce 2
+      let b2Hit = false, b2x = 0, b2y = 0;
+      if (maxBounces >= 2 && b1Hit) {
+        const b2    = lambertianBounce(b1SegNx, b1SegNy);
+        const b2Res = firstHit(b1x, b1y, b2.dx, b2.dy, segs);
+        b2Hit = !!b2Res;
+        b2x   = b2Res ? b1x + b2.dx * b2Res.t : b1x + b2.dx * 2000;
+        b2y   = b2Res ? b1y + b2.dy * b2Res.t : b1y + b2.dy * 2000;
+
+        ctx.beginPath();
+        ctx.moveTo(b1x, b1y);
+        ctx.lineTo(b2x, b2y);
+        ctx.strokeStyle = 'rgba(255,255,255,0.10)';
+        ctx.stroke();
+      }
+
+      preview = { ix: incEndX, iy: incEndY, b1Hit, b1x, b1y, b2Hit, b2x, b2y };
     }
 
     function redraw() {
@@ -304,6 +335,18 @@ import DemoLayout from '../../../layouts/DemoLayout.astro';
     canvas.addEventListener('pointerleave', stopHold);
 
     // ── Panel wiring ───────────────────────────────────────────────────────────
+    const bouncesSlider = document.getElementById('bounces-slider') as HTMLInputElement;
+    const bouncesVal    = document.getElementById('bounces-val')!;
+
+    function setMaxBounces(n: number) {
+      maxBounces = Math.max(0, Math.min(2, n));
+      bouncesSlider.value      = String(maxBounces);
+      bouncesVal.textContent   = String(maxBounces);
+      redraw(); // redraws preview with updated bounce count
+    }
+
+    bouncesSlider.addEventListener('input', () => setMaxBounces(parseInt(bouncesSlider.value)));
+
     const energyToggle = document.getElementById('energy-toggle') as HTMLInputElement;
     energyToggle.addEventListener('change', () => {
       brightnessMode = energyToggle.checked;
@@ -326,6 +369,9 @@ import DemoLayout from '../../../layouts/DemoLayout.astro';
 
     window.addEventListener('keydown', e => {
       switch (e.key) {
+        case '0': setMaxBounces(0); break;
+        case '1': setMaxBounces(1); break;
+        case '2': setMaxBounces(2); break;
         case 'c': case 'C':
           clearDots(); redraw(); break;
         case 'e': case 'E':
