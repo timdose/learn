@@ -4,9 +4,9 @@ import DemoLayout from '../../../layouts/DemoLayout.astro';
 <DemoLayout title="Crevice Shadows">
 
   <Fragment slot="panel">
-    <label class="toggle-row" for="energy-toggle">
-      <span>Brightness fade</span>
-      <span class="toggle"><input type="checkbox" id="energy-toggle" checked><span class="toggle-track"></span></span>
+    <label class="toggle-row" for="reveal-toggle">
+      <span>Reveal all</span>
+      <span class="toggle"><input type="checkbox" id="reveal-toggle"><span class="toggle-track"></span></span>
     </label>
     <div class="row">
       <label>Bounces</label>
@@ -24,24 +24,43 @@ import DemoLayout from '../../../layouts/DemoLayout.astro';
   <Fragment slot="help">
     <div class="help-row"><span class="help-keys"><kbd>0</kbd> <kbd>1</kbd> <kbd>2</kbd></span><span class="help-desc">Set bounce count</span></div>
     <div class="help-row"><span class="help-keys"><kbd>C</kbd></span><span class="help-desc">Clear dots</span></div>
-    <div class="help-row"><span class="help-keys"><kbd>E</kbd></span><span class="help-desc">Toggle brightness fade</span></div>
+    <div class="help-row"><span class="help-keys"><kbd>A</kbd></span><span class="help-desc">Reveal all dots</span></div>
+    <div class="help-row"><span class="help-keys"><kbd>Z</kbd></span><span class="help-desc">Toggle zoom</span></div>
+    <div class="help-row"><span class="help-keys"><kbd>[</kbd> <kbd>]</kbd></span><span class="help-desc">Cave depth</span></div>
   </Fragment>
+
 
   <script>
     // ── Config ─────────────────────────────────────────────────────────────────
-    const REFLECTANCE    = 0.5;
+    const REFLECTANCE    = 0.33;
     let   maxBounces     = 2;
     const SPRAY_COUNT    = 15;
     const SPRAY_SPREAD   = Math.PI / 8;  // ±22.5° around preview direction
     const HOLD_DELAY_MS  = 400;
     const HOLD_RATE_MS   = 100;
-    const DOT_RADIUS     = 3.5;
-    const DOT_ALPHA      = 0.2;  // opacity per dot — accumulates additively
+    const DOT_RADIUS     = 3;
+    const DOT_ALPHA      = 0.1;  // opacity per dot — accumulates additively
+    const REVEAL_DRAWS   = 64;   // composites needed to saturate the faintest dot
     const RAY_WIDTH      = 1.5;   // px — preview ray line width
-    const CAVE_THICKNESS = 16;    // px — visual depth of cave ceiling/wall slabs
+    const CAVE_THICKNESS = 64;    // px — visual depth of cave ceiling/wall slabs
     const GROUND_Y_FRAC  = 0.72;
     const CAVE_X_FRAC    = 0.55;  // cave opening x as fraction of canvas width
-    const CAVE_HEIGHT    = 90;    // px — fixed ceiling height above ground
+    const CAVE_HEIGHT    = 150;    // px — fixed ceiling height above ground
+    const DEPTH_MAX      = 420;    // px — matches depth slider max
+    const DEPTH_STEP     = 30;     // px — [ ] key step size
+    const ZOOM_PADDING   = 60;     // px — padding around cave in zoomed view
+    const ZOOM_ANIM_MS   = 400;    // ms — zoom transition duration
+
+    // ── Colours ────────────────────────────────────────────────────────────────
+    const COLOR = {
+      bg:              '#000000',  // scene background
+      surface:         '#222222',  // ground and cave material
+      light:           '#ffffff',  // light source dot
+      rayIncidence:    'rgba(255,255,255,1.00)',
+      rayIncidenceMiss:'rgba(120,120,120,0.50)',
+      rayBounce1:      'rgba(255,255,255,0.18)',
+      rayBounce2:      'rgba(255,255,255,0.10)',
+    };
 
     // Light source position in logical px (upper-left, fixed)
     const LIGHT = { x: 600, y: 200 };
@@ -68,8 +87,46 @@ import DemoLayout from '../../../layouts/DemoLayout.astro';
     }
 
     // ── State ──────────────────────────────────────────────────────────────────
-    let caveDepth      = 180;
-    let brightnessMode = true;
+    let caveDepth   = 180;
+    let revealMode  = false;
+
+    // ── Zoom / pan ────────────────────────────────────────────────────────────
+    let isZoomed = false;
+    let curZoom  = 1, curPanX = 0, curPanY = 0;
+    type ZAnim   = { fz: number; fx: number; fy: number; tz: number; tx: number; ty: number; start: number };
+    let zoomAnim: ZAnim | null = null;
+
+    function getZoomedView() {
+      // Fixed to DEPTH_MAX so the view doesn't shift when [ ] changes depth.
+      const maxBack  = caveOpenX + DEPTH_MAX + CAVE_THICKNESS;
+      const viewL    = caveOpenX - DEPTH_MAX - ZOOM_PADDING;
+      const viewR    = maxBack    + ZOOM_PADDING;
+      const viewT    = ceilY      - ZOOM_PADDING;
+      const viewB    = groundY    + ZOOM_PADDING;
+      const W        = window.innerWidth, H = window.innerHeight;
+      const zoom     = Math.min(W / (viewR - viewL), H / (viewB - viewT));
+      const cx       = (viewL + viewR) / 2, cy = (viewT + viewB) / 2;
+      return { zoom, panX: W / 2 - cx * zoom, panY: H / 2 - cy * zoom };
+    }
+
+    function animateZoom() {
+      if (!zoomAnim) return;
+      const t    = Math.min((performance.now() - zoomAnim.start) / ZOOM_ANIM_MS, 1);
+      const ease = 1 - Math.pow(1 - t, 3);
+      curZoom = zoomAnim.fz + (zoomAnim.tz - zoomAnim.fz) * ease;
+      curPanX = zoomAnim.fx + (zoomAnim.tx - zoomAnim.fx) * ease;
+      curPanY = zoomAnim.fy + (zoomAnim.ty - zoomAnim.fy) * ease;
+      redraw();
+      if (t < 1) { requestAnimationFrame(animateZoom); }
+      else { curZoom = zoomAnim.tz; curPanX = zoomAnim.tx; curPanY = zoomAnim.ty; zoomAnim = null; }
+    }
+
+    function toggleZoom() {
+      isZoomed = !isZoomed;
+      const target = isZoomed ? getZoomedView() : { zoom: 1, panX: 0, panY: 0 };
+      zoomAnim = { fz: curZoom, fx: curPanX, fy: curPanY, tz: target.zoom, tx: target.panX, ty: target.panY, start: performance.now() };
+      requestAnimationFrame(animateZoom);
+    }
 
     // Preview state: incidence hit + two sampled bounces, stored in drawPreview(),
     // consumed by fireAt() so a single click fires exactly what the preview shows.
@@ -96,6 +153,8 @@ import DemoLayout from '../../../layouts/DemoLayout.astro';
         { ax: 0,         ay: groundY, bx: 9999,  by: groundY, nx:  0, ny: -1 },
         // Cave top face — extends to backX+CAVE_THICKNESS so the corner is solid
         { ax: caveOpenX,             ay: ceilY,   bx: backX + CAVE_THICKNESS, by: ceilY,   nx:  0, ny: -1 },
+        // Cave ceiling left face — vertical edge of the slab (hit by rightward rays from outside)
+        { ax: caveOpenX, ay: ceilY,  bx: caveOpenX, by: insideY, nx: -1, ny: 0 },
         // Cave inside ceiling — normal points down (upward bounced rays hit this)
         { ax: caveOpenX, ay: insideY, bx: backX,  by: insideY, nx:  0, ny:  1 },
         // Cave back wall left face — normal points left (rays hit from inside cave)
@@ -144,7 +203,7 @@ import DemoLayout from '../../../layouts/DemoLayout.astro';
     // ── Dot accumulation ──────────────────────────────────────────────────────
     function addDot(x: number, y: number, energy = 1.0) {
       dotsCtx.globalCompositeOperation = 'lighter';
-      dotsCtx.fillStyle = `rgba(255,255,255,${DOT_ALPHA * (brightnessMode ? energy : 1.0)})`;
+      dotsCtx.fillStyle = `rgba(255,255,255,${DOT_ALPHA * energy})`;
       dotsCtx.beginPath();
       dotsCtx.arc(x, y, DOT_RADIUS, 0, Math.PI * 2);
       dotsCtx.fill();
@@ -231,7 +290,7 @@ import DemoLayout from '../../../layouts/DemoLayout.astro';
       ctx.beginPath();
       ctx.moveTo(LIGHT.x, LIGHT.y);
       ctx.lineTo(incEndX, incEndY);
-      ctx.strokeStyle = incHit ? 'rgba(255,255,255,0.35)' : 'rgba(120,120,120,0.3)';
+      ctx.strokeStyle = incHit ? COLOR.rayIncidence : COLOR.rayIncidenceMiss;
       ctx.stroke();
 
       if (!incHit) return;
@@ -249,7 +308,7 @@ import DemoLayout from '../../../layouts/DemoLayout.astro';
         ctx.beginPath();
         ctx.moveTo(incEndX, incEndY);
         ctx.lineTo(b1x, b1y);
-        ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+        ctx.strokeStyle = COLOR.rayBounce1;
         ctx.stroke();
       }
 
@@ -265,7 +324,7 @@ import DemoLayout from '../../../layouts/DemoLayout.astro';
         ctx.beginPath();
         ctx.moveTo(b1x, b1y);
         ctx.lineTo(b2x, b2y);
-        ctx.strokeStyle = 'rgba(255,255,255,0.10)';
+        ctx.strokeStyle = COLOR.rayBounce2;
         ctx.stroke();
       }
 
@@ -274,59 +333,44 @@ import DemoLayout from '../../../layouts/DemoLayout.astro';
 
     function redraw() {
       const W = window.innerWidth, H = window.innerHeight;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctx.fillStyle = '#222222';
+      ctx.setTransform(dpr * curZoom, 0, 0, dpr * curZoom, Math.round(curPanX * dpr), Math.round(curPanY * dpr));
+      ctx.fillStyle = COLOR.bg;
       ctx.fillRect(0, 0, W, H);
 
-      const backX = caveOpenX + caveDepth;
-
-      // Ground line
-      ctx.strokeStyle = '#888888';
-      ctx.lineWidth   = 2;
-      ctx.lineCap     = 'round';
-      ctx.beginPath();
-      ctx.moveTo(0, groundY);
-      ctx.lineTo(W, groundY);
-      ctx.stroke();
-
-      // Cave ceiling slab — extended by CAVE_THICKNESS so it meets the back wall corner
+      const backX   = caveOpenX + caveDepth;
       const insideY = ceilY + CAVE_THICKNESS;
-      ctx.fillStyle = '#555555';
-      ctx.fillRect(caveOpenX, ceilY, caveDepth + CAVE_THICKNESS, CAVE_THICKNESS);
 
-      // Top face (full width including corner)
-      ctx.beginPath(); ctx.moveTo(caveOpenX, ceilY);   ctx.lineTo(backX + CAVE_THICKNESS, ceilY);   ctx.stroke();
-      // Inside ceiling (underside, stops at back wall left face)
-      ctx.beginPath(); ctx.moveTo(caveOpenX, insideY); ctx.lineTo(backX, insideY); ctx.stroke();
-
-      // Cave back wall slab
-      ctx.fillStyle = '#555555';
-      ctx.fillRect(backX, insideY, CAVE_THICKNESS, groundY - insideY);
-      // Left face (hit surface for rays inside cave)
-      ctx.beginPath(); ctx.moveTo(backX, insideY); ctx.lineTo(backX, groundY); ctx.stroke();
-      // Right face — runs from ceilY to close the corner with the ceiling top
-      ctx.beginPath(); ctx.moveTo(backX + CAVE_THICKNESS, ceilY); ctx.lineTo(backX + CAVE_THICKNESS, groundY); ctx.stroke();
+      // All solid geometry — no strokes needed, colour boundaries are the visual edges.
+      ctx.fillStyle = COLOR.surface;
+      ctx.fillRect(0,        groundY, W,              H - groundY);          // ground to screen bottom
+      ctx.fillRect(caveOpenX, ceilY,  caveDepth + CAVE_THICKNESS, CAVE_THICKNESS); // ceiling slab
+      ctx.fillRect(backX,    insideY, CAVE_THICKNESS, groundY - insideY);    // back wall body
 
       // Light source
-      ctx.fillStyle = '#ffffff';
+      ctx.fillStyle = COLOR.light;
       ctx.beginPath();
       ctx.arc(LIGHT.x, LIGHT.y, 5, 0, Math.PI * 2);
       ctx.fill();
 
-      // Composite accumulated dots (drawn additively onto dotsCanvas)
-      ctx.drawImage(dotsCanvas, 0, 0, window.innerWidth, window.innerHeight);
+      // Composite accumulated dots. In reveal mode, draw REVEAL_DRAWS times so even the
+      // faintest single-bounce dot compounds to near-opaque: 1-(1-a)^N.
+      const draws = revealMode ? REVEAL_DRAWS : 1;
+      for (let i = 0; i < draws; i++)
+        ctx.drawImage(dotsCanvas, 0, 0, window.innerWidth, window.innerHeight);
 
       drawPreview();
     }
 
     // ── Events ─────────────────────────────────────────────────────────────────
     canvas.addEventListener('pointermove', e => {
-      mouseX = e.clientX; mouseY = e.clientY;
+      mouseX = (e.clientX - curPanX) / curZoom;
+      mouseY = (e.clientY - curPanY) / curZoom;
       redraw();
     });
 
     canvas.addEventListener('pointerdown', e => {
-      mouseX = e.clientX; mouseY = e.clientY;
+      mouseX = (e.clientX - curPanX) / curZoom;
+      mouseY = (e.clientY - curPanY) / curZoom;
       canvas.setPointerCapture(e.pointerId);
       startHold();
     });
@@ -347,20 +391,24 @@ import DemoLayout from '../../../layouts/DemoLayout.astro';
 
     bouncesSlider.addEventListener('input', () => setMaxBounces(parseInt(bouncesSlider.value)));
 
-    const energyToggle = document.getElementById('energy-toggle') as HTMLInputElement;
-    energyToggle.addEventListener('change', () => {
-      brightnessMode = energyToggle.checked;
+    const revealToggle = document.getElementById('reveal-toggle') as HTMLInputElement;
+    revealToggle.addEventListener('change', () => {
+      revealMode = revealToggle.checked;
       redraw();
     });
 
     const depthSlider = document.getElementById('depth-slider') as HTMLInputElement;
     const depthVal    = document.getElementById('depth-val')!;
-    depthSlider.addEventListener('input', () => {
-      caveDepth = parseInt(depthSlider.value);
-      depthVal.textContent = depthSlider.value;
-      clearDots(); // old dots are geometrically wrong after depth changes
+
+    function setDepth(v: number) {
+      caveDepth = Math.max(30, Math.min(DEPTH_MAX, v));
+      depthSlider.value    = String(caveDepth);
+      depthVal.textContent = String(caveDepth);
+      clearDots();
       redraw();
-    });
+    }
+
+    depthSlider.addEventListener('input', () => setDepth(parseInt(depthSlider.value)));
 
     document.getElementById('clear-btn')!.addEventListener('click', () => {
       clearDots();
@@ -374,10 +422,13 @@ import DemoLayout from '../../../layouts/DemoLayout.astro';
         case '2': setMaxBounces(2); break;
         case 'c': case 'C':
           clearDots(); redraw(); break;
-        case 'e': case 'E':
-          energyToggle.checked = !energyToggle.checked;
-          brightnessMode = energyToggle.checked;
+        case 'a': case 'A':
+          revealToggle.checked = !revealToggle.checked;
+          revealMode = revealToggle.checked;
           redraw(); break;
+        case 'z': case 'Z': toggleZoom(); break;
+        case '[': setDepth(caveDepth - DEPTH_STEP); break;
+        case ']': setDepth(caveDepth + DEPTH_STEP); break;
       }
     });
 
