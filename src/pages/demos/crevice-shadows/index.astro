@@ -62,8 +62,9 @@ import DemoLayout from '../../../layouts/DemoLayout.astro';
       rayBounce2:      'rgba(255,255,255,0.10)',
     };
 
-    // Light source position in logical px (upper-left, fixed)
-    const LIGHT = { x: 600, y: 200 };
+    const LIGHT_X_FRAC = 0.50;  // fraction of window width
+    const LIGHT_Y_FRAC = 0.22;  // fraction of window height
+    let LIGHT = { x: 0, y: 0 };
 
     // ── Canvas / context ───────────────────────────────────────────────────────
     const canvas = document.getElementById('demo-canvas') as HTMLCanvasElement;
@@ -84,6 +85,8 @@ import DemoLayout from '../../../layouts/DemoLayout.astro';
       groundY   = window.innerHeight * GROUND_Y_FRAC;
       caveOpenX = window.innerWidth  * CAVE_X_FRAC;
       ceilY     = groundY - CAVE_HEIGHT;
+      LIGHT.x   = window.innerWidth  * LIGHT_X_FRAC;
+      LIGHT.y   = window.innerHeight * LIGHT_Y_FRAC;
     }
 
     // ── State ──────────────────────────────────────────────────────────────────
