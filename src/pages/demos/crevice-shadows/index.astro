@@ -1,0 +1,354 @@
+---
+import DemoLayout from '../../../layouts/DemoLayout.astro';
+---
+<DemoLayout title="Crevice Shadows">
+
+  <Fragment slot="panel">
+    <label class="toggle-row" for="energy-toggle">
+      <span>Brightness fade</span>
+      <span class="toggle"><input type="checkbox" id="energy-toggle" checked><span class="toggle-track"></span></span>
+    </label>
+    <div class="row">
+      <label>Cave depth</label>
+      <span class="val" id="depth-val">180</span>
+    </div>
+    <input type="range" class="val-slider" id="depth-slider" min="30" max="420" step="1" value="180">
+    <button id="clear-btn">Clear</button>
+  </Fragment>
+
+  <Fragment slot="help">
+    <div class="help-row"><span class="help-keys"><kbd>C</kbd></span><span class="help-desc">Clear dots</span></div>
+    <div class="help-row"><span class="help-keys"><kbd>E</kbd></span><span class="help-desc">Toggle brightness fade</span></div>
+  </Fragment>
+
+  <script>
+    // ── Config ─────────────────────────────────────────────────────────────────
+    const REFLECTANCE    = 0.5;
+    const MAX_BOUNCES    = 1;
+    const SPRAY_COUNT    = 15;
+    const SPRAY_SPREAD   = Math.PI / 8;  // ±22.5° around preview direction
+    const HOLD_DELAY_MS  = 400;
+    const HOLD_RATE_MS   = 100;
+    const DOT_RADIUS     = 3.5;
+    const DOT_ALPHA      = 0.08;  // opacity per dot — accumulates additively
+    const RAY_WIDTH      = 1.5;   // px — preview ray line width
+    const CAVE_THICKNESS = 16;    // px — visual depth of cave ceiling/wall slabs
+    const GROUND_Y_FRAC  = 0.72;
+    const CAVE_X_FRAC    = 0.55;  // cave opening x as fraction of canvas width
+    const CAVE_HEIGHT    = 90;    // px — fixed ceiling height above ground
+
+    // Light source position in logical px (upper-left, fixed)
+    const LIGHT = { x: 600, y: 200 };
+
+    // ── Canvas / context ───────────────────────────────────────────────────────
+    const canvas = document.getElementById('demo-canvas') as HTMLCanvasElement;
+    const ctx    = canvas.getContext('2d')!;
+    const dpr    = window.devicePixelRatio || 1;
+
+    // Offscreen canvas that accumulates dots with additive blending.
+    // Never cleared except on user action; composited onto the main canvas each redraw.
+    const dotsCanvas = document.createElement('canvas');
+    const dotsCtx    = dotsCanvas.getContext('2d')!;
+
+    // ── Derived geometry (recomputed on resize) ────────────────────────────────
+    let groundY   = 0;  // y of ground line
+    let caveOpenX = 0;  // x of cave left opening
+    let ceilY     = 0;  // y of cave ceiling
+
+    function updateGeometry() {
+      groundY   = window.innerHeight * GROUND_Y_FRAC;
+      caveOpenX = window.innerWidth  * CAVE_X_FRAC;
+      ceilY     = groundY - CAVE_HEIGHT;
+    }
+
+    // ── State ──────────────────────────────────────────────────────────────────
+    let caveDepth      = 180;
+    let brightnessMode = true;
+
+    // Preview state: incidence hit + one sampled bounce, stored in drawPreview(),
+    // consumed by fireAt() so a single click fires exactly what the preview shows.
+    type Preview = { ix: number; iy: number; bounceHit: boolean; bx: number; by: number };
+    let preview: Preview | null = null;
+
+    let mouseX = 0, mouseY = 0;
+    let holdTimer:    ReturnType<typeof setTimeout>  | null = null;
+    let holdInterval: ReturnType<typeof setInterval> | null = null;
+
+    // ── Geometry: line segments with outward normals ───────────────────────────
+    // nx,ny = outward surface normal (points toward the side a ray hits from)
+    type Seg = { ax: number; ay: number; bx: number; by: number; nx: number; ny: number };
+
+    function getSegments(): Seg[] {
+      const backX   = caveOpenX + caveDepth;
+      const insideY = ceilY + CAVE_THICKNESS; // underside of ceiling slab
+      return [
+        // Ground — normal points up (rays hit from above)
+        { ax: 0,         ay: groundY, bx: 9999,  by: groundY, nx:  0, ny: -1 },
+        // Cave top face — extends to backX+CAVE_THICKNESS so the corner is solid
+        { ax: caveOpenX,             ay: ceilY,   bx: backX + CAVE_THICKNESS, by: ceilY,   nx:  0, ny: -1 },
+        // Cave inside ceiling — normal points down (upward bounced rays hit this)
+        { ax: caveOpenX, ay: insideY, bx: backX,  by: insideY, nx:  0, ny:  1 },
+        // Cave back wall left face — normal points left (rays hit from inside cave)
+        { ax: backX,     ay: insideY, bx: backX,  by: groundY, nx: -1, ny:  0 },
+        // Cave back wall right face — normal points right (blocks rays coming from the right)
+        { ax: backX + CAVE_THICKNESS, ay: ceilY, bx: backX + CAVE_THICKNESS, by: groundY, nx: 1, ny: 0 },
+      ];
+    }
+
+    // ── Math ───────────────────────────────────────────────────────────────────
+    // Returns t > 0 where the ray px+t*dx, py+t*dy hits segment A→B, or null.
+    function raySegIntersect(
+      px: number, py: number, dx: number, dy: number,
+      ax: number, ay: number, bx: number, by: number
+    ): number | null {
+      const ex = bx - ax, ey = by - ay;
+      const det = -dx * ey + dy * ex;
+      if (Math.abs(det) < 1e-9) return null;
+      const fx = ax - px, fy = ay - py;
+      const t  = (-ey * fx + ex * fy) / det;
+      const s  = (-dy * fx + dx * fy) / det;
+      return (t > 1e-4 && s >= 0 && s <= 1) ? t : null;
+    }
+
+    // Lambertian 2D: sample angle θ = arcsin(2u−1) from the surface normal.
+    // Gives a cosine-weighted distribution in 2D.
+    function lambertianBounce(nx: number, ny: number): { dx: number; dy: number } {
+      const theta = Math.asin(Math.random() * 2 - 1);
+      const c = Math.cos(theta), s = Math.sin(theta);
+      return { dx: c * nx - s * ny, dy: s * nx + c * ny };
+    }
+
+    // Find the closest segment hit by a ray, skipping surfaces facing away.
+    function firstHit(
+      fromX: number, fromY: number, dirX: number, dirY: number, segs: Seg[]
+    ): { t: number; seg: Seg } | null {
+      let minT = Infinity, hitSeg: Seg | null = null;
+      for (const seg of segs) {
+        if (dirX * seg.nx + dirY * seg.ny >= 0) continue; // ray faces away from normal
+        const t = raySegIntersect(fromX, fromY, dirX, dirY, seg.ax, seg.ay, seg.bx, seg.by);
+        if (t !== null && t < minT) { minT = t; hitSeg = seg; }
+      }
+      return hitSeg ? { t: minT, seg: hitSeg } : null;
+    }
+
+    // ── Dot accumulation ──────────────────────────────────────────────────────
+    function addDot(x: number, y: number, energy = 1.0) {
+      dotsCtx.globalCompositeOperation = 'lighter';
+      dotsCtx.fillStyle = `rgba(255,255,255,${DOT_ALPHA * (brightnessMode ? energy : 1.0)})`;
+      dotsCtx.beginPath();
+      dotsCtx.arc(x, y, DOT_RADIUS, 0, Math.PI * 2);
+      dotsCtx.fill();
+    }
+
+    function clearDots() {
+      dotsCtx.setTransform(1, 0, 0, 1, 0, 0);
+      dotsCtx.clearRect(0, 0, dotsCanvas.width, dotsCanvas.height);
+      dotsCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    // ── Ray tracing ────────────────────────────────────────────────────────────
+    function traceRay(
+      fromX: number, fromY: number,
+      dirX:  number, dirY:  number,
+      energy = 1.0, bounces = MAX_BOUNCES
+    ) {
+      const len = Math.hypot(dirX, dirY);
+      if (len < 1e-9) return;
+      dirX /= len; dirY /= len;
+
+      const hit = firstHit(fromX, fromY, dirX, dirY, getSegments());
+      if (!hit) return;
+
+      const hx = fromX + dirX * hit.t;
+      const hy = fromY + dirY * hit.t;
+      addDot(hx, hy, energy);
+
+      if (bounces > 0) {
+        const b = lambertianBounce(hit.seg.nx, hit.seg.ny);
+        traceRay(hx, hy, b.dx, b.dy, energy * REFLECTANCE, bounces - 1);
+      }
+    }
+
+    // ── Firing ────────────────────────────────────────────────────────────────
+    // Single click: place dots at exactly the incidence + bounce shown in the preview.
+    function fireAt() {
+      if (!preview) return;
+      addDot(preview.ix, preview.iy, 1.0);
+      if (preview.bounceHit) addDot(preview.bx, preview.by, REFLECTANCE);
+      redraw();
+    }
+
+    // Hold spray: each ray traces independently with its own random bounce.
+    function fireSpray() {
+      const baseAngle = Math.atan2(mouseY - LIGHT.y, mouseX - LIGHT.x);
+      for (let i = 0; i < SPRAY_COUNT; i++) {
+        const a = baseAngle + (Math.random() * 2 - 1) * SPRAY_SPREAD;
+        traceRay(LIGHT.x, LIGHT.y, Math.cos(a), Math.sin(a));
+      }
+      redraw();
+    }
+
+    function startHold() {
+      fireAt();
+      holdTimer = setTimeout(() => {
+        holdInterval = setInterval(fireSpray, HOLD_RATE_MS);
+      }, HOLD_DELAY_MS);
+    }
+
+    function stopHold() {
+      if (holdTimer)    { clearTimeout(holdTimer);     holdTimer    = null; }
+      if (holdInterval) { clearInterval(holdInterval); holdInterval = null; }
+    }
+
+    // ── Drawing ────────────────────────────────────────────────────────────────
+    function drawPreview() {
+      const dx = mouseX - LIGHT.x, dy = mouseY - LIGHT.y;
+      const len = Math.hypot(dx, dy);
+      preview = null;
+      if (len < 1) return;
+      const ndx = dx / len, ndy = dy / len;
+      const segs = getSegments();
+
+      ctx.lineWidth = RAY_WIDTH;
+      ctx.lineCap   = 'round';
+
+      // Incidence ray — from light to first surface hit
+      const incHit = firstHit(LIGHT.x, LIGHT.y, ndx, ndy, segs);
+      const incEndX = incHit ? LIGHT.x + ndx * incHit.t : LIGHT.x + ndx * 2000;
+      const incEndY = incHit ? LIGHT.y + ndy * incHit.t : LIGHT.y + ndy * 2000;
+
+      ctx.beginPath();
+      ctx.moveTo(LIGHT.x, LIGHT.y);
+      ctx.lineTo(incEndX, incEndY);
+      ctx.strokeStyle = incHit ? 'rgba(255,255,255,0.35)' : 'rgba(120,120,120,0.3)';
+      ctx.stroke();
+
+      if (!incHit) return;
+
+      // Bounce ray — one Lambertian sample from the incidence hit (resampled each move)
+      const b   = lambertianBounce(incHit.seg.nx, incHit.seg.ny);
+      const bHit = firstHit(incEndX, incEndY, b.dx, b.dy, segs);
+      const bEndX = bHit ? incEndX + b.dx * bHit.t : incEndX + b.dx * 2000;
+      const bEndY = bHit ? incEndY + b.dy * bHit.t : incEndY + b.dy * 2000;
+
+      ctx.beginPath();
+      ctx.moveTo(incEndX, incEndY);
+      ctx.lineTo(bEndX, bEndY);
+      ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+      ctx.stroke();
+
+      // Store for use by fireAt()
+      preview = { ix: incEndX, iy: incEndY, bounceHit: !!bHit, bx: bEndX, by: bEndY };
+    }
+
+    function redraw() {
+      const W = window.innerWidth, H = window.innerHeight;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.fillStyle = '#222222';
+      ctx.fillRect(0, 0, W, H);
+
+      const backX = caveOpenX + caveDepth;
+
+      // Ground line
+      ctx.strokeStyle = '#888888';
+      ctx.lineWidth   = 2;
+      ctx.lineCap     = 'round';
+      ctx.beginPath();
+      ctx.moveTo(0, groundY);
+      ctx.lineTo(W, groundY);
+      ctx.stroke();
+
+      // Cave ceiling slab — extended by CAVE_THICKNESS so it meets the back wall corner
+      const insideY = ceilY + CAVE_THICKNESS;
+      ctx.fillStyle = '#555555';
+      ctx.fillRect(caveOpenX, ceilY, caveDepth + CAVE_THICKNESS, CAVE_THICKNESS);
+
+      // Top face (full width including corner)
+      ctx.beginPath(); ctx.moveTo(caveOpenX, ceilY);   ctx.lineTo(backX + CAVE_THICKNESS, ceilY);   ctx.stroke();
+      // Inside ceiling (underside, stops at back wall left face)
+      ctx.beginPath(); ctx.moveTo(caveOpenX, insideY); ctx.lineTo(backX, insideY); ctx.stroke();
+
+      // Cave back wall slab
+      ctx.fillStyle = '#555555';
+      ctx.fillRect(backX, insideY, CAVE_THICKNESS, groundY - insideY);
+      // Left face (hit surface for rays inside cave)
+      ctx.beginPath(); ctx.moveTo(backX, insideY); ctx.lineTo(backX, groundY); ctx.stroke();
+      // Right face — runs from ceilY to close the corner with the ceiling top
+      ctx.beginPath(); ctx.moveTo(backX + CAVE_THICKNESS, ceilY); ctx.lineTo(backX + CAVE_THICKNESS, groundY); ctx.stroke();
+
+      // Light source
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(LIGHT.x, LIGHT.y, 5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Composite accumulated dots (drawn additively onto dotsCanvas)
+      ctx.drawImage(dotsCanvas, 0, 0, window.innerWidth, window.innerHeight);
+
+      drawPreview();
+    }
+
+    // ── Events ─────────────────────────────────────────────────────────────────
+    canvas.addEventListener('pointermove', e => {
+      mouseX = e.clientX; mouseY = e.clientY;
+      redraw();
+    });
+
+    canvas.addEventListener('pointerdown', e => {
+      mouseX = e.clientX; mouseY = e.clientY;
+      canvas.setPointerCapture(e.pointerId);
+      startHold();
+    });
+
+    canvas.addEventListener('pointerup',    stopHold);
+    canvas.addEventListener('pointerleave', stopHold);
+
+    // ── Panel wiring ───────────────────────────────────────────────────────────
+    const energyToggle = document.getElementById('energy-toggle') as HTMLInputElement;
+    energyToggle.addEventListener('change', () => {
+      brightnessMode = energyToggle.checked;
+      redraw();
+    });
+
+    const depthSlider = document.getElementById('depth-slider') as HTMLInputElement;
+    const depthVal    = document.getElementById('depth-val')!;
+    depthSlider.addEventListener('input', () => {
+      caveDepth = parseInt(depthSlider.value);
+      depthVal.textContent = depthSlider.value;
+      clearDots(); // old dots are geometrically wrong after depth changes
+      redraw();
+    });
+
+    document.getElementById('clear-btn')!.addEventListener('click', () => {
+      clearDots();
+      redraw();
+    });
+
+    window.addEventListener('keydown', e => {
+      switch (e.key) {
+        case 'c': case 'C':
+          clearDots(); redraw(); break;
+        case 'e': case 'E':
+          energyToggle.checked = !energyToggle.checked;
+          brightnessMode = energyToggle.checked;
+          redraw(); break;
+      }
+    });
+
+    // ── Resize ─────────────────────────────────────────────────────────────────
+    function setSize() {
+      const W = window.innerWidth, H = window.innerHeight;
+      canvas.width  = W * dpr; canvas.style.width  = W + 'px';
+      canvas.height = H * dpr; canvas.style.height = H + 'px';
+      // Resizing dotsCanvas clears it (acceptable) and resets its transform
+      dotsCanvas.width  = W * dpr;
+      dotsCanvas.height = H * dpr;
+      dotsCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      updateGeometry();
+      redraw();
+    }
+    setSize();
+    window.addEventListener('resize', setSize);
+  </script>
+
+</DemoLayout>
